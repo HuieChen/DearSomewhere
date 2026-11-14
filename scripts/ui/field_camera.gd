@@ -4,6 +4,7 @@ signal closed
 signal photo_saved(path:String)
 signal caption_saved(path:String,text:String)
 signal album_saved(path:String)
+signal actor_visibility_changed(visible:bool)
 signal pending_save_finished
 signal cue(kind:String)
 const FONT=preload("res://assets/fonts/DearRounded.tres")
@@ -19,6 +20,7 @@ var initial_photo_path:=""
 var capture_provider:Callable
 var pan_provider:Callable
 var zoom_provider:Callable
+var interaction_sensitivity:float=1.0
 var reset_provider:Callable
 var _dragging:=false
 var _held_pan:Dictionary={}
@@ -48,7 +50,7 @@ var _slot:Control
 var _flash:ColorRect
 var _closing:=false
 var _animation:Tween
-var _status_serial:=0
+var _status_timer:Timer
 var _caption_editor:TextEdit
 var _caption_notice:Label
 var _caption_timer:Timer
@@ -63,6 +65,9 @@ var last_album_path:=""
 var instant_format:=false
 var _format_button:Button
 var lab:RefCounted
+var _favorite:Button
+var _actor_button:Button
+var include_actor:=true
 
 class ArtButton extends Button:
 	var art:Texture2D
@@ -137,35 +142,47 @@ func _ready()->void:
 		var focus_atlas:=AtlasTexture.new();focus_atlas.atlas=texture;focus_atlas.region=Rect2(638,285,388,262);focus_atlas.filter_clip=true
 		_focus_marks=TextureRect.new();_focus_marks.name="FocusMarks";_focus_marks.texture=focus_atlas;_focus_marks.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;_focus_marks.mouse_filter=Control.MOUSE_FILTER_IGNORE
 		_place(_focus_marks,canvas,Rect2(645,345,310,209))
-	var heading:=_label(_t("相机","Camera"),Rect2(80,60,300,42),30)
+	var heading:=_label(_t("相机","Camera"),Rect2(80,60,180,46),28)
 	heading.name="CameraHeading"
-	_format_button=_button(_t("横向照片  ⇄  R","Landscape  ⇄  R"),Rect2(540,65,520,48),24)
+	_format_button=_button(_t("横向照片  ⇄  R","Landscape  ⇄  R"),Rect2(540,60,520,50),24)
 	_format_button.name="PhotoFormat";_format_button.tooltip_text=_t("切换相纸 · R","Switch format · R");_format_button.pressed.connect(_toggle_format)
-	count_label=_label("",Rect2(1130,60,280,42),24,HORIZONTAL_ALIGNMENT_RIGHT)
-	_label(location_caption,Rect2(270,800,430,38),22)
+	count_label=_label("",Rect2(1170,60,240,46),24,HORIZONTAL_ALIGNMENT_RIGHT)
+	_label(location_caption,Rect2(250,796,360,42),22)
 	shutter=ArtButton.new();shutter.name="CameraShutter";shutter.round_hit=true
 	if texture:
 		var button_atlas:=AtlasTexture.new();button_atlas.atlas=texture;button_atlas.region=Rect2(744,754,182,182);button_atlas.filter_clip=true;shutter.art=button_atlas
 	_place(shutter,canvas,Rect2(748,724,104,104));shutter.tooltip_text=_t("拍照 · C","Take photo · C");shutter.pressed.connect(take_photo)
 	_label("C",Rect2(755,831,90,26),18,HORIZONTAL_ALIGNMENT_CENTER)
-	thumbnail=ArtButton.new();thumbnail.name="LastPhoto";thumbnail.tooltip_text=_t("查看照片","View photos");_place(thumbnail,canvas,Rect2(82,760,120,84));thumbnail.pressed.connect(func():_show_review(_thumbnail_index))
-	status_label=_label("",Rect2(950,788,450,42),23)
+	thumbnail=ArtButton.new();thumbnail.name="LastPhoto";thumbnail.tooltip_text=_t("查看照片","View photos");_place(thumbnail,canvas,Rect2(82,748,120,84));thumbnail.pressed.connect(func():_show_review(_thumbnail_index))
+	status_label=_label("",Rect2(1020,798,410,42),21);status_label.hide()
 	if pan_provider.is_valid() and not gallery_only:
 		_label(_t("拖动取景 · 方向键微调","Drag to frame · Arrow keys"),Rect2(1080,680,380,36),19,HORIZONTAL_ALIGNMENT_CENTER)
 		for spec:Array in [["ZoomOut","−",1100.0],["ResetComposition",_t("复位","Reset"),1190.0],["ZoomIn","+",1340.0]]:
 			var control:=_button(str(spec[1]),Rect2(float(spec[2]),725,140 if spec[0]=="ResetComposition" else 70,48),25)
 			control.name=str(spec[0]);_composition_buttons.append(control)
 			if spec[0]=="ResetComposition":control.pressed.connect(func():if _can_pan() and reset_provider.is_valid():reset_provider.call())
-			else:control.pressed.connect(func():if _can_pan() and zoom_provider.is_valid():zoom_provider.call(-.1 if spec[0]=="ZoomOut" else .1))
+			else:control.pressed.connect(func():
+				if _can_pan() and zoom_provider.is_valid():
+					zoom_provider.call((-0.1 if spec[0]=="ZoomOut" else 0.1)*interaction_sensitivity);cue.emit("paper"))
 	_print_clip=Control.new();_print_clip.name="PhotoEjection";_print_clip.clip_contents=true;_print_clip.mouse_filter=Control.MOUSE_FILTER_IGNORE;_place(_print_clip,canvas,Rect2(660,646,280,244));_print_clip.hide()
 	_print_paper=PhotoPaper.new();_print_paper.mouse_filter=Control.MOUSE_FILTER_IGNORE;_place(_print_paper,_print_clip,Rect2(0,-192,280,192))
 	_slot=PrintSlot.new();_slot.mouse_filter=Control.MOUSE_FILTER_IGNORE;_place(_slot,canvas,Rect2(648,636,304,20));_slot.hide()
 	_flash=ColorRect.new();_flash.name="ShutterFlash";_flash.color=Color("fff7df");_flash.mouse_filter=Control.MOUSE_FILTER_IGNORE;_place(_flash,canvas,Rect2(Vector2.ZERO,DESIGN));_flash.modulate.a=0.0
 	for node:Node in canvas.get_children():
 		if node is CanvasItem:_live_nodes.append(node)
-	if lab!=null:lab.build(canvas)
-	var close:=_button("×",Rect2(1470,42,74,68),42);close.name="CloseCamera";close.tooltip_text=_t("关闭相机","Close camera");close.pressed.connect(_request_close)
+	if lab!=null:
+		lab.build(canvas)
+		_actor_button=_button(_t("人物：显示","Character: on"),Rect2(420,128,300,48),24)
+		_actor_button.name="CameraActor"
+		_actor_button.pressed.connect(func():
+			include_actor=not include_actor
+			_actor_button.text=_t("人物：显示","Character: on") if include_actor else _t("人物：隐藏","Character: off")
+			actor_visibility_changed.emit(include_actor))
+	var close:=_button("×",Rect2(1470,48,66,60),36);close.name="CloseCamera";close.tooltip_text=_t("关闭相机","Close camera");close.pressed.connect(_request_close)
 	_build_review();_refresh_count();_refresh_thumbnail()
+	_favorite=_button(_t("收藏","Favorite"),Rect2(650,22,300,48),24)
+	_favorite.name="FavoritePhoto";_favorite.reparent(_review)
+	_favorite.pressed.connect(_toggle_favorite)
 	resized.connect(_layout);_layout()
 	if gallery_only:
 		for node:CanvasItem in _live_nodes:node.hide()
@@ -196,15 +213,30 @@ func _fit_review_print()->void:
 	_caption_editor.position=Vector2(28,490) if square else Vector2(50,518)
 	_caption_editor.size=Vector2(424,132) if square else Vector2(804,78)
 	_review_paper.queue_redraw()
+func _control_skin(fill:Color,edge:Color=Color("c5b69b"))->StyleBoxFlat:
+	var style:=StyleBoxFlat.new();style.bg_color=fill;style.set_corner_radius_all(14)
+	style.set_border_width_all(1);style.border_color=edge
+	style.shadow_color=Color(.18,.20,.17,.18);style.shadow_size=3;style.shadow_offset=Vector2(0,3)
+	style.content_margin_left=14;style.content_margin_right=14
+	return style
 func _label(text:String,rect:Rect2,font_size:int,align:HorizontalAlignment=HORIZONTAL_ALIGNMENT_LEFT)->Label:
 	var label:=Label.new();label.text=text;label.horizontal_alignment=align;label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER;label.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_override("font",FONT);label.add_theme_font_size_override("font_size",font_size);label.add_theme_color_override("font_color",Color("fff5dc"));label.add_theme_color_override("font_shadow_color",Color(0.25,0.25,0.19,0.8));label.add_theme_constant_override("shadow_offset_x",1);label.add_theme_constant_override("shadow_offset_y",2)
+	label.add_theme_font_override("font",FONT);label.add_theme_font_size_override("font_size",font_size)
+	label.add_theme_color_override("font_color",Color("514c40"))
+	label.add_theme_stylebox_override("normal",_control_skin(Color("f5ecd9")))
 	_place(label,canvas,rect);return label
 func _button(text:String,rect:Rect2,font_size:int)->Button:
-	var button:=Button.new();button.text=text;button.flat=true;button.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
+	var button:=Button.new();button.text=text;button.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
 	button.add_theme_font_override("font",FONT);button.add_theme_font_size_override("font_size",font_size)
-	for state:String in ["normal","hover","pressed","focus"]:button.add_theme_stylebox_override(state,StyleBoxEmpty.new())
-	button.add_theme_color_override("font_color",Color("fff5dc"));button.add_theme_color_override("font_hover_color",Color("c8e8ce"));button.add_theme_color_override("font_pressed_color",Color("e1ca9d"));button.add_theme_color_override("font_focus_color",Color("c8e8ce"));button.add_theme_color_override("font_outline_color",Color("5a6151"));button.add_theme_constant_override("outline_size",2)
+	for state:String in ["normal","hover","pressed","disabled"]:
+		var fill:=Color("f5ecd9")
+		if state=="hover":fill=Color("dfebd9")
+		elif state=="pressed":fill=Color("bdcfb9")
+		elif state=="disabled":fill=Color("ded8c9")
+		button.add_theme_stylebox_override(state,_control_skin(fill))
+		button.add_theme_color_override("font_"+state+"_color",Color("514c40") if state!="disabled" else Color("918b7b"))
+	var focus:=_control_skin(Color(0,0,0,0),Color("54786f"));focus.set_border_width_all(3);focus.shadow_size=0
+	button.add_theme_stylebox_override("focus",focus);button.add_theme_color_override("font_color",Color("514c40"));button.add_theme_color_override("font_focus_color",Color("354d46"))
 	_place(button,canvas,rect);return button
 func _build_review()->void:
 	_review=Control.new();_review.name="PhotoReview";_review.mouse_filter=Control.MOUSE_FILTER_STOP;_place(_review,canvas,Rect2(Vector2.ZERO,DESIGN));_review.hide()
@@ -221,8 +253,8 @@ func _build_review()->void:
 	_caption_notice=_label("",Rect2(420,730,760,32),21,HORIZONTAL_ALIGNMENT_CENTER);_caption_notice.reparent(_review)
 	for item:Array in [["PreviousPhoto","‹",Rect2(228,340,90,100),-1],["NextPhoto","›",Rect2(1282,340,90,100),1]]:
 		var button:=_button(item[1],item[2],54);button.reparent(_review);button.name=item[0];button.pressed.connect(func():_step_review(int(item[3])))
-	_album_button=_button(_t("保存到相册","Save to album"),Rect2(382,774,390,64),28);_album_button.reparent(_review);_album_button.name="SaveToAlbum";_album_button.disabled=true;_album_button.pressed.connect(export_current_photo)
-	_album_open=_button(_t("查看相册","Open album"),Rect2(1176,730,240,36),21);_album_open.reparent(_review);_album_open.name="OpenAlbum";_album_open.hide()
+	_album_button=_button(_t("导出照片","Export photo"),Rect2(382,774,390,64),28);_album_button.reparent(_review);_album_button.name="SaveToAlbum";_album_button.disabled=true;_album_button.pressed.connect(export_current_photo)
+	_album_open=_button(_t("打开文件夹","Open folder"),Rect2(1176,730,240,36),21);_album_open.reparent(_review);_album_open.name="OpenAlbum";_album_open.hide()
 	_album_open.pressed.connect(func():
 		if not last_album_path.is_empty() and OS.shell_open(ProjectSettings.globalize_path(last_album_path).get_base_dir())!=OK:_caption_notice.text=_t("相册无法打开，请在图片目录查看","Open Pictures / Dear Somewhere to find your photo."))
 	var back:=_button(_t("返回背包","Back to bag") if gallery_only else _t("继续拍摄","Back to camera"),Rect2(828,774,390,64),28);back.reparent(_review);back.name="BackToCamera";back.pressed.connect(_leave_review)
@@ -393,7 +425,7 @@ func _show_review(index:int)->void:
 	_caption_editor.show();_review_paper.show()
 	_review_paper.image=ImageTexture.create_from_image(pixels);_review_paper.reveal=1.0;_set_review_active(true)
 	_fit_review_print()
-	_update_review_controls();_album_open.hide()
+	_update_review_controls();_album_open.hide();_refresh_favorite()
 	cue.emit("flip" if was_visible else "paper")
 func _step_review(direction:int)->void:
 	if _closing or _album_busy or capture_busy or gallery_paths.size()<2:return
@@ -415,6 +447,7 @@ func _set_review_active(active:bool)->void:
 	shutter.focus_mode=Control.FOCUS_NONE if active else Control.FOCUS_ALL
 	thumbnail.focus_mode=Control.FOCUS_NONE if active else Control.FOCUS_ALL
 	_format_button.focus_mode=Control.FOCUS_NONE if active else Control.FOCUS_ALL
+	if is_instance_valid(_actor_button):_actor_button.visible=not active
 	if active and not was_active:_review.get_node("BackToCamera").grab_focus()
 func _leave_review()->void:
 	if _album_busy:return
@@ -441,6 +474,7 @@ func take_photo()->void:
 	if not is_inside_tree() or _closing:return
 	show()
 	if pixels==null or pixels.is_empty():_capture_failed(_t("没有拍到，再试一次","Could not capture. Try again."));return
+	var original:Image=pixels.duplicate()
 	if lab!=null:pixels=await lab.render(pixels)
 	if instant_format:
 		var side:=mini(pixels.get_width(),roundi(pixels.get_height()*852.0/900.0))
@@ -453,13 +487,19 @@ func take_photo()->void:
 	var suffix:=0
 	while FileAccess.file_exists(path):suffix+=1;path=save_directory.path_join(stem+"_"+str(suffix)+".png")
 	if pixels.save_png(path)!=OK:_capture_failed(_t("照片没能保存，请重试","Could not save photo. Try again."));return
-	if lab!=null:FileAccess.open(path+".json",FileAccess.WRITE).store_string(JSON.stringify({"version":1,"caption":"","camera":lab.metadata()}))
+	var original_dir:=save_directory.path_join("originals")
+	var original_path:=original_dir.path_join(stem+".png")
+	var original_saved:bool=DirAccess.make_dir_recursive_absolute(original_dir)==OK and original.save_png(original_path)==OK
+	var metadata:=FileAccess.open(path+".json",FileAccess.WRITE)
+	if metadata!=null:
+		metadata.store_string(JSON.stringify({"version":2,"caption":"","favorite":false,"location":location_caption,"original":original_path if original_saved else "","camera":lab.metadata() if lab!=null else {}}))
+
 	last_photo_path=path;gallery_paths.append(path);_refresh_count();_refresh_thumbnail();photo_saved.emit(path)
 	_finish_capture_save()
 	if _closing or not is_inside_tree():return
-	await _develop(ImageTexture.create_from_image(pixels))
-	if not is_inside_tree():return
-	capture_busy=false;shutter.disabled=false;_show_review(gallery_paths.size()-1)
+	capture_busy=false;shutter.disabled=false
+	_status(_t("已保存","Saved") if original_saved else _t("照片已保存；原片备份失败","Photo saved; original backup failed"))
+	_develop(ImageTexture.create_from_image(pixels))
 
 func _capture_failed(message:String)->void:
 	capture_busy=false;shutter.disabled=false;shutter.grab_focus();_status(message)
@@ -471,26 +511,53 @@ func _finish_capture_save()->void:
 	if _close_after_capture:
 		_close_after_capture=false;capture_busy=false;_request_close()
 func _develop(texture:Texture2D)->void:
+	if _animation and _animation.is_valid():_animation.kill()
 	var square:=texture.get_width()<=texture.get_height()*1.1
+	_print_clip.position=Vector2(660,646);_print_clip.size=Vector2(280,244)
+	_print_clip.modulate.a=1.0;_print_clip.show();_slot.show()
 	_print_paper.size=Vector2(140,192) if square else Vector2(280,192)
-	_print_paper.image=texture;_print_paper.reveal=0.0;_print_paper.position=Vector2(0,-192);_print_clip.modulate.a=1.0;_print_clip.show();_slot.show()
-	_print_paper.position.x=70 if square else 0
+	_print_paper.position=Vector2(70 if square else 0,-192)
+	_print_paper.image=texture;_print_paper.reveal=0.0
 	_flash.modulate.a=0.22
+	# Preserve the original slot, paper size and developing rhythm in both formats.
+	# A single owned tween can be replaced by the next shot or cancelled on close.
 	_animation=create_tween().set_parallel(true)
 	_animation.tween_property(_flash,"modulate:a",0.0,0.18)
 	_animation.tween_property(_print_paper,"position:y",20.0,1.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_animation.tween_property(_print_paper,"reveal",1.0,1.1).set_delay(0.3)
-	await _animation.finished
-	await get_tree().create_timer(0.30).timeout
-	if not is_inside_tree():return
-	_animation=create_tween();_animation.tween_property(_print_clip,"modulate:a",0.0,0.20);await _animation.finished
-	_print_clip.hide();_slot.hide()
+	_animation.chain().tween_interval(0.30)
+	_animation.chain().tween_property(_print_clip,"modulate:a",0.0,0.20)
+	_animation.chain().tween_callback(func():_print_clip.hide();_slot.hide())
+
+static func photo_metadata(path:String)->Dictionary:
+	if not FileAccess.file_exists(path+".json"):return {}
+	var data:Variant=JSON.parse_string(FileAccess.get_file_as_string(path+".json"))
+	return data if data is Dictionary else {}
+
+func _refresh_favorite()->void:
+	if not is_instance_valid(_favorite) or _review_index<0:return
+	_favorite.text=_t("已收藏","Favorited") if photo_metadata(gallery_paths[_review_index]).get("favorite",false) else _t("收藏","Favorite")
+
+func _toggle_favorite()->void:
+	if _album_busy or _review_index<0 or not _save_caption():return
+	var path:String=gallery_paths[_review_index]
+	var data:=photo_metadata(path)
+	data.favorite=not bool(data.get("favorite",false))
+	var temp:=path+".favorite.tmp"
+	var file:=FileAccess.open(temp,FileAccess.WRITE)
+	if file==null:_caption_notice.text=_t("未保存，请重试","Not saved. Retry.");return
+	file.store_string(JSON.stringify(data));file.flush();var error:=file.get_error();file.close()
+	if error!=OK or DirAccess.rename_absolute(ProjectSettings.globalize_path(temp),ProjectSettings.globalize_path(path+".json"))!=OK:
+		_caption_notice.text=_t("未保存，请重试","Not saved. Retry.");return
+	_refresh_favorite();cue.emit("paper")
+
 func _status(message:String)->void:
-	_status_serial+=1;status_label.text=message
-	if message.is_empty():return
-	var serial:=_status_serial
-	await get_tree().create_timer(3.2).timeout
-	if is_inside_tree() and serial==_status_serial:status_label.text=""
+	status_label.text=message;status_label.visible=not message.is_empty()
+	if _status_timer==null:
+		_status_timer=Timer.new();_status_timer.one_shot=true;_status_timer.wait_time=3.2;add_child(_status_timer)
+		_status_timer.timeout.connect(func():status_label.text="";status_label.hide())
+	_status_timer.stop()
+	if not message.is_empty():_status_timer.start()
 func request_close()->void:
 	# Host Escape follows the same nested review/back path as local Escape.
 	if gallery_only:_request_close()
@@ -512,12 +579,12 @@ func _input(event:InputEvent)->void:
 		var code:int=event.physical_keycode if event.physical_keycode!=0 else event.keycode
 		if code in [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D]:
 			if not event.pressed:_held_pan.erase(code)
-			if _can_pan() and not event.ctrl_pressed and not event.alt_pressed and not event.meta_pressed:
+			if _can_pan() and not _editing_controls() and not event.ctrl_pressed and not event.alt_pressed and not event.meta_pressed:
 				if event.pressed:_held_pan[code]=true
 				get_viewport().set_input_as_handled();return
 	if _dragging and _can_pan() and event is InputEventMouseMotion:
-		pan_provider.call(event.relative/get_global_transform().get_scale())
-		get_viewport().set_input_as_handled();return
+			pan_provider.call(event.relative/get_global_transform().get_scale()*interaction_sensitivity)
+			get_viewport().set_input_as_handled();return
 	# Photo notes use Tab for navigation, not indentation. Handle it before
 	# TextEdit inserts a tab so keyboard users can reach the save/back controls.
 	if not is_visible_in_tree() or _closing or not _review.visible:return
@@ -528,8 +595,10 @@ func _input(event:InputEvent)->void:
 	get_viewport().set_input_as_handled()
 	var next:Control=_caption_editor.find_prev_valid_focus() if event.shift_pressed else _caption_editor.find_next_valid_focus()
 	if next!=null:next.grab_focus()
+func _editing_controls()->bool:
+	var focus:=get_viewport().gui_get_focus_owner()
+	return focus is Range or focus is OptionButton or focus is LineEdit or focus is TextEdit or (lab!=null and focus!=null and lab.panel.is_ancestor_of(focus))
 func _can_pan()->bool:
-	if lab!=null and lab.panel.visible:return false
 	return pan_provider.is_valid() and is_visible_in_tree() and not gallery_only and not _closing and not capture_busy and not _album_busy and is_instance_valid(_review) and not _review.visible
 func _stop_pan()->void:
 	_dragging=false;_held_pan.clear()
@@ -543,12 +612,12 @@ func _pan_surface_input(event:InputEvent)->void:
 	if event.button_index==MOUSE_BUTTON_LEFT:
 		_dragging=event.pressed;accept_event()
 	elif event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
-		if zoom_provider.is_valid():zoom_provider.call(.1 if event.button_index==MOUSE_BUTTON_WHEEL_UP else -.1)
+		if zoom_provider.is_valid():zoom_provider.call((.1 if event.button_index==MOUSE_BUTTON_WHEEL_UP else -.1)*interaction_sensitivity);cue.emit("paper")
 		accept_event()
 func _process(delta:float)->void:
 	if not _can_pan():_stop_pan();return
 	var direction:=Vector2(float(_held_pan.has(KEY_RIGHT) or _held_pan.has(KEY_D))-float(_held_pan.has(KEY_LEFT) or _held_pan.has(KEY_A)),float(_held_pan.has(KEY_DOWN) or _held_pan.has(KEY_S))-float(_held_pan.has(KEY_UP) or _held_pan.has(KEY_W)))
-	if direction!=Vector2.ZERO:pan_provider.call(-direction.normalized()*300.0*delta)
+	if direction!=Vector2.ZERO:pan_provider.call(-direction.normalized()*300.0*delta*interaction_sensitivity)
 func _unhandled_key_input(event:InputEvent)->void:
 	if not event is InputEventKey or not event.pressed or event.echo:return
 	if event.ctrl_pressed or event.alt_pressed or event.meta_pressed:return
