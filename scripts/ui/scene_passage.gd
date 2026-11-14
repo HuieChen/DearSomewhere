@@ -53,6 +53,13 @@ func _process(delta: float) -> void:
     _frame_time = fposmod(_frame_time + delta, 1.2)
     if not _frames.is_empty():
         _art.texture = _frames[mini(_frames.size() - 1, int(_frame_time / 0.2))]
+    # Fade every loading-layer child with the same coverage value. This keeps
+    # the supplied line art untouched while preventing a caption/texture
+    # ghost from remaining on the destination scene after uncover().
+    if is_instance_valid(_art):
+        _art.modulate.a = coverage * 0.96
+    if is_instance_valid(_caption):
+        _caption.modulate.a = coverage
     _layout()
     queue_redraw()
 
