@@ -1,3 +1,7 @@
+## 2026-11-16 — Continuous supporting-foot motion
+
+Corrected between-frame skating by measuring source sole travel and continuously articulating the original boot pixels. Rendered contact sampling now covers intermediate frames in both directions and sizes; source checks pass 231/231. Native rightward start/arrival and leftward start were observed. Source artwork and original turns remain intact; subjective motion acceptance remains open. See [CONTINUOUS_FOOTPLANT_20261116.md](docs/testing/CONTINUOUS_FOOTPLANT_20261116.md).
+
 ## 2026-11-16 — Map badge and integration review
 
 Localized the post-office hub badge with the shared rounded font and measured text layout. Preserved the no-light map, newer paper navigation, recorder and walk changes. Final integrated PCK passes 315 scoped offscreen GPU/input/audio-data checks; zh/en layouts and normal-speed map footage inspected. Updated stale dismissal timing and isolated recorder fixture focus/FPS; initial failed runs remain documented. Native/listening acceptance is separate. See [MAP_REFINEMENT_20261116.md](docs/testing/MAP_REFINEMENT_20261116.md).
