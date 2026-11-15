@@ -18,6 +18,7 @@ def main():
     manifest = json.loads((DIRECTORY / "walk.json").read_text(encoding="utf-8"))
     entries = {}
     reference = None
+    reference_cap = None
     for frame in manifest["frames"]:
         path = ROOT / frame["path"].removeprefix("res://")
         assert hashlib.sha256(path.read_bytes()).hexdigest() == frame["sha256"]
@@ -40,7 +41,13 @@ def main():
             reference = head.copy()
         score, translation = cv2.findTransformECC(reference, head, np.eye(2, 3, dtype="float32"), cv2.MOTION_TRANSLATION, (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 100, 1e-5))
         assert score > 0.75
-        entries[path.name] = {"source_sha256": frame["sha256"], "clear_spans": spans, "removed_pixels": int(remove.sum()), "head_translation_px": [round(float(value * 4), 4) for value in translation[:, 2]], "registration_score": round(float(score), 5)}
+        r, g, b = pixels[:800, :, :3].astype(float).transpose(2, 0, 1) / 255.0
+        cap_mask = ((alpha[:800] > 230) & (r > .18) & (r < .5) & (g < .4)
+                    & (r > g * 1.15) & (b < .2) & (g > .08))
+        cap_y = float(np.where(cap_mask)[0].mean())
+        if reference_cap is None:
+            reference_cap = cap_y
+        entries[path.name] = {"source_sha256": frame["sha256"], "clear_spans": spans, "removed_pixels": int(remove.sum()), "head_translation_px": [round(float(value * 4), 4) for value in translation[:, 2]], "registration_score": round(float(score), 5), "vertical_cap_translation_px": round(cap_y-reference_cap,4)}
         print(path.name, "removed", int(remove.sum()), "head", entries[path.name]["head_translation_px"])
     (DIRECTORY / "runtime_registration.json").write_text(json.dumps({"method": "connected alpha support plus rigid upper-body translation; no source rewrite", "frames": entries}, separators=(",", ":")) + "\n", encoding="utf-8")
 

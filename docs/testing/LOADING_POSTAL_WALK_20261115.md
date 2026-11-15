@@ -1,0 +1,12 @@
+# Loading, postal landmark and walking corrections
+
+The latest screenshots override the former paper-button and loading layout. Changes are sequential implementation, art, input and rendering review passes; no independent reviewer or full-game acceptance is implied.
+
+- Re-extracted all six cyan loading frames from the supplied HEVC using native alpha. Earlier RGB-derived opacity incorrectly exposed hidden matte data and inflated the common crop. Original video and line pixels remain unchanged; the new alpha union is `(1492,584,2329,1917)`.
+- Large centered line composition (400 x 550 at 1600 x 900), supplied wave PNG below it. Flow and eased progress affect only blue water; lettering/frame remain authored. Start displays the complete cycle; short swaps keep the prior framebuffer and dissolve to the destination in 380 ms with no ivory flash or extra loading cue.
+- Static ivory cotton-pulp shader replaces the scratch-like tiled presentation. Multiscale paper grain and short fibers are visible without animated texture noise. Coverage is applied once, including final-frame visibility cleanup.
+- Confirmation actions now match Settings: ivory rounded rectangles, blue typography, restrained press/hover feedback and visible keyboard focus. Existing cancel/save/quit callbacks remain intact.
+- Permanent postal landmark uses a teal envelope/name badge: 邮局 / Post office. Other locations retain transient cream captions; the postal hover does not add a duplicate label. Source map PNG is unchanged.
+- The previous gait smoothing retained the full captured upper-body vertical drift. Register every source pose, refine cap height from immutable PNG measurements, and retain 10 percent of the continuous authored bob. Boots and the original turn sequence are unchanged. Rendered cap drift is 1.193 px at 156 actor height and 1.732 px at the actual street height of 295.
+
+Validation before final export: loading lifecycle/alpha/layout/GPU crossfade 20 checks; bilingual Start/confirmation UI 17; paper navigation 30; postal source-pixel/focus/responsive checks 118; walking GPU silhouette/contact/vertical registration 11; original walk-turn continuity 60. Final exported-PCK reruns and native mouse verification are recorded with the package receipt. Existing raw-image loader warnings are expected because the audited package explicitly includes their exact bytes; these are not hidden failures. Full subjective motion/audio acceptance remains separate.

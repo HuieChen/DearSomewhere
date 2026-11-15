@@ -194,7 +194,7 @@ func _load_supplied_walk() -> void:
 		_walk_keys.append(key)
 		var measured:Dictionary=_runtime_registration().get(str(data.frames[index].path).get_file(),{})
 		var offset:Array=measured.get("head_translation_px",[0.0,0.0])
-		_head_offsets.append(Vector2(float(offset[0]),float(offset[1])))
+		_head_offsets.append(Vector2(float(offset[0]),float(measured.get("vertical_cap_translation_px",offset[1]))))
 		_poses[key] = prepared[index]
 		_frame_geometry[key] = data.frames[index]
 		_cycle_seconds += float(data.frames[index].duration_seconds)
@@ -384,7 +384,10 @@ func _draw_walk_cycle(seconds:float,opacity:float)->void:
 		var next:=_head_offsets[(index+1)%count]
 		var after:=_head_offsets[(index+2)%count]
 		var continuous:=current.cubic_interpolate(next,before,after,weight)
-		shift=continuous-current
+		# Each measured offset is source-minus-reference. Negate it to
+		# register the current pose, then retain only a tenth of the authored
+		# head bob. The previous smoothing retained the entire captured vertical drift.
+		shift=continuous*0.10-current
 	_draw_pose(_walk_keys[index],opacity,shift)
 
 func _draw_pose(key:String,opacity:float,upper_shift:Vector2=Vector2.ZERO)->void:

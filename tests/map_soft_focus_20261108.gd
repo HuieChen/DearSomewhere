@@ -64,6 +64,8 @@ func run()->void:
 		if child is Button and child.text=="×":close=child
 	await move(Vector2(20,20));close.grab_focus();await settle()
 	var baseline:Image=await frame("neutral")
+	var postal_sample:=Vector2i(hub_center+Vector2(24,0))
+	check(baseline.get_pixelv(postal_sample).g>baseline.get_pixelv(postal_sample).r+0.2,"permanent teal postal badge is visible with pointer and focus elsewhere")
 	check(map._caption.modulate.a==0.0,"No destination caption when close has focus and pointer is off map")
 	for entry:Array in Map.SOURCE_HOTSPOTS:
 		var id:String=entry[0];var button:Button=map.get_node("Map_"+id)
@@ -72,9 +74,10 @@ func run()->void:
 		var allowed:Rect2=map._caption.get_global_rect().grow(4.0)
 		var delta:=compare(baseline,current,map.get_global_rect(),allowed)
 		measurements[id]=delta
+		check(current.get_pixelv(postal_sample).is_equal_approx(baseline.get_pixelv(postal_sample)),id+" hover preserves permanent postal badge")
 		check(delta.outside_samples==0,id+" pixels outside the relocated caption stay unchanged on hover")
 		check(map.material==null,id+" no lighting shader is applied to the map")
-		check(map._caption.modulate.a==1.0,id+" location caption provides visible selection feedback")
+		check(map._caption.modulate.a==(0.0 if id=="post_office" else 1.0),id+" postal badge avoids duplicate captions; other locations retain feedback")
 		check(map._caption.text==Map.DESTINATION_NAMES[id][0],id+" caption names the exact landmark")
 		check(map._caption.position.y>0 and map._caption.position.y+map._caption.size.y<map.size.y and map._caption.position.distance_to(button.position)<350,id+" caption stays beside selected landmark inside parchment")
 		check(map._caption.focus_mode==Control.FOCUS_NONE and map._caption.mouse_filter==Control.MOUSE_FILTER_IGNORE,id+" caption does not intercept navigation")

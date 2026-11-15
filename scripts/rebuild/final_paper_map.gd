@@ -183,6 +183,8 @@ func _process(delta:float)->void:
 		var names:Array=DESTINATION_NAMES.get(destination,[destination,destination])
 		var host:=_host()
 		_caption.text=host._tr(names[0],names[1]) if host!=null else str(names[0])
+	# The postal name is already permanently printed beside its envelope marker.
+	if is_instance_valid(_caption_target) and _caption_target.name==&"Map_post_office":_caption_alpha=0.0
 	_caption.modulate.a=_caption_alpha
 	_layout_caption();queue_redraw()
 
@@ -210,22 +212,22 @@ func _draw_post_office_hub_marker()->void:
 	draw_arc(center,16.0+2.0*pulse,0.0,TAU,32,Color(POST_OFFICE_HUB_COLOR,0.18+0.12*pulse),2.0,true)
 	draw_circle(center,12.0,POST_OFFICE_HUB_COLOR)
 	draw_circle(center,8.5,POST_OFFICE_HUB_INK)
-	draw_line(center+Vector2(-4.0,-4.0),center+Vector2(-4.0,4.5),POST_OFFICE_HUB_COLOR,2.0,true)
-	draw_line(center+Vector2(4.0,-4.0),center+Vector2(4.0,4.5),POST_OFFICE_HUB_COLOR,2.0,true)
-	draw_line(center+Vector2(-5.0,1.5),center+Vector2(5.0,1.5),POST_OFFICE_HUB_COLOR,2.0,true)
-	var active:=_active_destination()
-	if is_instance_valid(active) and active.name==&"Map_post_office":
-		var host:=_host()
-		var label:String=host._tr("主枢纽","Main hub") if host!=null else "主枢纽"
-		var font:=_caption.get_theme_font("font")
-		var text_width:=font.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,17).x
-		var badge:=Rect2(center+Vector2(18.0,-15.0),Vector2(maxf(84.0,text_width+24.0),30.0))
-		var style:=StyleBoxFlat.new()
-		style.bg_color=Color(0.96,0.91,0.80,0.96);style.border_color=Color(0.69,0.56,0.38,0.7)
-		style.set_border_width_all(1);style.set_corner_radius_all(8)
-		draw_style_box(style,badge)
-		var baseline:=badge.position+Vector2((badge.size.x-text_width)*.5,(badge.size.y-font.get_height(17))*.5+font.get_ascent(17))
-		draw_string(font,baseline,label,HORIZONTAL_ALIGNMENT_LEFT,-1,17,Color("4a3b2b"))
+	# The postal home is a permanent named landmark, distinct from hover labels.
+	var envelope:=Rect2(center-Vector2(6.0,4.0),Vector2(12.0,8.0))
+	draw_rect(envelope,POST_OFFICE_HUB_COLOR,false,1.5)
+	draw_polyline(PackedVector2Array([envelope.position,center+Vector2(0,1),envelope.position+Vector2(12,0)]),POST_OFFICE_HUB_COLOR,1.5,true)
+	var host:=_host()
+	var label:String=host._tr("邮局","Post office") if host!=null else "邮局"
+	var font:=_caption.get_theme_font("font")
+	var text_width:=font.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,20).x
+	var badge:=Rect2(center+Vector2(18.0,-17.0),Vector2(maxf(84.0,text_width+28.0),34.0))
+	var style:=StyleBoxFlat.new()
+	style.bg_color=POST_OFFICE_HUB_COLOR
+	style.border_color=POST_OFFICE_HUB_INK
+	style.set_border_width_all(2);style.set_corner_radius_all(10)
+	draw_style_box(style,badge)
+	var baseline:=badge.position+Vector2((badge.size.x-text_width)*.5,(badge.size.y-font.get_height(20))*.5+font.get_ascent(20))
+	draw_string(font,baseline,label,HORIZONTAL_ALIGNMENT_LEFT,-1,20,POST_OFFICE_HUB_INK)
 
 func has_post_office_hub_marker()->bool:
 	return bool(get_meta("post_office_hub_marker",false))

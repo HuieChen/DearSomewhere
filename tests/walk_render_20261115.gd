@@ -34,6 +34,14 @@ func planted_boot_x(picture:Image,w:Control)->float:
 	for p in points:
 		if p.y>=bottom-maxi(1,roundi(16.0*w.actor_height/1830.0)):sum+=p.x;count+=1
 	return sum/maxi(count,1) if count>0 else -1000.0
+func cap_y(picture:Image,w:Control)->float:
+	var total:=0.0;var count:=0
+	for y in range(maxi(0,int(w.foot.y-w.actor_height*1.1)),int(w.foot.y-w.actor_height*.62)):
+		for x in range(100,460):
+			var p:=picture.get_pixel(x,y)
+			if p.a>.9 and p.r>.18 and p.r>p.g*1.15 and p.b<.2 and p.g>.08:
+				total+=y;count+=1
+	return total/maxi(count,1)
 func run():
 	root.unfocusable=true;root.size=Vector2i(640,480);root.content_scale_size=Vector2i(640,480)
 	root.transparent_bg=true
@@ -86,6 +94,13 @@ func run():
 		# footprint narrows. Budget four screen pixels at either display scale.
 		check(planted.min()>0 and planted.max()-planted.min()<4.0,"rendered supporting boot drifts less than 4px across stance poses at height "+str(height)+": "+str(planted))
 		contacts[str(height)]=planted
+		w.foot=Vector2(280,455)
+		var caps:Array[float]=[]
+		for phase in range(12):
+			var pose:Image=await shot(w,float(phase)/12.0)
+			caps.append(cap_y(pose,w))
+		check(caps.min()>0 and caps.max()-caps.min()<2.5,"rendered cap drift stays under 2.5px through the gait at height "+str(height)+": "+str(caps))
+		contacts["vertical_"+str(height)]=caps
 	FileAccess.open(out+"/receipt.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":checks,"failures":failures,"opaque_overlap_pixels":overlap,"rendered_contact_x":contacts}))
 	print("WALK_RENDER ",checks," / ",failures.size()," overlap=",overlap)
 	w.queue_free();await process_frame;quit(0 if failures.is_empty() else 1)

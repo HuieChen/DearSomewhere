@@ -148,7 +148,7 @@ func set_progress(value: float) -> void:
     progress = value
 
 func _draw() -> void:
-    if loading_enabled:
+    if loading_enabled and (not is_instance_valid(_paper) or _paper.material == null):
         draw_rect(Rect2(Vector2.ZERO, size), Color(0.966, 0.950, 0.912, coverage))
 
 func cover(show_loading: bool = true) -> void:
