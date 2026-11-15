@@ -18,6 +18,9 @@ static func _prepared_texture(path:String) -> Texture2D:
 	if _prepared_textures.has(path):return _prepared_textures[path]
 	var pixels:=Image.new()
 	if pixels.load(path)!=OK:return null
+	# Filter colour and coverage together: straight-alpha mipmaps pull the
+	# transparent black movie matte into the hair/skin outline.
+	if path.contains("/courier_walk_20261110/"):pixels.premultiply_alpha()
 	pixels.generate_mipmaps()
 	var texture:=ImageTexture.create_from_image(pixels)
 	# A changed future manifest still renders normally beyond this fixed budget.
@@ -26,6 +29,8 @@ static func _prepared_texture(path:String) -> Texture2D:
 
 var _frame_geometry: Dictionary = {}
 var _poses: Dictionary = {}
+var _walk_material: ShaderMaterial
+var _portrait_material: ShaderMaterial
 var _walk_keys: Array[String] = []
 var _frame_ends: Array[float] = []
 var _cycle_seconds: float = 0.0
@@ -140,6 +145,9 @@ func _ready() -> void:
 	edge_material.set_shader_parameter("half_eye_source", _poses.get("CHAR_courier_walk_0"))
 	edge_material.set_shader_parameter("closed_eye_source", _poses.get("CHAR_courier_walk_1"))
 	material = edge_material
+	_portrait_material = edge_material
+	_walk_material = ShaderMaterial.new()
+	_walk_material.shader = preload("res://scripts/rebuild/courier_walk.gdshader")
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_process(true)
 	queue_redraw()
@@ -182,6 +190,8 @@ func _load_turns() -> void:
 		prepared.append(texture)
 	# These are supplementary turns only: the authored walk cycle is untouched.
 	_turn_keys.assign([_walk_keys[2]])
+	_idle_time = _frame_ends[1]
+	_walk_time = _idle_time
 	for i in range(prepared.size()):
 		var key := "courier_turn_%d" % i
 		_poses[key] = prepared[i]
@@ -327,7 +337,10 @@ func _draw() -> void:
 			var index := clampi(roundi(_turn_position * (_turn_keys.size()-1)), 0, _turn_keys.size()-1)
 			_draw_pose(_turn_keys[index], 1.0)
 		else:
-			_draw_pose(_walk_keys[_frame_for_time(_walk_time)], 1.0)
+			if not _was_in_motion and _settle_time < 0.10:
+				_draw_pose(_walk_keys[_frame_for_time(_settle_phase)],1.0,_turn_keys[0],smoothstep(0.0,0.10,_settle_time))
+			else:
+				_draw_walk_cycle(_walk_time, 1.0)
 		return
 	var blend:=smoothstep(0.0,1.0,_pose_mix)
 	if blend<1.0: _draw_pose("CHAR_courier",1.0-blend)
@@ -335,9 +348,8 @@ func _draw() -> void:
 		_draw_walk_cycle(_walk_time,blend)
 
 func _draw_walk_cycle(seconds:float,opacity:float)->void:
-	# The supplied movie remains the only source of poses. A short crossfade at
-	# each authored frame boundary removes the visible 6fps snap while keeping
-	# the shared foot registration and the exact source cadence intact.
+	# One shader pass blends premultiplied samples. Drawing two translucent
+	# sprites made the overlapping body see-through during every transition.
 	var index:=_frame_for_time(seconds)
 	var current:=_walk_keys[index]
 	if _cycle_seconds<=0.0:
@@ -347,19 +359,24 @@ func _draw_walk_cycle(seconds:float,opacity:float)->void:
 	var frame_start:=0.0 if index==0 else _frame_ends[index-1]
 	var duration:=maxf(_frame_ends[index]-frame_start,0.001)
 	var local:=(at-frame_start)/duration
-	if local<0.72 or _walk_keys.size()<2:
+	if local<0.4 or _walk_keys.size()<2:
 		_draw_pose(current,opacity)
 		return
 	var next:=_walk_keys[(index+1)%_walk_keys.size()]
-	var fade:=clampf((local-0.72)/0.28,0.0,1.0)
-	_draw_pose(current,opacity*(1.0-fade))
-	_draw_pose(next,opacity*fade)
+	var fade:=smoothstep(0.0,1.0,clampf((local-0.4)/0.6,0.0,1.0))
+	_draw_pose(current,opacity,next,fade)
 
-func _draw_pose(key:String,opacity:float)->void:
+func _draw_pose(key:String,opacity:float,next_key:String="",mix_amount:float=0.0)->void:
 	var art:Texture2D=_poses.get(key)
 	if art==null:return
+	var supplied:=key.begins_with("supplied_walk_")
+	material=_walk_material if supplied else _portrait_material
+	if supplied:
+		_walk_material.set_shader_parameter("current_pose",art)
+		_walk_material.set_shader_parameter("next_pose",_poses.get(next_key,art))
+		_walk_material.set_shader_parameter("pose_mix",mix_amount)
 	var eye: Rect2 = EYE_RECTS.get(key, Rect2())
-	if material is ShaderMaterial:
+	if not supplied and material is ShaderMaterial:
 		material.set_shader_parameter("eye_rect",Vector4(eye.position.x,eye.position.y,eye.size.x,eye.size.y))
 		material.set_shader_parameter("eye_state",_eye_state)
 	var ratio:float=actor_height/art.get_height()
@@ -442,10 +459,8 @@ func _update_idle_transition(delta:float)->void:
 		_settle_time=0.0
 	_settle_time+=delta
 	if not _turn_keys.is_empty():
-		if _settle_time < 0.07:
-			var distance := fposmod(_idle_time-_settle_phase+_cycle_seconds*.5,_cycle_seconds)-_cycle_seconds*.5
-			_walk_time = fposmod(_settle_phase+distance*smoothstep(0.0,.07,_settle_time),_cycle_seconds)
-		else:
+		if _settle_time >= 0.10:
+			_walk_time = _idle_time
 			_turn_position = move_toward(_turn_position, 1.0, delta / 0.24)
 		_pose_mix = 1.0-_turn_position
 		return
@@ -530,9 +545,10 @@ func _frame_for_time(seconds: float) -> int:
 
 func _advance_phase(travelled: float) -> void:
 	if travelled<=0.0 or _cycle_seconds<=0.0:return
-	# Preserve the authored five-pose source cadence; rejected generated legs
-	# are not selected. Phase follows actual travel, including Shift ramps.
-	_walk_time=fposmod(_walk_time+travelled/maxf(max_speed,1.0),_cycle_seconds)
+	# Begin the cycle at the same side pose used by the preserved turn bridge.
+	# Hidden walking must not advance past that pose while the body is turning.
+	if _turn_position <= 0.001:
+		_walk_time=fposmod(_walk_time+travelled/maxf(max_speed,1.0),_cycle_seconds)
 	_step_distance+=travelled
 	var contact_distance:float=maxf(max_speed,1.0)*_cycle_seconds
 	while _step_distance>=contact_distance:

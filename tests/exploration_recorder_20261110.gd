@@ -67,8 +67,10 @@ func run():
 	check(game.walker.foot.x>before.x+5.0 and recorder.recording,"Arrow keys move courier while recording continues")
 	recorder.stop_recording()
 	var ground:=InputEventMouseButton.new();ground.button_index=MOUSE_BUTTON_LEFT;ground.pressed=true;ground.position=Vector2(1100,872)
+	var expected_target:Vector2=game._street_road.world.get_global_transform().affine_inverse()*recorder.get_global_transform()*ground.position
 	recorder._aim_input(ground);await create_timer(.25).timeout
 	check(game.walker.walking,"Recorder surface forwards ground clicks")
+	check(absf(game.walker.target.x-expected_target.x)<.01,"Scrolled recorder click resolves to the visible world position")
 	ground.button_index=MOUSE_BUTTON_RIGHT;recorder._aim_input(ground);check(not game.walker.walking,"Right click still cancels walking while recording tool is open")
 	recorder._toggle_library();await create_timer(.1).timeout
 	check(not game.walker.manual_enabled,"Library pauses walking for safe naming")
@@ -87,7 +89,10 @@ func run():
 		if child is Panel and child.visible:visible_panels+=1
 	check(visible_panels==0,"No opaque panel remains during field monitoring")
 	var clear:=Rect2(400,170,800,600)
-	for control:Control in [recorder.record_button,recorder.play_button,recorder.clock_label,recorder.status,recorder.visual_hint,recorder.library_button]:check(not clear.intersects(control.get_rect()),"Recorder controls leave central scene clear: "+str(control.name))
+	for control:Control in [recorder.record_button,recorder.play_button,recorder.clock_label,recorder.status,recorder.visual_hint,recorder.library_button]:
+		var at:Vector2=recorder._page.get_global_transform().affine_inverse()*control.global_position
+		print("RECORDER_RECT ",control.name," ",at," ",control.size)
+		check(not control.is_visible_in_tree() or not clear.intersects(Rect2(at,control.size)),"Recorder controls leave central scene clear: "+str(control.name))
 	await create_timer(.15).timeout;await RenderingServer.frame_post_draw;root.get_texture().get_image().save_png(out+"recorder_zh.png")
 	recorder.library.get_parent().show();await process_frame;await RenderingServer.frame_post_draw;root.get_texture().get_image().save_png(out+"recorder_library.png")
 	recorder.request_close();await process_frame;await process_frame

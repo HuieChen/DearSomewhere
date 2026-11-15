@@ -48,42 +48,32 @@ func _ready()->void:
 	if is_instance_valid(road) and is_instance_valid(road.courier):road.courier.manual_enabled=true
 	_page=Control.new();UI.place(_page,self,Rect2(0,0,1600,900));_page.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	var surface:=Control.new();surface.name="RecordingWalkSurface";UI.place(surface,_page,Rect2(0,0,1600,900));surface.mouse_default_cursor_shape=Control.CURSOR_CROSS;surface.gui_input.connect(_aim_input)
-	var instrument:=Control.new();instrument.name="StereoDisplay";UI.place(instrument,_page,Rect2(28,24,430,184));instrument.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	# A single quiet control dock keeps the panorama and character unobstructed.
+	var instrument:=Control.new();instrument.name="RecorderDock";UI.place(instrument,_page,Rect2(340,24,920,98));instrument.mouse_filter=Control.MOUSE_FILTER_STOP
 	instrument.draw.connect(func():
-		var shadow:=StyleBoxFlat.new();shadow.bg_color=Color(0.08,0.12,0.12,.20);shadow.set_corner_radius_all(21);instrument.draw_style_box(shadow,Rect2(5,7,instrument.size.x-1,instrument.size.y-1))
-		var body:=StyleBoxFlat.new();body.bg_color=Color("e7d8ba");body.set_corner_radius_all(20);body.set_border_width_all(2);body.border_color=Color("52655e");body.shadow_color=Color(0,0,0,.18);body.shadow_size=3;body.shadow_offset=Vector2(0,2);instrument.draw_style_box(body,Rect2(Vector2.ZERO,instrument.size))
-		var top_plate:=StyleBoxFlat.new();top_plate.bg_color=Color("f3ead6");top_plate.set_corner_radius_all(12);top_plate.set_border_width_all(1);top_plate.border_color=Color("b8a98d");instrument.draw_style_box(top_plate,Rect2(18,15,instrument.size.x-36,30))
-		var screen:=StyleBoxFlat.new();screen.bg_color=Color("40534f");screen.set_corner_radius_all(10);screen.set_border_width_all(2);screen.border_color=Color("6e8176");instrument.draw_style_box(screen,Rect2(32,48,instrument.size.x-64,94))
-		instrument.draw_line(Vector2(34,158),Vector2(instrument.size.x-34,158),Color("b7a88c"),1.0)
-		for i in 12:
-			instrument.draw_circle(Vector2(52+i*17,173),2.2,Color("7f8b77"))
-		for i in 3:
-			instrument.draw_line(Vector2(365+i*10,20),Vector2(365+i*10,31),Color("9a8d77"),2.0)
-		instrument.draw_circle(Vector2(instrument.size.x-38,29),5.0,Color("b25949"))
-		instrument.draw_circle(Vector2(instrument.size.x-38,29),2.0,Color("f1b09b")))
-	# The recorder remains a compact edge HUD. Its physical shell carries the
-	# visual weight, while the central world stays open for walking and aiming.
-	var style:=StyleBoxFlat.new();style.bg_color=Color("f7edd9");style.set_corner_radius_all(14)
-	label(t("录音机 · 双声道","RECORDER · STEREO"),Rect2(58,43,220,27),17)
-	clock_label=label("00:00",Rect2(278,42,82,30),23)
-	mode_label=label(t("监听","MONITOR"),Rect2(70,72,105,22),15)
-	mode_label.add_theme_color_override("font_color",Color("e7d8ba"))
-	var left_channel:=label("L",Rect2(54,96,22,20),14);left_channel.add_theme_color_override("font_color",Color("e7d8ba"))
-	var right_channel:=label("R",Rect2(54,116,22,20),14);right_channel.add_theme_color_override("font_color",Color("e7d8ba"))
-	record_button=button(t("R  录音","R  Record"),Rect2(1224,814,176,48),toggle_recording);record_button.name="RecordToggle"
-	play_button=button(t("P  回听","P  Play"),Rect2(1040,814,170,48),toggle_playback);play_button.name="PlaybackToggle"
-	button("×",Rect2(1500,28,56,48),request_close).name="CloseRecorder"
-	button(t("Esc  收起","Esc  Put away"),Rect2(1405,814,175,48),request_close).name="PutAwayRecorder"
-	visual_hint=CheckButton.new();visual_hint.text=t("方向提示","Direction hints");visual_hint.add_theme_font_override("font",FONT);visual_hint.add_theme_font_size_override("font_size",18)
-	for state:String in ["font_color","font_hover_color","font_pressed_color","font_hover_pressed_color"]:visual_hint.add_theme_color_override(state,Color("fff4db"))
-	visual_hint.add_theme_color_override("font_outline_color",Color(.12,.16,.17,.75));visual_hint.add_theme_constant_override("outline_size",4)
-	UI.place(visual_hint,_page,Rect2(1288,32,205,40));visual_hint.tooltip_text=t("H · 方向提示","H · Direction hints")
-	library_button=button(t("录音列表","Recordings"),Rect2(36,814,194,48),_toggle_library);library_button.name="RecordingLibrary"
-	status=label("",Rect2(42,214,240,34),18)
-	status.add_theme_color_override("font_color",Color("fff4db"));status.add_theme_color_override("font_outline_color",Color(.12,.16,.17,.8));status.add_theme_constant_override("outline_size",3)
-	var movement:=label(t("WASD / 方向键移动 · 鼠标收音","WASD / Arrows to walk · Mouse to aim"),Rect2(270,824,650,30),18)
-	movement.add_theme_color_override("font_color",Color("fff4db"));movement.add_theme_color_override("font_outline_color",Color(.12,.16,.17,.8));movement.add_theme_constant_override("outline_size",3)
+		var paper:=StyleBoxFlat.new();paper.bg_color=Color("f4ecd9");paper.set_corner_radius_all(24);paper.shadow_color=Color(0.14,0.17,0.12,.15);paper.shadow_size=5;paper.shadow_offset=Vector2(0,4)
+		instrument.draw_style_box(paper,Rect2(Vector2.ZERO,instrument.size))
+		instrument.draw_line(Vector2(252,22),Vector2(252,76),Color("d9cfb8"),1.0))
+	var style:=StyleBoxFlat.new();style.bg_color=Color("f7edd9");style.set_corner_radius_all(18);style.shadow_size=8;style.shadow_color=Color(0,0,0,.14)
+	label(t("录音机","FIELD RECORDER"),Rect2(370,79,132,24),16)
+	clock_label=label("00:00",Rect2(499,42,82,32),27)
+	mode_label=label(t("监听","MONITOR"),Rect2(392,46,102,24),17)
+	status=label("",Rect2(510,83,218,26),16);status.clip_text=true;status.tooltip_text=""
+	record_button=button("",Rect2(740,39,68,68),toggle_recording);record_button.name="RecordToggle";record_button.tooltip_text=t("R · 开始 / 停止录音","R · Start / stop recording");record_button.accessibility_name=t("录音 / 停止","Record / stop")
+	for state:String in ["normal","hover","pressed","disabled"]:
+		var circle:=StyleBoxFlat.new();circle.bg_color=Color("b86050") if state=="normal" else (Color("a34c40") if state=="pressed" else Color("c77260"));circle.set_corner_radius_all(34)
+		record_button.add_theme_stylebox_override(state,circle)
+	var record_focus:=StyleBoxFlat.new();record_focus.bg_color=Color.TRANSPARENT;record_focus.set_corner_radius_all(36);record_focus.set_border_width_all(2);record_focus.border_color=Color("527366");record_focus.expand_margin_left=4;record_focus.expand_margin_top=4;record_focus.expand_margin_right=4;record_focus.expand_margin_bottom=4;record_button.add_theme_stylebox_override("focus",record_focus)
+	record_button.draw.connect(func():
+		if recording:
+			var stop:=StyleBoxFlat.new();stop.bg_color=Color("fff4dd");stop.set_corner_radius_all(4);record_button.draw_style_box(stop,Rect2(23,23,22,22))
+		else:record_button.draw_circle(Vector2(34,34),13,Color("fff4dd")))
+	play_button=button(t("P  回听","P  Play"),Rect2(834,47,112,48),toggle_playback);play_button.name="PlaybackToggle"
+	library_button=button(t("录音列表","Recordings"),Rect2(962,47,174,48),_toggle_library);library_button.name="RecordingLibrary"
+	button("×",Rect2(1174,47,50,48),request_close).name="CloseRecorder"
+	visual_hint=CheckButton.new();visual_hint.text=t("方向提示 · H","Direction hints · H");visual_hint.add_theme_font_override("font",FONT);visual_hint.add_theme_font_size_override("font_size",18);visual_hint.add_theme_color_override("font_color",Color("52665a"))
 	var list_panel:=Panel.new();list_panel.add_theme_stylebox_override("panel",style);UI.place(list_panel,_page,Rect2(1030,150,510,550));list_panel.hide()
+	UI.place(visual_hint,list_panel,Rect2(18,510,474,32))
 	library=ItemList.new();library.add_theme_font_override("font",FONT);library.add_theme_font_size_override("font_size",21);UI.place(library,list_panel,Rect2(18,22,474,415));library.item_selected.connect(_select)
 	title_edit=LineEdit.new();title_edit.placeholder_text=t("名称","Name");title_edit.max_length=60;title_edit.add_theme_font_override("font",FONT);title_edit.add_theme_font_size_override("font_size",21);UI.place(title_edit,list_panel,Rect2(18,458,474,48));title_edit.text_submitted.connect(func(_v:String):_save_name());title_edit.focus_exited.connect(_save_name)
 	var list_style:=StyleBoxFlat.new();list_style.bg_color=Color("eee2cc");list_style.set_corner_radius_all(8)
@@ -103,12 +93,12 @@ func _ready()->void:
 	_refresh_library();get_window().focus_exited.connect(_focus_lost)
 	record_button.grab_focus()
 func label(text:String,rect:Rect2,px:int)->Label:
-	var value:=UI.label(_page,text,rect,px,Color("47534b"));value.mouse_filter=Control.MOUSE_FILTER_IGNORE;return value
+	var value:=UI.label(_page,text,rect,px,Color("47534b"));value.autowrap_mode=TextServer.AUTOWRAP_OFF;value.clip_text=true;value.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS;value.size=rect.size;value.mouse_filter=Control.MOUSE_FILTER_IGNORE;return value
 func button(text:String,rect:Rect2,callback:Callable)->Button:
 	var value:=UI.button(_page,text,rect,callback);value.flat=false;value.add_theme_font_override("font",FONT);value.add_theme_font_size_override("font_size",21)
 	for state:String in ["normal","hover","pressed","disabled"]:
-		var style:=StyleBoxFlat.new();style.bg_color=Color("f3ead6") if state=="normal" else (Color("c4d7c5") if state!="disabled" else Color("d6d4c5"));style.set_corner_radius_all(12)
-		style.set_border_width_all(1);style.border_color=Color("afa994");style.shadow_size=2;style.shadow_offset=Vector2(0,2);style.shadow_color=Color(0,0,0,.16)
+		var style:=StyleBoxFlat.new();style.bg_color=Color(0,0,0,0) if state in ["normal","disabled"] else Color("e1e6d6");style.set_corner_radius_all(12)
+		style.set_border_width_all(0)
 		value.add_theme_stylebox_override(state,style);value.add_theme_color_override("font_"+state+"_color",Color("46544a") if state!="disabled" else Color("8d927e"))
 	value.add_theme_color_override("font_color",Color("46544a"))
 	var focus:=StyleBoxFlat.new();focus.bg_color=Color(0,0,0,0);focus.set_corner_radius_all(12);focus.set_border_width_all(3);focus.border_color=Color("728d77");value.add_theme_stylebox_override("focus",focus)
@@ -121,10 +111,9 @@ func _aim_input(event:InputEvent)->void:
 		aim_point=(get_global_transform().affine_inverse()*get_global_mouse_position()).clamp(Vector2(20,20),Vector2(1580,800))
 	elif event is InputEventMouseButton and allows_world_walk():
 		var ground:InputEventMouseButton=event.duplicate()
-		# The world receives its own 1600x900 design-space input. Passing the
-		# recorder's screen-space point directly keeps the lower walking strip
-		# consistent with the normal road hit area at every window scale.
-		ground.position=event.position
+		# GUI events are local to the recorder; the panorama has already scrolled.
+		# Convert into world-local space or a right-hand click can walk left.
+		ground.position=road.world.get_global_transform().affine_inverse()*get_global_transform()*event.position
 		road.world.get_node("WalkTarget")._ground_input(ground)
 func _input(event:InputEvent)->void:
 	if not event is InputEventKey:return
@@ -140,7 +129,10 @@ func _unhandled_key_input(event:InputEvent)->void:
 	if get_viewport().gui_get_focus_owner()==title_edit:return
 	var key:int=event.physical_keycode if event.physical_keycode else event.keycode
 	if event.pressed and not event.echo:
-		if key==KEY_ESCAPE:request_close();get_viewport().set_input_as_handled()
+		if key==KEY_ESCAPE:
+			if library.get_parent().visible:_toggle_library()
+			else:request_close()
+			get_viewport().set_input_as_handled()
 		elif key==KEY_R:toggle_recording();get_viewport().set_input_as_handled()
 		elif key==KEY_P:toggle_playback();get_viewport().set_input_as_handled()
 		elif key==KEY_H:visual_hint.button_pressed=not visual_hint.button_pressed;get_viewport().set_input_as_handled()
@@ -168,20 +160,15 @@ func _process(delta:float)->void:
 	clock_label.text="%02d:%02d"%[int(seconds)/60,int(seconds)%60]
 	library_button.disabled=recording
 	play_button.disabled=recording or (selected_path.is_empty() and last_path.is_empty())
+	status.tooltip_text=status.text
 	_ink.queue_redraw()
 func _draw_feedback()->void:
-	_ink.draw_circle(Vector2(58,77),4,Color("b25949") if recording else Color("91a78c"))
+	_ink.draw_circle(Vector2(376,58),4,Color("b25949") if recording else Color("91a78c"))
 	for channel in 2:
 		var normalized:=clampf((linear_to_db(maxf(levels[channel],.00001))+60.0)/60.0,0.0,1.0)
-		var held:=clampf((linear_to_db(maxf(_meter_peak[channel],.00001))+60.0)/60.0,0.0,1.0)
-		for i in 35:
-			var color:=Color("739781") if i<28 else Color("bf9560")
-			if float(i)/35.0>=normalized:color=Color("d8d8c5")
-			_ink.draw_rect(Rect2(80+i*8,96+channel*20,6,8),color)
-		_ink.draw_line(Vector2(80+held*280,95+channel*20),Vector2(80+held*280,105+channel*20),Color("667455"),1.5)
-	for i in _wave_history.size():
-		var height:=_wave_history[i]*7.0
-		_ink.draw_line(Vector2(80+i*5,145-height),Vector2(80+i*5,145+height),Color("829580"),2.0)
+		for i in 22:
+			var color:=Color("739781") if float(i)/22.0<normalized else Color("d8d8c5")
+			_ink.draw_rect(Rect2(612+i*5,52+channel*12,3,5),color)
 
 	if visual_hint.button_pressed:
 		_ink.draw_arc(aim_point,16,0,TAU,24,Color("fff3d5"),2,true)
@@ -205,10 +192,10 @@ func toggle_recording()->void:
 	if effect==null or AudioServer.get_bus_index(BUS)<0:return
 	if pending_audio!=null and not _persist_pending():return
 	if not _save_name():return
-	library.get_parent().hide();stop_playback();library.mouse_filter=Control.MOUSE_FILTER_IGNORE;library.focus_mode=Control.FOCUS_NONE;title_edit.editable=false;effect.set_recording_active(true);elapsed=0;visited_locations=[location_caption];recording=true;status.text="";record_button.text=t("R  停止","R  Stop");cue.emit("recorder_start")
+	library.get_parent().hide();stop_playback();library.mouse_filter=Control.MOUSE_FILTER_IGNORE;library.focus_mode=Control.FOCUS_NONE;title_edit.editable=false;effect.set_recording_active(true);elapsed=0;visited_locations=[location_caption];recording=true;status.text="";record_button.queue_redraw();cue.emit("recorder_start")
 func stop_recording()->bool:
 	if not recording:return _persist_pending()
-	effect.set_recording_active(false);recording=false;library.mouse_filter=Control.MOUSE_FILTER_STOP;library.focus_mode=Control.FOCUS_ALL;title_edit.editable=true;record_button.text=t("R  录音","R  Record")
+	effect.set_recording_active(false);recording=false;library.mouse_filter=Control.MOUSE_FILTER_STOP;library.focus_mode=Control.FOCUS_ALL;title_edit.editable=true;record_button.queue_redraw()
 	pending_audio=effect.get_recording()
 	if pending_audio==null or pending_audio.data.is_empty():pending_audio=null;status.text=t("录音太短","Recording too short");return true
 	var saved:=_persist_pending();cue.emit("recorder_stop");return saved
