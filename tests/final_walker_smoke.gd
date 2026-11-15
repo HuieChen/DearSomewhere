@@ -29,7 +29,7 @@ func _run() -> void:
 	for index:int in range(frames.size()):
 		var frame:Dictionary=frames[index]
 		var key:String=walker._walk_keys[index]
-		var duration:float=float(frame.duration_seconds)/Walker.WALK_PLAYBACK_RATE
+		var duration:float=float(frame.duration_seconds)
 		_check(key=="supplied_walk_%02d" % index and int(frame.source_frame)==index and FileAccess.get_sha256(frame.path)==frame.sha256, "authored frame order and source bytes "+str(index))
 		_check(walker._frame_geometry[key]==frame and is_instance_valid(walker._poses[key]), "authored frame geometry and texture "+str(index))
 		_check(walker._frame_for_time(elapsed+duration*.01)==index and walker._frame_for_time(elapsed+duration*.99)==index, "runtime pose interval "+str(index))
@@ -45,7 +45,7 @@ func _run() -> void:
 	_check(is_equal_approx(walker._walk_time,timing_start),"hidden gait does not skip poses while turning")
 	walker._turn_position=0.0
 	walker._advance_phase(25.0)
-	_check(is_equal_approx(walker._walk_time,fposmod(timing_start+25.0/walker.max_speed,walker._cycle_seconds)),"animation phase follows actual travelled distance")
+	_check(is_equal_approx(walker._walk_time,fposmod(timing_start+25.0/walker._walk_cycle_distance()*walker._cycle_seconds,walker._cycle_seconds)),"animation phase follows actual travelled distance and painted stride size")
 	walker.cancel()
 	walker.walk_to(Vector2(480, 300), func() -> void: callbacks.append("first"))
 	_check(callbacks.is_empty() and walker.walking, "hotspot action waits for approach rather than firing on click")
@@ -54,7 +54,7 @@ func _run() -> void:
 	walker._process(1.0 / 60.0)
 	_check(first_speed > 0.0 and walker.velocity.length() > first_speed and walker.velocity.length() < walker.max_speed, "actor accelerates into its walk")
 	_finish_walk()
-	_check(footsteps == int(floor(360.0/(walker.max_speed*walker._cycle_seconds))), "walking emits one conservative grounded contact per source cycle from actual travelled distance")
+	_check(footsteps == int(floor(360.0/(walker.actor_height*Walker.WALK_STRIDE_PER_HEIGHT*0.5))), "walking emits two distance-driven contacts per four-pose stride")
 	var settled_steps: int = footsteps
 	_check(callbacks == ["first"] and arrivals == 1, "arrival runs the pending action once")
 	_check(walker.foot.distance_to(Vector2(480, 300)) < 0.01 and walker.velocity.length() < 0.02, "feet settle at target with no residual movement")
@@ -204,6 +204,12 @@ func _test_cadence_and_arrival() -> void:
 		for tick:int in range(ceili(rate*.6)):walker._process(1.0/rate)
 		_check(walker._pose_mix<.001 and walker._turn_position>=.999 and walker.velocity.is_zero_approx(),"arrival completes turn and restores the authored idle within 0.6s at"+str(rate)+"fps")
 	_check(trajectories[0].distance_to(trajectories[1])<1.5 and trajectories[1].distance_to(trajectories[2])<1.5,"30/60/144fps movement agrees within1.5worldpx after one second")
+	walker.configure(null,Rect2(40,170,900,230),Vector2(300,300))
+	walker.walk_to(Vector2(700,300))
+	for tick in range(10):walker._process(1.0/60.0)
+	_check(walker.foot==Vector2(300,300) and walker._turn_position>0.0,"initial standing turn stays planted instead of sliding sideways")
+	for tick in range(30):walker._process(1.0/60.0)
+	_check(walker.foot.x>300 and walker._turn_position<.001,"movement starts after facing the destination")
 
 
 func _check(condition: bool, label: String) -> void:

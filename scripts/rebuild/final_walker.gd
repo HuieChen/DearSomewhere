@@ -13,7 +13,10 @@ const WALK_GEOMETRY := "res://assets/faefever_v2/characters/courier_walk_regions
 # turn images bridge movement back to the authored idle without replacing it.
 # Geometry, animation state, materials and callbacks remain instance-local.
 const MAX_PREPARED_TEXTURES := 23
-const WALK_PLAYBACK_RATE := 2.0
+# The movie repeats a four-pose stride three times. Its planted dark boot
+# travels ~193 source pixels per pose at a reference height of 1830 pixels.
+const WALK_STRIDE_PER_HEIGHT := 0.42
+const WALK_POSES_PER_STRIDE := 4
 static var _prepared_textures: Dictionary = {}
 static func _prepared_texture(path:String) -> Texture2D:
 	if _prepared_textures.has(path):return _prepared_textures[path]
@@ -176,9 +179,7 @@ func _load_supplied_walk() -> void:
 		_walk_keys.append(key)
 		_poses[key] = prepared[index]
 		_frame_geometry[key] = data.frames[index]
-		# Twelve crisp poses per second at normal walking speed. The original
-		# six-fps recording is unchanged; turns keep their separate timing.
-		_cycle_seconds += float(data.frames[index].duration_seconds) / WALK_PLAYBACK_RATE
+		_cycle_seconds += float(data.frames[index].duration_seconds)
 		_frame_ends.append(_cycle_seconds)
 
 func _load_turns() -> void:
@@ -231,6 +232,7 @@ func walk_to(destination: Vector2, action: Callable = Callable()) -> void:
 	_gesture_name = ""
 	_pending_action = action
 	target = _bounded(destination)
+	if velocity.length()<3.0:face_towards(target)
 	walking = true
 	set_process(true)
 	queue_redraw()
@@ -351,8 +353,8 @@ func _draw() -> void:
 		_draw_walk_cycle(_walk_time,blend)
 
 func _draw_walk_cycle(seconds:float,opacity:float)->void:
-	# One painted silhouette, never overlapping faded outlines. Faster source
-	# playback supplies the cadence without translucent hands/feet or warping.
+	# One painted silhouette. Cadence follows the painted stride's world size,
+	# rather than an arbitrary multiplier or the configured maximum speed.
 	_draw_pose(_walk_keys[_frame_for_time(seconds)],opacity)
 
 func _draw_pose(key:String,opacity:float)->void:
@@ -393,10 +395,16 @@ func _process(delta: float) -> void:
 		walking = false
 		_manual_active = true
 		_gesture_name = ""
+		if velocity.length()<3.0 and absf(manual.x)>0.01:_facing=signf(manual.x)
+	_update_idle_transition(delta)
 	var remaining: float = clampf(delta, 0.0, 0.25)
 	while remaining > 0.00001:
 		var step: float = minf(remaining, 1.0 / 120.0)
-		if _manual_active:
+		if not _turn_keys.is_empty() and _turn_position>0.001:
+			# Finish facing the destination before taking the first step. Moving
+			# through the standing turn used to slide the whole figure sideways.
+			velocity=Vector2.ZERO
+		elif _manual_active:
 			_advance_manual(manual,step)
 		elif walking:
 			_advance(step)
@@ -405,7 +413,6 @@ func _process(delta: float) -> void:
 		if _motion_blend < 0.02 and not walking:
 			_motion_blend = 0.0
 		remaining -= step
-	_update_idle_transition(delta)
 	queue_redraw()
 	if not walking and _motion_blend == 0.0 and not manual_enabled and _texture != null and _gesture_name.is_empty() and _pose_mix <= 0.001:
 		set_process(false)
@@ -528,14 +535,17 @@ func _frame_for_time(seconds: float) -> int:
 	return 0
 
 
+func _walk_cycle_distance() -> float:
+	return maxf(actor_height*WALK_STRIDE_PER_HEIGHT*float(_walk_keys.size())/WALK_POSES_PER_STRIDE,1.0)
+
 func _advance_phase(travelled: float) -> void:
 	if travelled<=0.0 or _cycle_seconds<=0.0:return
+	if not _turn_keys.is_empty() and _turn_position>0.001:return
 	# Begin the cycle at the same side pose used by the preserved turn bridge.
 	# Hidden walking must not advance past that pose while the body is turning.
-	if _turn_position <= 0.001:
-		_walk_time=fposmod(_walk_time+travelled/maxf(max_speed,1.0),_cycle_seconds)
+	_walk_time=fposmod(_walk_time+travelled/_walk_cycle_distance()*_cycle_seconds,_cycle_seconds)
 	_step_distance+=travelled
-	var contact_distance:float=maxf(max_speed,1.0)*_cycle_seconds
+	var contact_distance:float=maxf(actor_height*WALK_STRIDE_PER_HEIGHT*0.5,1.0)
 	while _step_distance>=contact_distance:
 		_step_distance-=contact_distance
 		footstep.emit()

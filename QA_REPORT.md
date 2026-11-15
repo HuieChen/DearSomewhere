@@ -1,6 +1,9 @@
 ## 2026-11-16 — Map badge and integration review
 
 Localized the post-office hub badge with the shared rounded font and measured text layout. Preserved the no-light map, newer paper navigation, recorder and walk changes. Final integrated PCK passes 247 scoped offscreen GPU/input/audio-data checks; zh/en layouts and normal-speed map footage inspected. Updated stale dismissal timing and isolated recorder fixture focus/FPS; initial failed runs remain documented. Native/listening acceptance is separate. See [MAP_REFINEMENT_20261116.md](docs/testing/MAP_REFINEMENT_20261116.md).
+## 2026-11-16 — Painted stride matches world travel
+
+Supersedes the 12-fps adjustment below after the user clarified foot sliding. Gait follows distance and actor size, and standing turns remain stationary. Source checks pass 157/157, including rendered supporting-foot contact measurements. Native ground-click movement/arrival was observed; subjective gait acceptance remains open. See [GROUNDED_STRIDE_20261116.md](docs/testing/GROUNDED_STRIDE_20261116.md).
 
 ## 2026-11-16 — Crisp walking cadence
 
