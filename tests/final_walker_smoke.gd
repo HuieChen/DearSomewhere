@@ -34,13 +34,16 @@ func _run() -> void:
 		_check(walker._frame_geometry[key]==frame and is_instance_valid(walker._poses[key]), "authored frame geometry and texture "+str(index))
 		_check(walker._frame_for_time(elapsed+duration*.01)==index and walker._frame_for_time(elapsed+duration*.99)==index, "authored frame duration "+str(index))
 		elapsed+=duration
-	_check(is_equal_approx(walker._cycle_seconds,elapsed) and is_zero_approx(walker._idle_time), "supplied cycle and starting phase loaded")
+	_check(is_equal_approx(walker._cycle_seconds,elapsed) and walker._frame_for_time(walker._idle_time)==2, "supplied cycle starts at the preserved turn bridge pose")
 	_check(walker._frame_for_time(elapsed+.00001)==0, "timestamp selection wraps through exact source duration")
 	walker.arrived.connect(func() -> void: arrivals += 1)
 	walker.footstep.connect(func() -> void: footsteps += 1)
 	walker.configure(null, Rect2(40, 170, 900, 230), Vector2(120, 300))
-	_check(walker._frame_for_time(walker._walk_time)==0,"start phase selects first supplied walk frame")
+	_check(walker._frame_for_time(walker._walk_time)==2,"start phase matches the side pose at the end of the turn")
 	var timing_start:float=walker._walk_time
+	walker._advance_phase(25.0)
+	_check(is_equal_approx(walker._walk_time,timing_start),"hidden gait does not skip poses while turning")
+	walker._turn_position=0.0
 	walker._advance_phase(25.0)
 	_check(is_equal_approx(walker._walk_time,fposmod(timing_start+25.0/walker.max_speed,walker._cycle_seconds)),"animation phase follows actual travelled distance")
 	walker.cancel()
