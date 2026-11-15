@@ -318,7 +318,28 @@ func _draw() -> void:
 	var blend:=smoothstep(0.0,1.0,_pose_mix)
 	if blend<1.0: _draw_pose("CHAR_courier",1.0-blend)
 	if blend>0.0 and not _walk_keys.is_empty():
-		_draw_pose(_walk_keys[_frame_for_time(_walk_time)],blend)
+		_draw_walk_cycle(_walk_time,blend)
+
+func _draw_walk_cycle(seconds:float,opacity:float)->void:
+	# The supplied movie remains the only source of poses. A short crossfade at
+	# each authored frame boundary removes the visible 6fps snap while keeping
+	# the shared foot registration and the exact source cadence intact.
+	var index:=_frame_for_time(seconds)
+	var current:=_walk_keys[index]
+	if _cycle_seconds<=0.0:
+		_draw_pose(current,opacity)
+		return
+	var at:=fposmod(seconds,_cycle_seconds)
+	var frame_start:=0.0 if index==0 else _frame_ends[index-1]
+	var duration:=maxf(_frame_ends[index]-frame_start,0.001)
+	var local:=(at-frame_start)/duration
+	if local<0.72 or _walk_keys.size()<2:
+		_draw_pose(current,opacity)
+		return
+	var next:=_walk_keys[(index+1)%_walk_keys.size()]
+	var fade:=clampf((local-0.72)/0.28,0.0,1.0)
+	_draw_pose(current,opacity*(1.0-fade))
+	_draw_pose(next,opacity*fade)
 
 func _draw_pose(key:String,opacity:float)->void:
 	var art:Texture2D=_poses.get(key)
