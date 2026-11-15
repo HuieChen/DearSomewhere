@@ -148,7 +148,8 @@ func uncover(show_loading: bool = true) -> void:
     set_loading_enabled(show_loading)
     progress = 1.0
     await get_tree().process_frame
-    await RenderingServer.frame_post_draw
+    if DisplayServer.get_name() != "headless":
+        await RenderingServer.frame_post_draw
     var duration := 0.46 if show_loading else 0.20
     var motion := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
     motion.tween_property(self, "coverage", 0.0, duration)

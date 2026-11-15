@@ -1,11 +1,39 @@
 extends RefCounted
 ## One restrained material language for the existing paper surfaces.
+const MOTION := &"paper_presentation_motion"
+
+static func cancel(surface:Control)->void:
+	if not is_instance_valid(surface) or not surface.has_meta(MOTION):return
+	var previous:Tween=surface.get_meta(MOTION)
+	if previous!=null and previous.is_valid():previous.kill()
+	surface.remove_meta(MOTION)
+
+static func fade_in(surface:Control)->void:
+	if not is_instance_valid(surface) or not surface.is_inside_tree():return
+	cancel(surface)
+	surface.modulate.a=0.0
+	var motion:=surface.create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	surface.set_meta(MOTION,motion)
+	motion.tween_property(surface,"modulate:a",1.0,.16)
+
+static func leave(surface:Control,finished:Callable)->void:
+	if not is_instance_valid(surface) or not surface.is_inside_tree():return
+	cancel(surface)
+	var motion:=surface.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	surface.set_meta(MOTION,motion)
+	surface.pivot_offset=surface.size*.5
+	motion.tween_property(surface,"modulate:a",0.0,.12)
+	motion.tween_property(surface,"scale",Vector2.ONE*.994,.12)
+	motion.chain().tween_callback(finished)
+
 static func enter(surface:Control)->void:
 	if not is_instance_valid(surface):return
+	cancel(surface)
 	surface.pivot_offset=surface.size*.5
 	surface.scale=Vector2.ONE*.978
 	surface.modulate.a=0.0
 	var motion:=surface.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	surface.set_meta(MOTION,motion)
 	motion.tween_property(surface,"scale",Vector2.ONE,.24)
 	motion.tween_property(surface,"modulate:a",1.0,.18)
 

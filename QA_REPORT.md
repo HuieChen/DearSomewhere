@@ -1,3 +1,7 @@
+## 2026-11-15 — Direct new-journey entry
+
+Removed the requested new-journey confirmation. One cover-button click now starts loading and enters the post office even with an existing save; repeated calls during loading are ignored. Resume and save-failure handling remain available. Source and exported PCK each pass the updated UI/input suite (17 checks, zero failures), including Chinese and English entry. Typography fixture no longer expects the deleted dialog. Native verification was interrupted by user input in the review window and is not counted as passed. Only isolated QA saves were used.
+
 ## 2026-11-09 — Wooden opening-door recording
 
 Opening now uses a licensed wooden kitchen-door recording; the approved crisp shutter and closing audio are unchanged. Standard complete PCK passes 23 audio checks plus exact hash verification of the three selected WAVs. Original source recordings and user saves are preserved. See [WOOD_DOOR_AUDIO_20261109.md](docs/testing/WOOD_DOOR_AUDIO_20261109.md).
@@ -410,3 +414,9 @@ Final exported package: 148 checks, zero failures; recorder UI revised to minima
 The camera paper ejection ritual was restored, camera controls and recorder monitoring now share the Dear Somewhere paper/ink/teal/coral language, map labels use dwell/grace timing, and the recorder remains walkable while its library is closed. Guitar is fully muted during field recording; the field bus now includes distinct local fountain, market, food-truck, tram, lookout-wind and detail sources. The added fountain source is CC0 and documented in `assets/audio/foley/fountain-provenance.json`.
 
 Scoped source and actual-PCK suites pass 97/0 after the map hotspot correction: camera28, recorder42, navigation21, host close6. The map-fix PCK contains 1,236 inventory entries and includes the original map/street sources plus the recording layers; the refreshed character-tone PCK SHA-256 is `8393cc278ea6c1216ce5e1f2cdd9e7edf48917b2f44709c6136bf56b289547b4`. The full legacy GPU check still reports one pre-existing display-settings assertion (`visible close survives repeated render-resolution changes`); it is recorded as an acceptance gap rather than treated as part of this scoped pass. Native OS input, human listening and novice acceptance remain unverified. See [2026-11-14 review](docs/testing/exploration-20261114/review.md).
+
+## Recorder device review — 2026-11-15
+Compact green recorder body with microphone caps and integrated working Record/Playback buttons. L/R, mode, timer and live meters are contained inside the screen. Original record/save/replay paths retained.
+Source suites and actual PCK suites: photo 28, recorder 42, navigation 21, close 6; 97/97 each. Evidence: qa-recorder-controls-final and qa-recorder-integrated-package in the exploration build cache. Screenshots include zh/en at 1280/1920/2560.
+Native Windows inspection through Computer Use observed record activation, saved status and playback activation. Native walking action was interrupted by a helper-busy response; walking remains covered by the automated input suite, not by this native check. Subjective listening and user aesthetic approval remain open.
+Runtime source e60cc35; PCK SHA256 f20fe57256cbf435be0963f7ab6d28929262ee755ba9574389c460887f9b274a. Export returned 0 with existing unused DialogueManager C# example-loader diagnostics; scoped PCK tests passed.
