@@ -18,13 +18,26 @@ const MAX_PREPARED_TEXTURES := 23
 const WALK_STRIDE_PER_HEIGHT := 0.42
 const WALK_POSES_PER_STRIDE := 4
 static var _prepared_textures: Dictionary = {}
+static var _registration: Dictionary = {}
+static func _runtime_registration() -> Dictionary:
+	if _registration.is_empty():
+		var path:="res://assets/authoring/courier_walk_20261110/runtime_registration.json"
+		if FileAccess.file_exists(path):
+			var data:Variant=JSON.parse_string(FileAccess.get_file_as_string(path))
+			if data is Dictionary:_registration=data.get("frames",{})
+	return _registration
 static func _prepared_texture(path:String) -> Texture2D:
 	if _prepared_textures.has(path):return _prepared_textures[path]
 	var pixels:=Image.new()
 	if pixels.load(path)!=OK:return null
 	# Filter colour and coverage together: straight-alpha mipmaps pull the
 	# transparent black movie matte into the hair/skin outline.
-	if path.contains("/courier_walk_20261110/"):pixels.premultiply_alpha()
+	if path.contains("/courier_walk_20261110/"):
+		var cleanup:Dictionary=_runtime_registration().get(path.get_file(),{})
+		if cleanup.get("source_sha256","")==FileAccess.get_sha256(path):
+			for span:Array in cleanup.get("clear_spans",[]):
+				pixels.fill_rect(Rect2i(int(span[0]),int(span[1]),int(span[2]),1),Color.TRANSPARENT)
+		pixels.premultiply_alpha()
 	pixels.generate_mipmaps()
 	var texture:=ImageTexture.create_from_image(pixels)
 	# A changed future manifest still renders normally beyond this fixed budget.
@@ -36,6 +49,7 @@ var _poses: Dictionary = {}
 var _walk_material: ShaderMaterial
 var _portrait_material: ShaderMaterial
 var _walk_keys: Array[String] = []
+var _head_offsets: Array[Vector2] = []
 var _frame_ends: Array[float] = []
 var _cycle_seconds: float = 0.0
 var _idle_time: float = 0.0
@@ -168,6 +182,7 @@ func _load_supplied_walk() -> void:
 		if art == null: return
 		prepared.append(art)
 	_walk_keys.clear()
+	_head_offsets.clear()
 	_frame_ends.clear()
 	_cycle_seconds = 0.0
 	_idle_time = 0.0
@@ -177,6 +192,9 @@ func _load_supplied_walk() -> void:
 		# only to the original idle/turn source, never to these new poses.
 		var key := "supplied_walk_%02d" % index
 		_walk_keys.append(key)
+		var measured:Dictionary=_runtime_registration().get(str(data.frames[index].path).get_file(),{})
+		var offset:Array=measured.get("head_translation_px",[0.0,0.0])
+		_head_offsets.append(Vector2(float(offset[0]),float(offset[1])))
 		_poses[key] = prepared[index]
 		_frame_geometry[key] = data.frames[index]
 		_cycle_seconds += float(data.frames[index].duration_seconds)
@@ -343,7 +361,7 @@ func _draw() -> void:
 			_draw_pose(_turn_keys[index], 1.0)
 		else:
 			if not _was_in_motion and _settle_time < 0.10:
-				_draw_pose(_walk_keys[_frame_for_time(_settle_phase)],1.0)
+				_draw_walk_cycle(_settle_phase,1.0)
 			else:
 				_draw_walk_cycle(_walk_time, 1.0)
 		return
@@ -355,13 +373,26 @@ func _draw() -> void:
 func _draw_walk_cycle(seconds:float,opacity:float)->void:
 	# One painted silhouette. Cadence follows the painted stride's world size,
 	# rather than an arbitrary multiplier or the configured maximum speed.
-	_draw_pose(_walk_keys[_frame_for_time(seconds)],opacity)
+	var index:=_frame_for_time(seconds)
+	var shift:=Vector2.ZERO
+	if _head_offsets.size()==_walk_keys.size() and _cycle_seconds>0.0:
+		var start:=0.0 if index==0 else _frame_ends[index-1]
+		var weight:=clampf((fposmod(seconds,_cycle_seconds)-start)/maxf(_frame_ends[index]-start,.001),0.0,1.0)
+		var count:=_head_offsets.size()
+		var before:=_head_offsets[(index+count-1)%count]
+		var current:=_head_offsets[index]
+		var next:=_head_offsets[(index+1)%count]
+		var after:=_head_offsets[(index+2)%count]
+		var continuous:=current.cubic_interpolate(next,before,after,weight)
+		shift=continuous-current
+	_draw_pose(_walk_keys[index],opacity,shift)
 
-func _draw_pose(key:String,opacity:float)->void:
+func _draw_pose(key:String,opacity:float,upper_shift:Vector2=Vector2.ZERO)->void:
 	var art:Texture2D=_poses.get(key)
 	if art==null:return
 	var supplied:=key.begins_with("supplied_walk_")
 	material=_walk_material if supplied else _portrait_material
+	if supplied:_walk_material.set_shader_parameter("upper_shift",upper_shift/art.get_size())
 	var eye: Rect2 = EYE_RECTS.get(key, Rect2())
 	if not supplied and material is ShaderMaterial:
 		material.set_shader_parameter("eye_rect",Vector4(eye.position.x,eye.position.y,eye.size.x,eye.size.y))
