@@ -22,7 +22,7 @@ func run() -> void:
     viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
     root.add_child(viewport)
     var background := ColorRect.new()
-    background.color = Color.WHITE
+    background.color = Color("#26494f")
     background.size = Vector2(1600, 900)
     viewport.add_child(background)
     var overlay = load("res://scripts/ui/scene_passage.gd").new()
@@ -31,15 +31,14 @@ func run() -> void:
     await process_frame
     check(overlay._frames.size() == 6, "six supplied loading frames loaded")
     check(overlay._frames[0].get_width() > 0, "loading frame has pixels")
-    check(overlay._caption.text == "加载中…", "Chinese loading caption")
-    check(overlay._art.modulate.a == 0.0 and overlay._caption.modulate.a == 0.0, "new transition begins fully transparent")
-    overlay.locale = "en"
-    check(overlay._caption.text == "Loading…", "English loading caption updates")
+    check(not overlay._art.visible and not overlay._bar.visible, "new transition begins transparent")
     overlay.coverage = 1.0
     overlay.set_progress(0.65)
-    await process_frame
     check(is_equal_approx(overlay.progress, 0.65), "progress value is exposed")
+    check(overlay._bar.texture.resource_path.ends_with("loading_bar_source.png"), "supplied wave image used")
+    check(overlay._paper.texture != null, "paper texture loaded")
     if DisplayServer.get_name() != "headless":
+        await process_frame
         RenderingServer.force_draw(false)
         var full_pixel := viewport.get_texture().get_image().get_pixel(1200, 752)
         overlay.coverage = 0.5
@@ -50,21 +49,23 @@ func run() -> void:
         await process_frame
         RenderingServer.force_draw(false)
         var clear_pixel := viewport.get_texture().get_image().get_pixel(1200, 752)
-        check(absf(half_pixel.get_luminance() - full_pixel.get_luminance()) > 0.03, "progress track opacity changes with coverage")
-        check(clear_pixel.get_luminance() > 0.99, "progress track leaves no residue on destination")
+        check(absf(half_pixel.get_luminance() - full_pixel.get_luminance()) > 0.03, "transition opacity changes with coverage")
+        check(absf(clear_pixel.get_luminance() - background.color.get_luminance()) < 0.01, "destination pixels restored without residue")
     await overlay.cover()
     check(overlay.coverage > 0.99, "cover reaches opaque state")
     await overlay.uncover()
     check(overlay.coverage < 0.01, "uncover returns to gameplay")
-    check(overlay._art.modulate.a < 0.01 and overlay._caption.modulate.a < 0.01, "all children are transparent when uncover finishes")
-    var receipt := {"checks": checks, "failures": failures, "frames": overlay._frames.size(), "display": DisplayServer.get_name(), "method": "scene_passage lifecycle, bilingual captions and GPU fade readback when available"}
+    check(not overlay._bar.visible and not overlay._art.visible and not overlay._paper.visible, "all children disappear on the final fade frame")
+    await overlay.cover(false)
+    check(not overlay._art.visible and not overlay._bar.visible, "short transition skips loading composition")
+    await overlay.uncover(false)
+    check(overlay.coverage < 0.01 and not overlay._paper.visible, "short transition fully clears")
+    var receipt := {"checks": checks, "failures": failures, "frames": overlay._frames.size(), "display": DisplayServer.get_name(), "method": "scene_passage lifecycle, supplied loading artwork, short transition and GPU fade readback"}
     var out := "user://loading-transition-20261114.json"
     if not output_directory.is_empty():
         DirAccess.make_dir_recursive_absolute(output_directory)
         out = output_directory.path_join("receipt.json")
-    var file := FileAccess.open(out, FileAccess.WRITE)
-    file.store_string(JSON.stringify(receipt))
-    file.close()
+    FileAccess.open(out, FileAccess.WRITE).store_string(JSON.stringify(receipt))
     print("LOADING_TRANSITION_20261114 ", JSON.stringify(receipt))
     viewport.queue_free()
     await process_frame
