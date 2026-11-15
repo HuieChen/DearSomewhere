@@ -2,7 +2,15 @@
 
 User feedback: remove the courier's outline, fix uneven walking, and redesign the unattractive recorder UI.
 
-## Implemented
+## Integrated release follow-up
+
+This report below describes the first correction, not the final gait. The merged main implementation supersedes its two-frame blending and source-cadence claims: it now draws one silhouette, couples gait to painted stride distance, holds the standing turn in place, smooths upper-body registration, and clears source-hash-verified detached matte remnants. See WALK_REGISTRATION_20261116.md and GROUNDED_STRIDE_20261116.md for the current behavior and its remaining four-pose leg-animation limitation.
+
+Actual integrated PCK SHA-256: `77fb18093196d00c0474d9e3fe0c9379f03456fed4126f81a01c7a8b045190b2`, built from runtime `120d1c5`; subsequent main changes through `f25f3fc` affect reports/tests only. OpenGL3/WASAPI package checks: walk continuity 60, framebuffer/cleanup 9, recorder 44, movement 90, tool state integrity 63; 266 checks, zero failures. Timed offscreen recorder testing isolates desktop focus delivery and explicitly exercises the loss-of-focus handler. Earlier non-isolated failures are retained in local logs; they are not counted as passes.
+
+Both Latest playable entries were backed up, copied and SHA-256 verified. The actual recorder window showed the compact top dock and a native mouse click changed Record to Stop. The window then became minimized before the continuous native walking review; no subjective motion or listening acceptance is claimed. Delivery evidence: `D:/Codex-build-cache/walk-acceptance-20261110/walk-recorder-integrated-packed-qa` and `sync-integrated-1116.json`.
+
+## Initial correction (superseded gait details)
 
 - Walk textures use premultiplied alpha before mipmap generation. A separate walk material corrects partial-coverage contour colour; original PNGs and movie remain unchanged.
 - The normal walking branch now reaches the interpolation code. Both frames are combined in one shader pass, keeping overlapping body pixels opaque. No generated animation frames are selected; the twelve source frames retain their two-second cadence.
