@@ -48,15 +48,28 @@ func _ready()->void:
 	if is_instance_valid(road) and is_instance_valid(road.courier):road.courier.manual_enabled=true
 	_page=Control.new();UI.place(_page,self,Rect2(0,0,1600,900));_page.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	var surface:=Control.new();surface.name="RecordingWalkSurface";UI.place(surface,_page,Rect2(0,0,1600,900));surface.mouse_default_cursor_shape=Control.CURSOR_CROSS;surface.gui_input.connect(_aim_input)
-	var instrument:=Control.new();instrument.name="StereoDisplay";UI.place(instrument,_page,Rect2(32,28,352,134));instrument.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	var instrument:=Control.new();instrument.name="StereoDisplay";UI.place(instrument,_page,Rect2(28,24,430,184));instrument.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	instrument.draw.connect(func():
-		var body:=StyleBoxFlat.new();body.bg_color=Color("f3ead6");body.set_corner_radius_all(16);body.set_border_width_all(1);body.border_color=Color("b9b09b");body.shadow_color=Color(0,0,0,.16);body.shadow_size=4;body.shadow_offset=Vector2(0,3);instrument.draw_style_box(body,Rect2(Vector2.ZERO,instrument.size)))
-	# SEASON reference: monitor the scene through sparse edge HUD, browse separately.
+		var shadow:=StyleBoxFlat.new();shadow.bg_color=Color(0.08,0.12,0.12,.20);shadow.set_corner_radius_all(21);instrument.draw_style_box(shadow,Rect2(5,7,instrument.size.x-1,instrument.size.y-1))
+		var body:=StyleBoxFlat.new();body.bg_color=Color("e7d8ba");body.set_corner_radius_all(20);body.set_border_width_all(2);body.border_color=Color("52655e");body.shadow_color=Color(0,0,0,.18);body.shadow_size=3;body.shadow_offset=Vector2(0,2);instrument.draw_style_box(body,Rect2(Vector2.ZERO,instrument.size))
+		var top_plate:=StyleBoxFlat.new();top_plate.bg_color=Color("f3ead6");top_plate.set_corner_radius_all(12);top_plate.set_border_width_all(1);top_plate.border_color=Color("b8a98d");instrument.draw_style_box(top_plate,Rect2(18,15,instrument.size.x-36,30))
+		var screen:=StyleBoxFlat.new();screen.bg_color=Color("40534f");screen.set_corner_radius_all(10);screen.set_border_width_all(2);screen.border_color=Color("6e8176");instrument.draw_style_box(screen,Rect2(32,48,instrument.size.x-64,94))
+		instrument.draw_line(Vector2(34,158),Vector2(instrument.size.x-34,158),Color("b7a88c"),1.0)
+		for i in 12:
+			instrument.draw_circle(Vector2(52+i*17,173),2.2,Color("7f8b77"))
+		for i in 3:
+			instrument.draw_line(Vector2(365+i*10,20),Vector2(365+i*10,31),Color("9a8d77"),2.0)
+		instrument.draw_circle(Vector2(instrument.size.x-38,29),5.0,Color("b25949"))
+		instrument.draw_circle(Vector2(instrument.size.x-38,29),2.0,Color("f1b09b")))
+	# The recorder remains a compact edge HUD. Its physical shell carries the
+	# visual weight, while the central world stays open for walking and aiming.
 	var style:=StyleBoxFlat.new();style.bg_color=Color("f7edd9");style.set_corner_radius_all(14)
-	label(t("录音机 · 双声道","RECORDER · STEREO"),Rect2(54,39,215,27),17)
-	clock_label=label("00:00",Rect2(278,38,90,30),23)
-	mode_label=label(t("监听","MONITOR"),Rect2(70,67,105,22),15)
-	label("L",Rect2(54,91,22,20),14);label("R",Rect2(54,111,22,20),14)
+	label(t("录音机 · 双声道","RECORDER · STEREO"),Rect2(58,43,220,27),17)
+	clock_label=label("00:00",Rect2(278,42,82,30),23)
+	mode_label=label(t("监听","MONITOR"),Rect2(70,72,105,22),15)
+	mode_label.add_theme_color_override("font_color",Color("e7d8ba"))
+	var left_channel:=label("L",Rect2(54,96,22,20),14);left_channel.add_theme_color_override("font_color",Color("e7d8ba"))
+	var right_channel:=label("R",Rect2(54,116,22,20),14);right_channel.add_theme_color_override("font_color",Color("e7d8ba"))
 	record_button=button(t("R  录音","R  Record"),Rect2(1224,814,176,48),toggle_recording);record_button.name="RecordToggle"
 	play_button=button(t("P  回听","P  Play"),Rect2(1040,814,170,48),toggle_playback);play_button.name="PlaybackToggle"
 	button("×",Rect2(1500,28,56,48),request_close).name="CloseRecorder"
@@ -66,7 +79,7 @@ func _ready()->void:
 	visual_hint.add_theme_color_override("font_outline_color",Color(.12,.16,.17,.75));visual_hint.add_theme_constant_override("outline_size",4)
 	UI.place(visual_hint,_page,Rect2(1288,32,205,40));visual_hint.tooltip_text=t("H · 方向提示","H · Direction hints")
 	library_button=button(t("录音列表","Recordings"),Rect2(36,814,194,48),_toggle_library);library_button.name="RecordingLibrary"
-	status=label("",Rect2(40,171,350,34),18)
+	status=label("",Rect2(42,214,240,34),18)
 	status.add_theme_color_override("font_color",Color("fff4db"));status.add_theme_color_override("font_outline_color",Color(.12,.16,.17,.8));status.add_theme_constant_override("outline_size",3)
 	var movement:=label(t("WASD / 方向键移动 · 鼠标收音","WASD / Arrows to walk · Mouse to aim"),Rect2(270,824,650,30),18)
 	movement.add_theme_color_override("font_color",Color("fff4db"));movement.add_theme_color_override("font_outline_color",Color(.12,.16,.17,.8));movement.add_theme_constant_override("outline_size",3)
