@@ -92,5 +92,5 @@ void fragment() {
 			tex.rgb = mix(tex.rgb,pigment.rgb,correction*step(0.98,pigment.a));
 		}
 	}
-	COLOR = vec4(character_pigment(tex.rgb),tex.a) * item_tint;
+	COLOR = vec4(character_pigment(tex.rgb,item_tint.rgb),tex.a) * item_tint;
 }

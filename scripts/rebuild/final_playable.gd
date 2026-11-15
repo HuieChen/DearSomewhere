@@ -1424,7 +1424,9 @@ func _change_scene(build:Callable)->void:
 	fade.set_loading_enabled(false)
 	UI.place(fade,self,Rect2(0,0,1600,900))
 	await fade.cover(false)
-	if not is_inside_tree():return
+	if not is_inside_tree():
+		busy=false
+		return
 	build.call()
 	fade.set_progress(0.78)
 	await fade.uncover(false)
