@@ -83,8 +83,19 @@ static func button(parent: Node, text: String, rect: Rect2, callback: Callable, 
 			b.add_theme_stylebox_override(state,close_style)
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	place(b, parent, rect)
+	b.mouse_entered.connect(func():_play_sound(b,"title_hover"))
+	b.pressed.connect(func():_play_sound(b,"paper"))
 	b.pressed.connect(callback)
 	return b
+
+static func _play_sound(node: Node, kind: String) -> void:
+	var current: Node = node
+	while current != null:
+		var candidate: Variant = current.get("sound")
+		if candidate is Node and candidate.has_method("play"):
+			candidate.play(kind)
+			return
+		current = current.get_parent()
 
 static func texture(parent: Node, path: String, rect: Rect2) -> TextureRect:
 	var t = TextureRect.new()

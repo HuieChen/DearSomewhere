@@ -80,6 +80,7 @@ func _process(_delta:float)->void:
 func preference_changed(key:String,value:Variant)->void:
 	if key=="language":locale=str(value)
 func _activate(id:String)->void:
+	cue.emit("paper")
 	await get_tree().create_timer(0.10).timeout
 	if is_inside_tree() and visible and (not available.is_valid() or available.call()):action_requested.emit(id)
 func _link_focus()->void:

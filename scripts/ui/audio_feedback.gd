@@ -202,9 +202,10 @@ func play(kind: String = "paper") -> void:
 	_last_played[feedback_key] = _elapsed
 	var variants: Array = []
 	if kind == "step":
-		var surface: String = "wood" if indoors else "concrete"
-		# Authored streets all have paved walking lanes, including residential.
-		for index: int in range(1, 4): variants.append("soft_step_%s_%d.wav" % [surface, index])
+		var surface: String = "wood" if indoors else ("grass" if location_id == "residential" else "concrete")
+		# Residential paths use the softer grass contact. Other outdoor streets use stone/concrete.
+		for index: int in range(1, 4):
+			variants.append(("step_grass_%d.wav" % index) if surface == "grass" else ("soft_step_%s_%d.wav" % [surface, index]))
 	else:
 		variants = POOLS.get(kind, POOLS.paper)
 	if settings_cue and kind=="paper":variants=["paper_1.wav","paper_2.wav"]
