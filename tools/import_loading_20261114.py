@@ -16,15 +16,18 @@ with tempfile.TemporaryDirectory() as tmp:
         raise RuntimeError(f'Expected six 5fps frames, got {len(inputs)}')
     rgba = []
     for path in inputs:
-        rgb = np.asarray(Image.open(path).convert('RGB'))
-        peak = rgb.max(axis=2).astype(np.float32)
-        alpha = np.clip((peak - 4.0) / 28.0, 0.0, 1.0)
-        # Keep authored cyan strokes exactly; only the black video matte becomes
-        # transparent. No recolor, smoothing or generated in-between poses.
-        rgba.append(np.dstack([rgb, np.rint(alpha * 255).astype('uint8')]))
+        # HEVC contains authored alpha. Never derive opacity from RGB: that
+        # exposes hidden matte/color pixels and weakens the cyan line strokes.
+        image = Image.open(path)
+        if image.mode != 'RGBA':
+            raise RuntimeError('Decoder did not expose the source alpha channel')
+        frame = np.asarray(image).copy()
+        if frame[:, :, 3].min() == 255:
+            raise RuntimeError('Source transparency was lost during decode')
+        rgba.append(frame)
     union = np.zeros(rgba[0].shape[:2], dtype=bool)
     for frame in rgba:
-        union |= frame[:, :, 3] > 8
+        union |= frame[:, :, 3] > 0
     ys, xs = np.where(union)
     pad = 36
     box = (max(0, int(xs.min()) - pad), max(0, int(ys.min()) - pad),
@@ -41,5 +44,5 @@ with tempfile.TemporaryDirectory() as tmp:
 (out / 'manifest.json').write_text(json.dumps({
     'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
     'source_fps': 5, 'frame_count': 6, 'crop': box,
-    'ai_generated': False, 'frames': frames}, indent=2) + '\n', encoding='utf-8')
+    'ai_generated': False, 'alpha': 'native HEVC alpha preserved byte-for-byte', 'frames': frames}, indent=2) + '\n', encoding='utf-8')
 print(f'Imported {len(frames)} authored loading frames, crop={box}')

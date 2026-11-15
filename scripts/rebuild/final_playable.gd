@@ -451,7 +451,7 @@ func _fresh() -> void:
 	if not is_inside_tree():return
 	_post_office_room()
 	fade.set_progress(0.82)
-	await get_tree().create_timer(0.70).timeout
+	await get_tree().create_timer(1.15).timeout
 	await fade.uncover(true)
 	if is_instance_valid(fade):remove_child(fade);fade.queue_free()
 	busy=false

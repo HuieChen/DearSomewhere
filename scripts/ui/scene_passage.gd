@@ -3,7 +3,7 @@ extends Control
 ##
 ## Long transitions use the supplied cyan line animation plus the supplied
 ## wave loading-bar artwork on a warm cotton-paper surface. Short scene swaps
-## can opt out of the loading composition and use only a quiet paper fade.
+## crossfade directly from the previous framebuffer; no paper flash.
 
 const FRAME_PATHS := [
     "res://assets/authoring/loading_20261114/frame_00.png",
@@ -37,6 +37,8 @@ var _flow_time := 0.0
 var _paper: TextureRect
 var _art: TextureRect
 var _bar: TextureRect
+var _snapshot: TextureRect
+var _display_progress := 0.0
 
 func _ready() -> void:
     name = "SceneTransition"
@@ -47,6 +49,12 @@ func _ready() -> void:
         if texture != null:
             _frames.append(texture)
 
+    _snapshot = TextureRect.new()
+    _snapshot.name = "PreviousScene"
+    _snapshot.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    _snapshot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    add_child(_snapshot)
+
     _paper = TextureRect.new()
     _paper.name = "CottonPaperSurface"
     _paper.texture = load(PAPER_TEXTURE_PATH) as Texture2D
@@ -54,6 +62,9 @@ func _ready() -> void:
     _paper.stretch_mode = TextureRect.STRETCH_TILE
     _paper.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
     _paper.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    var paper_material := ShaderMaterial.new()
+    paper_material.shader = load("res://scripts/ui/cotton_paper.gdshader")
+    _paper.material = paper_material
     add_child(_paper)
 
     _art = TextureRect.new()
@@ -88,6 +99,9 @@ func _process(delta: float) -> void:
         _art.texture = _frames[mini(_frames.size() - 1, int(_frame_time / 0.2))]
     if is_instance_valid(_bar) and _bar.material is ShaderMaterial:
         (_bar.material as ShaderMaterial).set_shader_parameter("flow_time", _flow_time)
+    _display_progress = lerpf(_display_progress, progress, 1.0 - exp(-delta * 4.5))
+    if is_instance_valid(_bar) and _bar.material is ShaderMaterial:
+        (_bar.material as ShaderMaterial).set_shader_parameter("fill_progress", _display_progress)
     _sync_visibility()
     _layout()
     queue_redraw()
@@ -102,19 +116,26 @@ func _layout() -> void:
     var canvas := size
     _paper.position = Vector2.ZERO
     _paper.size = canvas
-    _art.position = Vector2(canvas.x * 0.5 - 145.0, canvas.y * 0.5 - 250.0)
-    _art.size = Vector2(290.0, 290.0)
-    _bar.position = Vector2(canvas.x * 0.5 - 380.0, canvas.y * 0.5 - 10.0)
-    _bar.size = Vector2(760.0, 253.0)
+    _snapshot.position = Vector2.ZERO
+    _snapshot.size = canvas
+    var unit := minf(canvas.x / 1600.0, canvas.y / 900.0)
+    var center := canvas * 0.5
+    _art.size = Vector2(400.0, 550.0) * unit
+    _art.position = center + Vector2(-200.0, -365.0) * unit
+    _bar.size = Vector2(650.0, 217.0) * unit
+    _bar.position = center + Vector2(-325.0, 160.0) * unit
 
 func _sync_visibility() -> void:
     var visible := coverage > 0.002
     if is_instance_valid(_paper):
-        _paper.visible = visible
-        _paper.modulate.a = coverage * 0.08
+        _paper.visible = visible and loading_enabled
+        _paper.modulate.a = coverage
     if is_instance_valid(_art):
         _art.visible = visible and loading_enabled
-        _art.modulate.a = coverage * 0.96
+        _art.modulate.a = coverage
+    if is_instance_valid(_snapshot):
+        _snapshot.visible = visible and not loading_enabled
+        _snapshot.modulate.a = coverage
     if is_instance_valid(_bar):
         _bar.visible = visible and loading_enabled
         _bar.modulate.a = coverage
@@ -127,21 +148,31 @@ func set_progress(value: float) -> void:
     progress = value
 
 func _draw() -> void:
-    # Warm fallback under the tiled texture keeps the transition paper-like even
-    # for the first frame before the texture import is ready.
-    var paper_alpha := coverage
-    draw_rect(Rect2(Vector2.ZERO, size), Color(0.965, 0.935, 0.865, paper_alpha))
+    if loading_enabled:
+        draw_rect(Rect2(Vector2.ZERO, size), Color(0.966, 0.950, 0.912, coverage))
 
 func cover(show_loading: bool = true) -> void:
     set_loading_enabled(show_loading)
+    if not show_loading:
+        # Freeze the current scene, build the destination behind it, then blend
+        # the two scenes. This avoids a light-colored flash on every doorway.
+        coverage = 0.0
+        await get_tree().process_frame
+        if DisplayServer.get_name() != "headless":
+            await RenderingServer.frame_post_draw
+            var image := get_viewport().get_texture().get_image()
+            if not image.is_empty():
+                _snapshot.texture = ImageTexture.create_from_image(image)
+        coverage = 1.0
+        return
     _frame_time = 0.0
     _flow_time = 0.0
+    _display_progress = 0.0
     progress = 0.12
     if is_instance_valid(sound):
-        sound.play("flip" if show_loading else "paper")
-    var duration := 0.34 if show_loading else 0.14
-    var motion := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-    motion.tween_property(self, "coverage", 1.0, duration)
+        sound.play("flip")
+    var motion := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    motion.tween_property(self, "coverage", 1.0, 0.38)
     await motion.finished
 
 func uncover(show_loading: bool = true) -> void:
@@ -150,7 +181,6 @@ func uncover(show_loading: bool = true) -> void:
     await get_tree().process_frame
     if DisplayServer.get_name() != "headless":
         await RenderingServer.frame_post_draw
-    var duration := 0.46 if show_loading else 0.20
-    var motion := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-    motion.tween_property(self, "coverage", 0.0, duration)
+    var motion := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+    motion.tween_property(self, "coverage", 0.0, 0.50 if show_loading else 0.38)
     await motion.finished

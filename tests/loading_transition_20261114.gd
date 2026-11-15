@@ -32,6 +32,11 @@ func run() -> void:
     check(overlay._frames.size() == 6, "six supplied loading frames loaded")
     check(overlay._frames[0].get_width() > 0, "loading frame has pixels")
     check(not overlay._art.visible and not overlay._bar.visible, "new transition begins transparent")
+    check(overlay._frames[0].get_width() < 900, "alpha-only common bounds exclude hidden RGB matte")
+    var first_image:Image = overlay._frames[0].get_image()
+    check(first_image.get_pixel(0,0).a < 0.01, "native transparent frame corner")
+    check(absf(overlay._art.position.x + overlay._art.size.x*0.5 - 800.0)<1, "line art horizontally centered")
+    check(overlay._art.size.y >= 500.0, "large line art composition")
     overlay.coverage = 1.0
     overlay.set_progress(0.65)
     check(is_equal_approx(overlay.progress, 0.65), "progress value is exposed")
@@ -53,14 +58,28 @@ func run() -> void:
         check(absf(clear_pixel.get_luminance() - background.color.get_luminance()) < 0.01, "destination pixels restored without residue")
     await overlay.cover()
     check(overlay.coverage > 0.99, "cover reaches opaque state")
+    overlay.set_progress(0.82)
+    if not output_directory.is_empty() and DisplayServer.get_name() != "headless":
+        DirAccess.make_dir_recursive_absolute(output_directory)
+        await create_timer(0.65).timeout
+        RenderingServer.force_draw(false)
+        viewport.get_texture().get_image().save_png(output_directory.path_join("loading.png"))
     await overlay.uncover()
     check(overlay.coverage < 0.01, "uncover returns to gameplay")
     check(not overlay._bar.visible and not overlay._art.visible and not overlay._paper.visible, "all children disappear on the final fade frame")
     await overlay.cover(false)
     check(not overlay._art.visible and not overlay._bar.visible, "short transition skips loading composition")
+    check(not overlay._paper.visible, "short transition never exposes ivory loading paper")
+    if DisplayServer.get_name() != "headless":
+        check(overlay._snapshot.texture != null, "short transition retains previous framebuffer")
+        background.color=Color("375b76")
+        await process_frame
+        RenderingServer.force_draw(false)
+        var retained := viewport.get_texture().get_image().get_pixel(100,100)
+        check(absf(retained.r-Color("26494f").r)<0.02, "previous scene retained over newly built scene")
     await overlay.uncover(false)
     check(overlay.coverage < 0.01 and not overlay._paper.visible, "short transition fully clears")
-    var receipt := {"checks": checks, "failures": failures, "frames": overlay._frames.size(), "display": DisplayServer.get_name(), "method": "scene_passage lifecycle, supplied loading artwork, short transition and GPU fade readback"}
+    var receipt := {"checks": checks, "failures": failures, "frames": overlay._frames.size(), "display": DisplayServer.get_name(), "method": "scene_passage lifecycle, supplied loading artwork, frame alpha/layout, snapshot crossfade and GPU fade readback"}
     var out := "user://loading-transition-20261114.json"
     if not output_directory.is_empty():
         DirAccess.make_dir_recursive_absolute(output_directory)
@@ -70,3 +89,4 @@ func run() -> void:
     viewport.queue_free()
     await process_frame
     quit(1 if not failures.is_empty() else 0)
+
