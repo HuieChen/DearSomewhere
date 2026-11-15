@@ -71,7 +71,9 @@ func run()->void:
 		await RenderingServer.frame_post_draw
 		check(root.get_texture().get_image().save_png(out.path_join(locale+"_bag.png"))==OK,locale+" rendered paper evidence")
 		game._close();await settle()
-	game.sound.shutdown();game.queue_free();await process_frame;await process_frame
+	game.sound.shutdown();await create_timer(.4).timeout
+	game.queue_free();await process_frame;await process_frame
+	await create_timer(.2).timeout
 	var report:={"checks":checks,"failures":failures,"method":"Offscreen OpenGL keyboard routing, isolated saves, bilingual layouts"}
 	FileAccess.open(out.path_join("receipt.json"),FileAccess.WRITE).store_string(JSON.stringify(report,"\t"))
 	print("PAPER_NAVIGATION ",checks," checks / ",failures.size()," failures")

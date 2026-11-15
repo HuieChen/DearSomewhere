@@ -13,12 +13,16 @@ func check(ok:bool,message:String):
 func click_ground(road:Control,x:float,button:int=MOUSE_BUTTON_LEFT):
 	var e:=InputEventMouseButton.new();e.button_index=button;e.pressed=true;e.position=Vector2(x,872);road.world.gui_input.emit(e)
 func run():
+	root.unfocusable=true
 	DirAccess.make_dir_recursive_absolute(out)
 	root.size=Vector2i(1280,720);root.content_scale_size=Vector2i(1600,900);root.content_scale_mode=Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	var game=load("res://scripts/rebuild/final_playable.gd").new();game.allow_display_changes=false;root.add_child(game);game.size=Vector2(1600,900)
 	game.core.new_game();game.core.state.location="community_center";game._world("grocery");await create_timer(.3).timeout
 	var road=game._street_road;var original:Vector2=game.walker.foot
-	click_ground(road,original.x+350);await create_timer(.15).timeout
+	click_ground(road,original.x+350)
+	# The authored standing turn now finishes before translation starts.
+	var movement_deadline:=Time.get_ticks_msec()+750
+	while game.walker.foot.x<=original.x and Time.get_ticks_msec()<movement_deadline:await process_frame
 	check(game.walker.walking and game.walker.foot.x>original.x,"Ground click moves courier")
 	check(road.world.get_node("WalkTarget").active,"Selected ground position visible")
 	await RenderingServer.frame_post_draw;root.get_texture().get_image().save_png(out+"walk_target.png")
