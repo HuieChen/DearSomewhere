@@ -9,7 +9,8 @@ signal foot_position_changed(at: Vector2)
 
 const PhysicalArt = preload("res://scripts/rebuild/physical_art.gd")
 const WALK_GEOMETRY := "res://assets/faefever_v2/characters/courier_walk_regions.json"
-# Only the authored idle, five walk and five supplementary turn images.
+# The supplied walk movie contributes twelve ordered poses; five supplementary
+# turn images bridge movement back to the authored idle without replacing it.
 # Geometry, animation state, materials and callbacks remain instance-local.
 const MAX_PREPARED_TEXTURES := 23
 static var _prepared_textures: Dictionary = {}
