@@ -1406,10 +1406,12 @@ func _change_scene(build:Callable)->void:
 	_close()
 	if is_instance_valid(walker):walker.cancel();walker.manual_enabled=false
 	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
+	fade.sound=sound
 	UI.place(fade,self,Rect2(0,0,1600,900))
 	await fade.cover()
 	if not is_inside_tree():return
 	build.call()
+	fade.set_progress(0.78)
 	await fade.uncover()
 	if is_instance_valid(fade):remove_child(fade);fade.queue_free()
 	busy=false
@@ -1433,11 +1435,11 @@ func _depart(id:String,minutes:int,_map:Control=null) -> void:
 		walker.manual_enabled=false
 		walker.walk_to(walker.foot+Vector2(82 if LOCATIONS.find(id)>LOCATIONS.find(str(core.state.location)) else -82,0))
 		await get_tree().create_timer(0.28).timeout
-	var fade:=ColorRect.new()
-	fade.name="TravelFade";fade.z_index=200;fade.color=Color(0.08,0.12,0.13,0)
+	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
+	fade.sound=sound
 	UI.place(fade,self,Rect2(0,0,1600,900))
-	var out:=create_tween();out.tween_property(fade,"color:a",1.0,0.2)
-	await out.finished
+	await fade.cover()
+	fade.set_progress(0.42)
 	var error:String=core.travel(id,minutes)
 	if error.is_empty():
 		_save()
@@ -1445,8 +1447,7 @@ func _depart(id:String,minutes:int,_map:Control=null) -> void:
 		else:_world(id)
 	# Newly created stage stays under this overlay during the arrival fade.
 	move_child(fade,get_child_count()-1)
-	var arrival:=create_tween();arrival.tween_property(fade,"color:a",0.0,0.25)
-	await arrival.finished
+	await fade.uncover()
 	fade.queue_free();busy=false
 	if is_instance_valid(walker):walker.manual_enabled=view=="world"
 	if not error.is_empty():_say(error)
