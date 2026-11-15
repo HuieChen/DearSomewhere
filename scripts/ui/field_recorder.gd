@@ -60,10 +60,10 @@ func _ready()->void:
 	# A single quiet control dock keeps the panorama and character unobstructed.
 	var instrument:=Control.new();instrument.name="RecorderDock";UI.place(instrument,_page,Rect2(340,24,920,98));instrument.mouse_filter=Control.MOUSE_FILTER_STOP
 	instrument.draw.connect(func():
-		var paper:=StyleBoxFlat.new();paper.bg_color=Color("f4ecd9");paper.set_corner_radius_all(24);paper.shadow_color=Color(0.14,0.17,0.12,.15);paper.shadow_size=5;paper.shadow_offset=Vector2(0,4)
+		var paper:=StyleBoxFlat.new();paper.bg_color=UI.ACTION_PAPER;paper.set_corner_radius_all(24);paper.shadow_color=Color(0.14,0.17,0.12,.15);paper.shadow_size=5;paper.shadow_offset=Vector2(0,4)
 		instrument.draw_style_box(paper,Rect2(Vector2.ZERO,instrument.size))
 		instrument.draw_line(Vector2(252,22),Vector2(252,76),Color("d9cfb8"),1.0))
-	var style:=StyleBoxFlat.new();style.bg_color=Color("f7edd9");style.set_corner_radius_all(18);style.shadow_size=8;style.shadow_color=Color(0,0,0,.14)
+	var style:=StyleBoxFlat.new();style.bg_color=UI.ACTION_PAPER;style.set_corner_radius_all(18);style.shadow_size=8;style.shadow_color=Color(0,0,0,.14)
 	label(t("录音机","FIELD RECORDER"),Rect2(370,79,132,24),16)
 	clock_label=label("00:00",Rect2(499,42,82,32),27)
 	mode_label=label(t("监听","MONITOR"),Rect2(392,46,102,24),17)
@@ -72,7 +72,7 @@ func _ready()->void:
 	for state:String in ["normal","hover","pressed","disabled"]:
 		var circle:=StyleBoxFlat.new();circle.bg_color=Color("b86050") if state=="normal" else (Color("a34c40") if state=="pressed" else Color("c77260"));circle.set_corner_radius_all(34)
 		record_button.add_theme_stylebox_override(state,circle)
-	var record_focus:=StyleBoxFlat.new();record_focus.bg_color=Color.TRANSPARENT;record_focus.set_corner_radius_all(36);record_focus.set_border_width_all(2);record_focus.border_color=Color("527366");record_focus.expand_margin_left=4;record_focus.expand_margin_top=4;record_focus.expand_margin_right=4;record_focus.expand_margin_bottom=4;record_button.add_theme_stylebox_override("focus",record_focus)
+	var record_focus:=StyleBoxFlat.new();record_focus.bg_color=Color.TRANSPARENT;record_focus.set_corner_radius_all(36);record_focus.set_border_width_all(2);record_focus.border_color=UI.ACTION_INK;record_focus.expand_margin_left=4;record_focus.expand_margin_top=4;record_focus.expand_margin_right=4;record_focus.expand_margin_bottom=4;record_button.add_theme_stylebox_override("focus",record_focus)
 	record_button.draw.connect(func():
 		if recording:
 			var stop:=StyleBoxFlat.new();stop.bg_color=Color("fff4dd");stop.set_corner_radius_all(4);record_button.draw_style_box(stop,Rect2(23,23,22,22))
@@ -80,7 +80,7 @@ func _ready()->void:
 	play_button=button(t("P  回听","P  Play"),Rect2(834,47,112,48),toggle_playback);play_button.name="PlaybackToggle"
 	library_button=button(t("录音列表","Recordings"),Rect2(962,47,174,48),_toggle_library);library_button.name="RecordingLibrary"
 	button("×",Rect2(1174,47,50,48),request_close).name="CloseRecorder"
-	visual_hint=CheckButton.new();visual_hint.text=t("方向提示 · H","Direction hints · H");visual_hint.add_theme_font_override("font",FONT);visual_hint.add_theme_font_size_override("font_size",18);visual_hint.add_theme_color_override("font_color",Color("52665a"))
+	visual_hint=CheckButton.new();visual_hint.text=t("方向提示 · H","Direction hints · H");visual_hint.add_theme_font_override("font",FONT);visual_hint.add_theme_font_size_override("font_size",18);visual_hint.add_theme_color_override("font_color",UI.ACTION_INK)
 	visual_hint.toggled.connect(func(_enabled:bool):cue.emit("paper"))
 	visual_hint.visible=is_instance_valid(road)
 	var list_panel:=Panel.new();list_panel.add_theme_stylebox_override("panel",style);UI.place(list_panel,_page,Rect2(1030,150,510,550));list_panel.hide()
@@ -91,10 +91,10 @@ func _ready()->void:
 	title_edit=LineEdit.new();title_edit.placeholder_text=t("名称","Name");title_edit.max_length=60;title_edit.add_theme_font_override("font",FONT);title_edit.add_theme_font_size_override("font_size",21);UI.place(title_edit,list_panel,Rect2(18,458,474,48));title_edit.text_submitted.connect(func(_v:String):_save_name());title_edit.focus_exited.connect(_save_name)
 	title_edit.focus_entered.connect(_release_movement)
 	var list_style:=StyleBoxFlat.new();list_style.bg_color=Color("eee2cc");list_style.set_corner_radius_all(8)
-	library.add_theme_stylebox_override("panel",list_style);library.add_theme_color_override("font_color",Color("514b43"));library.add_theme_color_override("font_selected_color",Color("332f29"))
-	var selected_style:=StyleBoxFlat.new();selected_style.bg_color=Color("c9d8cc");selected_style.set_corner_radius_all(5)
+	library.add_theme_stylebox_override("panel",list_style);library.add_theme_color_override("font_color",UI.ACTION_INK);library.add_theme_color_override("font_selected_color",UI.ACTION_INK)
+	var selected_style:=StyleBoxFlat.new();selected_style.bg_color=UI.ACTION_PRESSED;selected_style.set_corner_radius_all(5)
 	library.add_theme_stylebox_override("selected",selected_style);library.add_theme_stylebox_override("selected_focus",selected_style)
-	title_edit.add_theme_stylebox_override("normal",list_style);title_edit.add_theme_color_override("font_color",Color("514b43"));title_edit.add_theme_color_override("font_placeholder_color",Color("776f61"))
+	title_edit.add_theme_stylebox_override("normal",list_style);title_edit.add_theme_color_override("font_color",UI.ACTION_INK);title_edit.add_theme_color_override("font_placeholder_color",Color("776f61"))
 	_ink=Control.new();UI.place(_ink,self,Rect2(0,0,1600,900));_ink.mouse_filter=Control.MOUSE_FILTER_IGNORE;_ink.draw.connect(_draw_feedback)
 	playback=AudioStreamPlayer.new();playback.bus="SolmereFoley";add_child(playback);playback.finished.connect(_playback_finished)
 	effect=AudioEffectRecord.new();effect.format=AudioStreamWAV.FORMAT_16_BITS
@@ -107,15 +107,10 @@ func _ready()->void:
 	_refresh_library();get_window().focus_exited.connect(_focus_lost)
 	record_button.grab_focus()
 func label(text:String,rect:Rect2,px:int)->Label:
-	var value:=UI.label(_page,text,rect,px,Color("47534b"));value.autowrap_mode=TextServer.AUTOWRAP_OFF;value.clip_text=true;value.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS;value.size=rect.size;value.mouse_filter=Control.MOUSE_FILTER_IGNORE;return value
+	var value:=UI.label(_page,text,rect,px,UI.ACTION_INK);value.autowrap_mode=TextServer.AUTOWRAP_OFF;value.clip_text=true;value.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS;value.size=rect.size;value.mouse_filter=Control.MOUSE_FILTER_IGNORE;return value
 func button(text:String,rect:Rect2,callback:Callable)->Button:
 	var value:=UI.button(_page,text,rect,callback);value.flat=false;value.add_theme_font_override("font",FONT);value.add_theme_font_size_override("font_size",21)
-	for state:String in ["normal","hover","pressed","disabled"]:
-		var style:=StyleBoxFlat.new();style.bg_color=Color(0,0,0,0) if state in ["normal","disabled"] else Color("e1e6d6");style.set_corner_radius_all(12)
-		style.set_border_width_all(0)
-		value.add_theme_stylebox_override(state,style);value.add_theme_color_override("font_"+state+"_color",Color("46544a") if state!="disabled" else Color("8d927e"))
-	value.add_theme_color_override("font_color",Color("46544a"))
-	var focus:=StyleBoxFlat.new();focus.bg_color=Color(0,0,0,0);focus.set_corner_radius_all(12);focus.set_border_width_all(3);focus.border_color=Color("728d77");value.add_theme_stylebox_override("focus",focus)
+	UI.apply_button_style(value,true)
 	return value
 func allows_world_walk()->bool:
 	return not _closing and is_instance_valid(road) and not library.get_parent().visible

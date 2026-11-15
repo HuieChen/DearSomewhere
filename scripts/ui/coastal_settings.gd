@@ -179,10 +179,8 @@ func _build() -> void:
 func _session_action(id:String,label:String,rect:Rect2,action:Callable)->void:
 	var button:=Button.new();button.name=id;button.text=label
 	button.add_theme_font_override("font",_font);button.add_theme_font_size_override("font_size",28 if preferences.values.language=="zh" else 23)
-	button.add_theme_color_override("font_color",Color("0059ae"))
+	UI.apply_button_style(button)
 	button.set_meta("light_surface",true)
-	for state:String in ["normal","hover","pressed","focus"]:
-		button.add_theme_stylebox_override(state,UI.style(Color("fff9ee"),Color.TRANSPARENT,14))
 	UI.place(button,self,rect);controls[id]=button;_feedback.bind_button(button)
 	button.pressed.connect(func():
 		if _closing:return

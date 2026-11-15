@@ -40,7 +40,7 @@ func t(zh:String,en:String)->String:return en if owner.locale=="en" else zh
 func build(canvas:Control):
  toggle=owner._button(t("胶片与调色","Film & light"),Rect2(90,128,300,48),24);toggle.name="CameraLabToggle"
  panel=PanelContainer.new();panel.name="CameraLabPanel";panel.position=Vector2(64,188);panel.size=Vector2(390,0);panel.mouse_filter=Control.MOUSE_FILTER_STOP
- var style=StyleBoxFlat.new();style.bg_color=Color("fff4df");style.set_corner_radius_all(18);style.content_margin_left=20;style.content_margin_right=20;style.content_margin_top=16;style.content_margin_bottom=16
+ var style=StyleBoxFlat.new();style.bg_color=Color("fff9ee");style.set_corner_radius_all(18);style.content_margin_left=20;style.content_margin_right=20;style.content_margin_top=16;style.content_margin_bottom=16
  panel.add_theme_stylebox_override("panel",style);canvas.add_child(panel)
  var scroll=ScrollContainer.new();scroll.custom_minimum_size=Vector2(350,500);scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;panel.add_child(scroll)
  var stack=VBoxContainer.new();stack.size_flags_horizontal=Control.SIZE_EXPAND_FILL;stack.add_theme_constant_override("separation",10);scroll.add_child(stack)
@@ -120,14 +120,10 @@ func render(pixels:Image)->Image:
 func metadata()->Dictionary:return {"recipe":RECIPES[recipe][1],"controls":values.duplicate(),"focus_point":[focus_point.x,focus_point.y],"depth_of_field":"2D radial simulation"}
 
 func skin_button(button:Button):
- for state in ["normal","hover","pressed","focus"]:
-  var style=StyleBoxFlat.new();style.bg_color=Color("ead9bb") if state=="normal" else Color("d8c49e");style.set_corner_radius_all(10);style.content_margin_left=12;style.content_margin_right=12;style.content_margin_top=6;style.content_margin_bottom=6
-  button.add_theme_stylebox_override(state,style)
-  button.add_theme_color_override("font_"+state+"_color",Color("554638"))
- button.add_theme_color_override("font_color",Color("554638"));button.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
+ preload("res://scripts/ui/paper_ui.gd").apply_button_style(button)
 func skin_slider(slider:HSlider):
  var rail=StyleBoxFlat.new();rail.bg_color=Color("dac9a9");rail.set_corner_radius_all(4);rail.content_margin_top=3;rail.content_margin_bottom=3
  slider.add_theme_stylebox_override("slider",rail)
- var fill=rail.duplicate();fill.bg_color=Color("82aaa4")
+ var fill=rail.duplicate();fill.bg_color=Color("0059ae")
  slider.add_theme_stylebox_override("grabber_area",fill);slider.add_theme_stylebox_override("grabber_area_highlight",fill)
 

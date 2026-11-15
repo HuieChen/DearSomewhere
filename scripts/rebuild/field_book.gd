@@ -17,7 +17,7 @@ const TAB_SIZE := Vector2(136,54)
 const TAB_CENTERS := [285.0,465.0,1035.0,1235.0]
 const INK := Color("#4f3847")
 const MUTED := Color("#6B7376")
-const TEAL := Color("#49745b")
+const TEAL := Color("#0059ae")
 const PAPER := Color("#F9F5EC")
 const SHADE := Color("#E6E1CB")
 const SECTIONS := ["人物", "见闻", "信件", "推断"]
@@ -175,9 +175,7 @@ func _rebuild() -> void:
 	close.position = Vector2(1464,16)
 	close.size = Vector2(96,66)
 	close.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	close.add_theme_stylebox_override("normal", _tab_style(false))
-	close.add_theme_stylebox_override("hover", _tab_style(true))
-	close.add_theme_stylebox_override("pressed", _tab_style(true))
+	preload("res://scripts/ui/paper_ui.gd").apply_button_style(close)
 	var available := _available_sections()
 	if available.is_empty(): section = 0; page = 0; selected_id = ""
 	if not available.is_empty() and section not in available:
@@ -628,16 +626,7 @@ func _button(node_name: String, text: String, rect: Rect2, callback: Callable, f
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.add_theme_font_override("font", _reading_font())
 	button.add_theme_font_size_override("font_size", font_size)
-	button.add_theme_color_override("font_color", INK)
-	button.add_theme_color_override("font_hover_color", TEAL)
-	button.add_theme_color_override("font_focus_color", TEAL)
-	button.add_theme_color_override("font_pressed_color", INK)
-	button.add_theme_color_override("font_disabled_color", Color("#ABA69C"))
-	button.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
-	button.add_theme_stylebox_override("disabled", StyleBoxEmpty.new())
-	button.add_theme_stylebox_override("hover", _line_style(Color("#C8CAB5")))
-	button.add_theme_stylebox_override("pressed", _line_style(TEAL))
-	button.add_theme_stylebox_override("focus", _line_style(TEAL))
+	preload("res://scripts/ui/paper_ui.gd").apply_button_style(button,true)
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.pressed.connect(callback)
 	_place(button, rect)
