@@ -39,28 +39,28 @@ func _init(camera:Control):
 func t(zh:String,en:String)->String:return en if owner.locale=="en" else zh
 func build(canvas:Control):
  toggle=owner._button(t("胶片与调色","Film & light"),Rect2(90,128,300,48),24);toggle.name="CameraLabToggle"
- panel=PanelContainer.new();panel.name="CameraLabPanel";panel.position=Vector2(80,188);panel.size=Vector2(358,0);panel.mouse_filter=Control.MOUSE_FILTER_STOP
- var style=StyleBoxFlat.new();style.bg_color=Color("fff4df");style.set_corner_radius_all(18);style.content_margin_left=18;style.content_margin_right=18;style.content_margin_top=14;style.content_margin_bottom=14
+ panel=PanelContainer.new();panel.name="CameraLabPanel";panel.position=Vector2(64,188);panel.size=Vector2(390,0);panel.mouse_filter=Control.MOUSE_FILTER_STOP
+ var style=StyleBoxFlat.new();style.bg_color=Color("fff4df");style.set_corner_radius_all(18);style.content_margin_left=20;style.content_margin_right=20;style.content_margin_top=16;style.content_margin_bottom=16
  panel.add_theme_stylebox_override("panel",style);canvas.add_child(panel)
- var scroll=ScrollContainer.new();scroll.custom_minimum_size=Vector2(322,486);scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;panel.add_child(scroll)
- var stack=VBoxContainer.new();stack.size_flags_horizontal=Control.SIZE_EXPAND_FILL;stack.add_theme_constant_override("separation",7);scroll.add_child(stack)
- recipe_label=label(t("原色 · 即影即有 / 胶片","Original · Instant / Film"),19);stack.add_child(recipe_label)
- picker=OptionButton.new();picker.name="FilmRecipe";picker.add_theme_font_override("font",FontArt);picker.add_theme_font_size_override("font_size",21)
+ var scroll=ScrollContainer.new();scroll.custom_minimum_size=Vector2(350,500);scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;panel.add_child(scroll)
+ var stack=VBoxContainer.new();stack.size_flags_horizontal=Control.SIZE_EXPAND_FILL;stack.add_theme_constant_override("separation",10);scroll.add_child(stack)
+ recipe_label=label(t("原色 · 即影即有 / 胶片","Original · Instant / Film"),19);recipe_label.custom_minimum_size=Vector2(0,30);recipe_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;stack.add_child(recipe_label)
+ picker=OptionButton.new();picker.name="FilmRecipe";picker.custom_minimum_size=Vector2(0,46);picker.add_theme_font_override("font",FontArt);picker.add_theme_font_size_override("font_size",21)
  for i in RECIPES.size():picker.add_item(t(RECIPES[i][0],RECIPES[i][1]),i)
  skin_button(picker);stack.add_child(picker);picker.item_selected.connect(func(index:int):select_recipe(index,true))
- var strip=ScrollContainer.new();strip.name="FilmPreviews";strip.custom_minimum_size=Vector2(310,76);strip.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;stack.add_child(strip)
+ var strip=ScrollContainer.new();strip.name="FilmPreviews";strip.custom_minimum_size=Vector2(350,78);strip.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;stack.add_child(strip)
  var cards=HBoxContainer.new();cards.add_theme_constant_override("separation",8);strip.add_child(cards)
  for i in RECIPES.size():
-  var card=Button.new();card.custom_minimum_size=Vector2(76,60);card.tooltip_text=t(RECIPES[i][0],RECIPES[i][1]);cards.add_child(card);skin_button(card)
-  var picture=TextureRect.new();picture.position=Vector2(3,3);picture.size=Vector2(70,54);picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_COVERED;picture.mouse_filter=Control.MOUSE_FILTER_IGNORE;card.add_child(picture);preview_cards.append(picture)
+  var card=Button.new();card.custom_minimum_size=Vector2(70,62);card.tooltip_text=t(RECIPES[i][0],RECIPES[i][1]);cards.add_child(card);skin_button(card)
+  var picture=TextureRect.new();picture.position=Vector2(3,4);picture.size=Vector2(64,54);picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_COVERED;picture.mouse_filter=Control.MOUSE_FILTER_IGNORE;card.add_child(picture);preview_cards.append(picture)
   card.pressed.connect(func():select_recipe(i,true))
  advanced=VBoxContainer.new();advanced.add_theme_constant_override("separation",6)
  for spec in [["exposure","曝光 EV","Exposure EV",-2.0,2.0,.1],["warmth","冷暖","Warmth",-1.0,1.0,.05],["tint","绿 / 洋红","Tint",-1.0,1.0,.05],["saturation","饱和度","Saturation",0.0,1.6,.05],["grain","颗粒","Grain",0.0,1.0,.05],["aperture","光圈 · 模拟景深","Aperture · simulated",1.4,8.0,.2]]:
   var parent:VBoxContainer=stack if spec[0] in ["exposure","aperture"] else advanced
   var row=HBoxContainer.new();parent.add_child(row)
-  var title=label(t(spec[1],spec[2]),18);title.size_flags_horizontal=Control.SIZE_EXPAND_FILL;row.add_child(title)
-  var value=label("",18);row.add_child(value)
-  var slider=HSlider.new();slider.name="Lab_"+spec[0];slider.min_value=spec[3];slider.max_value=spec[4];slider.step=spec[5];slider.value=values[spec[0]];slider.custom_minimum_size=Vector2(310,24);skin_slider(slider);parent.add_child(slider);sliders[spec[0]]=slider
+  var title=label(t(spec[1],spec[2]),18);title.custom_minimum_size=Vector2(150,26);row.add_child(title)
+  var value=label("",18);value.custom_minimum_size=Vector2(54,26);value.horizontal_alignment=HORIZONTAL_ALIGNMENT_RIGHT;row.add_child(value)
+  var slider=HSlider.new();slider.name="Lab_"+spec[0];slider.min_value=spec[3];slider.max_value=spec[4];slider.step=spec[5];slider.value=values[spec[0]];slider.custom_minimum_size=Vector2(0,28);slider.size_flags_horizontal=Control.SIZE_EXPAND_FILL;skin_slider(slider);parent.add_child(slider);sliders[spec[0]]=slider
   value.text=display_value(spec[0],slider.value)
   slider.value_changed.connect(func(v):values[spec[0]]=v;value.text=display_value(spec[0],v);apply())
  var expand=Button.new();expand.name="AdvancedCamera";expand.text=t("细调","More controls");skin_button(expand);stack.add_child(expand)
@@ -130,3 +130,4 @@ func skin_slider(slider:HSlider):
  slider.add_theme_stylebox_override("slider",rail)
  var fill=rail.duplicate();fill.bg_color=Color("82aaa4")
  slider.add_theme_stylebox_override("grabber_area",fill);slider.add_theme_stylebox_override("grabber_area_highlight",fill)
+

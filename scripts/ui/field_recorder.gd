@@ -118,6 +118,8 @@ func _input(event:InputEvent)->void:
 	var focus:=get_viewport().gui_get_focus_owner()
 	if focus==title_edit or focus==library or event.ctrl_pressed or event.alt_pressed or event.meta_pressed:return
 	var key:int=event.physical_keycode if event.physical_keycode else event.keycode
+	if key in [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D] and is_instance_valid(road) and allows_world_walk() and is_instance_valid(road.courier):
+		road.courier.set_tool_movement(key,event.pressed)
 	# The walker reads these physical keys. Prevent buttons from also navigating.
 	if key in [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D,KEY_E]:get_viewport().set_input_as_handled()
 func _unhandled_key_input(event:InputEvent)->void:
@@ -275,6 +277,8 @@ func request_close()->void:
 	if _closing or not checkpoint_for_quit():return
 	_closing=true;stop_playback();closed.emit()
 func _exit_tree()->void:
+	if is_instance_valid(road) and is_instance_valid(road.courier):
+		for key:Key in [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D]:road.courier.set_tool_movement(key,false)
 	if effect!=null:effect.set_recording_active(false)
 	if is_instance_valid(sound):sound.recorder_focus=false;sound.recorder_playback=false
 	if is_instance_valid(road) and is_instance_valid(road.field_sound):road.field_sound.set_focus(false)

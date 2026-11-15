@@ -69,6 +69,7 @@ var _fast_held: bool = false
 var _window_focused: bool = true
 const MOVEMENT_KEYS := [KEY_W, KEY_A, KEY_S, KEY_D, KEY_UP, KEY_LEFT, KEY_DOWN, KEY_RIGHT]
 var _blocked_movement_keys: Dictionary = {}
+var _tool_movement_keys: Dictionary = {}
 var _breathing: float = 0.0
 var _blink_wait: float = 4.6
 var _blink_elapsed: float = -1.0
@@ -279,13 +280,26 @@ func _block_held_movement_keys() -> void:
 
 
 func _movement_key_active(code: Key) -> bool:
-	return _movement_key_pressed(code) and not _blocked_movement_keys.has(code)
+	return (_movement_key_pressed(code) or _tool_movement_keys.has(code)) and not _blocked_movement_keys.has(code)
+
+func set_tool_movement(code: Key, pressed: bool) -> void:
+	# Field tools can receive a key event before the normal Input singleton sees
+	# it. Keep that explicit route local to the active tool, so recording can
+	# remain hands-free without changing ordinary world input ownership.
+	if pressed:
+		_tool_movement_keys[code] = true
+		_blocked_movement_keys.erase(code)
+	else:
+		_tool_movement_keys.erase(code)
 
 
 func _manual_direction() -> Vector2:
 	for code: Key in _blocked_movement_keys.keys():
 		if not _movement_key_pressed(code): _blocked_movement_keys.erase(code)
-	if not manual_enabled or not _window_focused: return Vector2.ZERO
+	# A field recorder forwards fresh key events explicitly. That route remains
+	# valid even when a headless/native focus probe has not reported the window
+	# yet; ordinary world input still requires the normal focus guard.
+	if not manual_enabled or (not _window_focused and _tool_movement_keys.is_empty()): return Vector2.ZERO
 	var x: float = float(_movement_key_active(KEY_D) or _movement_key_active(KEY_RIGHT)) - float(_movement_key_active(KEY_A) or _movement_key_active(KEY_LEFT))
 	var y: float = float(_movement_key_active(KEY_S) or _movement_key_active(KEY_DOWN)) - float(_movement_key_active(KEY_W) or _movement_key_active(KEY_UP))
 	if walk_bounds.size.y <= 0.0: y = 0.0
