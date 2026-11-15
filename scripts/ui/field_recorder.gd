@@ -50,22 +50,37 @@ func _ready()->void:
 	var surface:=Control.new();surface.name="RecordingWalkSurface";UI.place(surface,_page,Rect2(0,0,1600,900));surface.mouse_default_cursor_shape=Control.CURSOR_CROSS;surface.gui_input.connect(_aim_input)
 	var instrument:=Control.new();instrument.name="StereoDisplay";UI.place(instrument,_page,Rect2(28,24,430,184));instrument.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	instrument.draw.connect(func():
-		var shadow:=StyleBoxFlat.new();shadow.bg_color=Color(0.08,0.12,0.12,.20);shadow.set_corner_radius_all(21);instrument.draw_style_box(shadow,Rect2(5,7,instrument.size.x-1,instrument.size.y-1))
-		var body:=StyleBoxFlat.new();body.bg_color=Color("e7d8ba");body.set_corner_radius_all(20);body.set_border_width_all(2);body.border_color=Color("52655e");body.shadow_color=Color(0,0,0,.18);body.shadow_size=3;body.shadow_offset=Vector2(0,2);instrument.draw_style_box(body,Rect2(Vector2.ZERO,instrument.size))
-		var top_plate:=StyleBoxFlat.new();top_plate.bg_color=Color("f3ead6");top_plate.set_corner_radius_all(12);top_plate.set_border_width_all(1);top_plate.border_color=Color("b8a98d");instrument.draw_style_box(top_plate,Rect2(18,15,instrument.size.x-36,30))
-		var screen:=StyleBoxFlat.new();screen.bg_color=Color("40534f");screen.set_corner_radius_all(10);screen.set_border_width_all(2);screen.border_color=Color("6e8176");instrument.draw_style_box(screen,Rect2(32,48,instrument.size.x-64,94))
-		instrument.draw_line(Vector2(34,158),Vector2(instrument.size.x-34,158),Color("b7a88c"),1.0)
-		for i in 12:
-			instrument.draw_circle(Vector2(52+i*17,173),2.2,Color("7f8b77"))
-		for i in 3:
-			instrument.draw_line(Vector2(365+i*10,20),Vector2(365+i*10,31),Color("9a8d77"),2.0)
-		instrument.draw_circle(Vector2(instrument.size.x-38,29),5.0,Color("b25949"))
-		instrument.draw_circle(Vector2(instrument.size.x-38,29),2.0,Color("f1b09b")))
+		var shadow:=StyleBoxFlat.new();shadow.bg_color=Color(0.03,0.07,0.07,.34);shadow.set_corner_radius_all(22);instrument.draw_style_box(shadow,Rect2(6,8,instrument.size.x-2,instrument.size.y-2))
+		var shell:=StyleBoxFlat.new();shell.bg_color=Color("354b4a");shell.set_corner_radius_all(21);shell.set_border_width_all(2);shell.border_color=Color("213837");instrument.draw_style_box(shell,Rect2(Vector2.ZERO,instrument.size))
+		# A raised shoulder and a clipped side make the panel read as a device.
+		instrument.draw_colored_polygon(PackedVector2Array([Vector2(22,15),Vector2(292,15),Vector2(312,31),Vector2(22,31)]),Color("4b625d"))
+		var top_plate:=StyleBoxFlat.new();top_plate.bg_color=Color("ead9bb");top_plate.set_corner_radius_all(9);top_plate.set_border_width_all(1);top_plate.border_color=Color("a99e84");instrument.draw_style_box(top_plate,Rect2(28,16,326,29))
+		var screen_frame:=StyleBoxFlat.new();screen_frame.bg_color=Color("758b7d");screen_frame.set_corner_radius_all(12);instrument.draw_style_box(screen_frame,Rect2(28,46,326,100))
+		var screen:=StyleBoxFlat.new();screen.bg_color=Color("1e3030");screen.set_corner_radius_all(9);screen.set_border_width_all(1);screen.border_color=Color("92a38f");instrument.draw_style_box(screen,Rect2(34,52,314,88))
+		instrument.draw_line(Vector2(35,157),Vector2(348,157),Color("819487"),1.0)
+		# Left grille, right input knob and a small recording lamp.
+		for i in 8:
+			instrument.draw_circle(Vector2(43+i*10,29),2.0,Color("7e9385"))
+		instrument.draw_circle(Vector2(388,80),20,Color("263d3b"))
+		instrument.draw_circle(Vector2(388,80),15,Color("b7c2a2"))
+		instrument.draw_circle(Vector2(388,80),7,Color("64766b"))
+		instrument.draw_line(Vector2(388,65),Vector2(388,73),Color("e7d8ba"),2.0)
+		instrument.draw_circle(Vector2(402,28),5.0,Color("bc416b"))
+		instrument.draw_circle(Vector2(402,28),2.0,Color("f3a0a9"))
+		# Tactile transport row under the screen.
+		for i in 4:
+			var x:=54.0+i*28.0
+			instrument.draw_circle(Vector2(x,173),7.0,Color("243a39"))
+			instrument.draw_circle(Vector2(x,173),3.0,Color("d8c49e"))
+		instrument.draw_line(Vector2(188,173),Vector2(316,173),Color("789083"),2.0)
+		instrument.draw_circle(Vector2(332,173),5.0,Color("bc416b")))
 	# The recorder remains a compact edge HUD. Its physical shell carries the
 	# visual weight, while the central world stays open for walking and aiming.
 	var style:=StyleBoxFlat.new();style.bg_color=Color("f7edd9");style.set_corner_radius_all(14)
 	label(t("录音机 · 双声道","RECORDER · STEREO"),Rect2(58,43,220,27),17)
-	clock_label=label("00:00",Rect2(278,42,82,30),23)
+	clock_label=label("00:00",Rect2(276,42,78,30),20)
+	clock_label.autowrap_mode=TextServer.AUTOWRAP_OFF
+	clock_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_RIGHT
 	mode_label=label(t("监听","MONITOR"),Rect2(70,72,105,22),15)
 	mode_label.add_theme_color_override("font_color",Color("e7d8ba"))
 	var left_channel:=label("L",Rect2(54,96,22,20),14);left_channel.add_theme_color_override("font_color",Color("e7d8ba"))
