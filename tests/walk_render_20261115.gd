@@ -45,15 +45,26 @@ func run():
 	var mid:Image=await shot(w,1.0/12.0)
 	var last:Image=await shot(w,1.0/6.0)
 	check(w.material==w._walk_material,"normal walk route uses the new material")
-	check(difference(first,mid)<0.01,"mid-frame retains one crisp painted silhouette without ghost outlines")
+	check(difference(first,mid)>2,"upper body moves between source poses instead of holding then jumping")
 	check(difference(mid,last)>2,"next source phase displays a new original pose")
-	var overlap:=0;var translucent:=0
+	var overlap:=0;var opaque_mid:=0;var feet_changed:=0
 	for y in range(90,460,2):
 		for x in range(100,460,2):
-			if first.get_pixel(x,y).a>.99 and last.get_pixel(x,y).a>.99:
-				overlap+=1
-				if mid.get_pixel(x,y).a<.98:translucent+=1
-	check(overlap>500 and translucent==0,"body stays opaque between pose changes")
+			if first.get_pixel(x,y).a>.98:overlap+=1
+			if mid.get_pixel(x,y).a>.98:opaque_mid+=1
+			if y>395 and first.get_pixel(x,y)!=mid.get_pixel(x,y):feet_changed+=1
+	check(overlap>500 and absf(float(opaque_mid-overlap))/overlap<.03,"moving upper body retains its solid area rather than crossfade transparency")
+	check(feet_changed==0,"upper-body smoothing leaves the planted boot pixels unchanged")
+	var registration:Dictionary=Walker._runtime_registration()
+	var cleared:=0;var residue:=0
+	for index in range(12):
+		var record:Dictionary=registration.get("walk_%02d.png"%index,{})
+		var prepared:Image=w._poses["supplied_walk_%02d"%index].get_image()
+		for span:Array in record.get("clear_spans",[]):
+			for x in range(int(span[0]),int(span[0])+int(span[2])):
+				cleared+=1
+				if prepared.get_pixel(x,int(span[1])).a>0.0:residue+=1
+	check(registration.size()==12 and cleared>500 and residue==0,"all measured detached matte remnants are transparent in runtime textures")
 	w._turn_position=1.0;w.queue_redraw();await process_frame;await RenderingServer.frame_post_draw
 	check(w.material==w._portrait_material,"standing returns to preserved portrait material")
 	if DirAccess.make_dir_recursive_absolute(out)!=OK:

@@ -120,6 +120,7 @@ def refreshed_source(source):
     patterns.extend(['addons/phantom_camera/LICENSE', 'addons/dialogue_manager/LICENSE', 'data/dialogue/chef_zh.dialogue', 'data/dialogue/chef_en.dialogue'])
     patterns.extend(path[6:] for path in paths if path.endswith('.gdshaderinc'))
     patterns.append('assets/authoring/courier_walk_20261110/walk.json')
+    patterns.append('assets/authoring/courier_walk_20261110/runtime_registration.json')
     patterns.extend('assets/authoring/courier_walk_20261110/walk_%02d.png' % i for i in range(12))
     patterns.extend(['assets/authoring/neighbours_20261109/naonao.png', 'assets/authoring/neighbours_20261109/food_truck_guest.png', 'assets/authoring/neighbours_20261109/provenance.json'])
     includes = ','.join(dict.fromkeys(patterns))
