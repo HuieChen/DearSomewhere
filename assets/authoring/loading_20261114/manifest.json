@@ -46,5 +46,9 @@
       "source_frame": 5,
       "sha256": "3a5ac059971196b7d6e95235cd089f490f1dac87873da9720e5065f31d745ec8"
     }
-  ]
+  ],
+  "loading_bar_source_sha256": "31508db825d3c755d16e44aab79baeb043da70401864d8008245ff23c0b162f5",
+  "paper_texture_sha256": "d1c71c16632656a6322b4a1d5589a61aa733057baad385e9f9342de1157957b2",
+  "loading_bar_source": "user-supplied RGBA reference; preserved as texture and animated with a restrained water-flow shader",
+  "paper_surface": "generated warm ivory cotton-pulp texture used only as transition background"
 }

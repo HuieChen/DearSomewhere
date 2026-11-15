@@ -14,6 +14,7 @@ func run() -> void:
     root.size = Vector2i(1600, 900)
     var overlay = load("res://scripts/ui/scene_passage.gd").new()
     root.add_child(overlay)
+    overlay.size = Vector2(1600,900)
     await process_frame
     check(overlay._frames.size() == 6, "six supplied loading frames loaded")
     check(overlay._frames[0].get_width() > 0, "loading frame has pixels")
@@ -23,9 +24,19 @@ func run() -> void:
     check(is_equal_approx(overlay.progress, 0.65), "progress value is exposed")
     await overlay.cover()
     check(overlay.coverage > 0.99, "cover reaches opaque state")
+    check(overlay._bar.texture.resource_path.ends_with("loading_bar_source.png"), "supplied wave image used")
+    check(overlay._paper.texture != null, "paper texture loaded")
+    await create_timer(0.3).timeout
+    await RenderingServer.frame_post_draw
+    root.get_texture().get_image().save_png("D:/Codex-build-cache/dear-somewhere-exit-20261108/loading-v3-review.png")
     await overlay.uncover()
     check(overlay.coverage < 0.01, "uncover returns to gameplay")
-    var receipt := {"checks": checks, "failures": failures, "frames": overlay._frames.size(), "method": "headless scene_passage lifecycle"}
+    await process_frame
+    check(not overlay._bar.visible, "bar fully disappears after fade")
+    await overlay.cover(false)
+    check(not overlay._art.visible and not overlay._bar.visible, "short transition has no loading UI")
+    await overlay.uncover(false)
+    var receipt := {"checks": checks, "failures": failures, "frames": overlay._frames.size(), "method": "GPU scene_passage lifecycle and short transition"}
     var out := "user://loading-transition-20261114.json"
     var file := FileAccess.open(out, FileAccess.WRITE)
     file.store_string(JSON.stringify(receipt))
