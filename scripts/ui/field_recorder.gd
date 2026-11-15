@@ -72,6 +72,7 @@ func _ready()->void:
 	library_button=button(t("录音列表","Recordings"),Rect2(962,47,174,48),_toggle_library);library_button.name="RecordingLibrary"
 	button("×",Rect2(1174,47,50,48),request_close).name="CloseRecorder"
 	visual_hint=CheckButton.new();visual_hint.text=t("方向提示 · H","Direction hints · H");visual_hint.add_theme_font_override("font",FONT);visual_hint.add_theme_font_size_override("font_size",18);visual_hint.add_theme_color_override("font_color",Color("52665a"))
+	visual_hint.toggled.connect(func(_enabled:bool):cue.emit("paper"))
 	var list_panel:=Panel.new();list_panel.add_theme_stylebox_override("panel",style);UI.place(list_panel,_page,Rect2(1030,150,510,550));list_panel.hide()
 	UI.place(visual_hint,list_panel,Rect2(18,510,474,32))
 	library=ItemList.new();library.add_theme_font_override("font",FONT);library.add_theme_font_size_override("font_size",21);UI.place(library,list_panel,Rect2(18,22,474,415));library.item_selected.connect(_select)
@@ -117,6 +118,10 @@ func _aim_input(event:InputEvent)->void:
 		road.world.get_node("WalkTarget")._ground_input(ground)
 func _input(event:InputEvent)->void:
 	if not event is InputEventKey:return
+	# LineEdit consumes Escape before unhandled input. The tool owns this
+	# back action while its library is open, including during name editing.
+	if event.pressed and not event.echo and (event.keycode==KEY_ESCAPE or event.physical_keycode==KEY_ESCAPE) and library.get_parent().visible:
+		_toggle_library();get_viewport().set_input_as_handled();return
 	var focus:=get_viewport().gui_get_focus_owner()
 	if focus==title_edit or focus==library or event.ctrl_pressed or event.alt_pressed or event.meta_pressed:return
 	var key:int=event.physical_keycode if event.physical_keycode else event.keycode
@@ -126,8 +131,8 @@ func _input(event:InputEvent)->void:
 	if key in [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D,KEY_E]:get_viewport().set_input_as_handled()
 func _unhandled_key_input(event:InputEvent)->void:
 	if not event is InputEventKey or event.ctrl_pressed or event.alt_pressed or event.meta_pressed:return
-	if get_viewport().gui_get_focus_owner()==title_edit:return
 	var key:int=event.physical_keycode if event.physical_keycode else event.keycode
+	if get_viewport().gui_get_focus_owner()==title_edit and key!=KEY_ESCAPE:return
 	if event.pressed and not event.echo:
 		if key==KEY_ESCAPE:
 			if library.get_parent().visible:_toggle_library()

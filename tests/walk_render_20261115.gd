@@ -2,7 +2,11 @@ extends SceneTree
 const Walker=preload("res://scripts/rebuild/final_walker.gd")
 var failures:Array[String]=[]
 var checks:=0
-func _initialize():run.call_deferred()
+var out:="user://qa/walk-render-20261115"
+func _initialize():
+	for argument:String in OS.get_cmdline_user_args():
+		if argument.begins_with("--out="):out=argument.trim_prefix("--out=")
+	run.call_deferred()
 func check(ok:bool,label:String):
 	checks+=1
 	if not ok:failures.append(label);push_error(label)
@@ -38,7 +42,10 @@ func run():
 	check(overlap>500 and translucent==0,"overlapping body stays opaque throughout interpolation")
 	w._turn_position=1.0;w.queue_redraw();await process_frame;await RenderingServer.frame_post_draw
 	check(w.material==w._portrait_material,"standing returns to preserved portrait material")
-	DirAccess.make_dir_recursive_absolute("res://test-results/walk-render-20261115")
-	first.save_png("res://test-results/walk-render-20261115/first.png");mid.save_png("res://test-results/walk-render-20261115/mid.png");last.save_png("res://test-results/walk-render-20261115/last.png")
+	if DirAccess.make_dir_recursive_absolute(out)!=OK:
+		failures.append("Cannot create rendering evidence directory")
+	for entry:Array in [["first",first],["mid",mid],["last",last]]:
+		if entry[1].save_png(out+"/"+entry[0]+".png")!=OK:failures.append("Cannot save "+entry[0])
+	FileAccess.open(out+"/receipt.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":checks,"failures":failures,"opaque_overlap_pixels":overlap}))
 	print("WALK_RENDER ",checks," / ",failures.size()," overlap=",overlap)
 	w.queue_free();await process_frame;quit(0 if failures.is_empty() else 1)

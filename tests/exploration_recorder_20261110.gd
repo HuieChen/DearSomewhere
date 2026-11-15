@@ -74,7 +74,10 @@ func run():
 	ground.button_index=MOUSE_BUTTON_RIGHT;recorder._aim_input(ground);check(not game.walker.walking,"Right click still cancels walking while recording tool is open")
 	recorder._toggle_library();await create_timer(.1).timeout
 	check(not game.walker.manual_enabled,"Library pauses walking for safe naming")
-	recorder._toggle_library();await create_timer(.1).timeout
+	recorder.title_edit.grab_focus()
+	var escape:=InputEventKey.new();escape.keycode=KEY_ESCAPE;escape.physical_keycode=KEY_ESCAPE;escape.pressed=true
+	root.push_input(escape);await create_timer(.1).timeout
+	check(is_instance_valid(game.modal) and not recorder.library.get_parent().visible,"Esc from a recording name closes the library before the recorder")
 	check(game.walker.manual_enabled,"Leaving library restores walking")
 	var good_directory:String=recorder.directory
 	var blocked_path:=out+"not_a_directory";FileAccess.open(blocked_path,FileAccess.WRITE).store_string("test")
