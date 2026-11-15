@@ -1,6 +1,6 @@
 # Paper navigation and interaction polish
 
-Runtime source: `b73724f568fb99c63e4d26d0cfaa9e74930b9ad6`, integrating collaborator main `495616674fef3a006d1d6a3385f5edab1e21f312`.
+Final runtime source: `862f2c5faaaa25edec231e2e9f3c8d244a7464d7`, integrating collaborator main `6cb23a4912262eae77e846bda9b20c938f9d7db8`. The final package also preserves the requested direct new-journey entry without its former confirmation.
 
 ## Result
 
@@ -15,12 +15,12 @@ Runtime source: `b73724f568fb99c63e4d26d0cfaa9e74930b9ad6`, integrating collabor
 ## Evidence
 
 - Standard `tools/check.ps1` passed during final build, including Python studio/media checks and all default headless engine suites. Private archival checks and the full optional GPU matrix were not run.
-- Actual exported PCK, offscreen OpenGL with Dummy audio and isolated userdata: paper navigation 30/0, existing bag navigation 30/0, loading lifecycle/pixel readback 13/0, button interruption 10/0. Total: 83 checks, zero failures.
+- Final integrated exported PCK, offscreen OpenGL with Dummy audio and isolated userdata: paper navigation 30/0, existing bag navigation 30/0, loading lifecycle/pixel readback 13/0, button interruption 10/0, updated UI/direct-start suite 17/0. Total: 100 checks, zero failures; no ERROR or SCRIPT ERROR log lines. Existing raw-image loading warnings remain, with the required raw files verified in the export inventory.
 - Walker additionally passed offscreen GPU: 87/0, no ERROR/FAIL log lines.
-- Export inventory: 1,275 entries and 250 verified raw resources. PCK SHA256: `2febc1edc57062ff2b6ca46c1e8c029a4c1353c713e1c1d00038ad5bde1d1b44`.
-- Native final EXE window displayed the title and entered the postal interior through Continue. Further native interaction was interrupted by user input/window minimization; no complete native interaction or listening acceptance is claimed.
+- Final export inventory: 1,275 entries and 250 verified raw resources. PCK SHA256: `f8b006bdb2c6d15ee777f37ec46153171605f56c137f4f151b7f1d74b127ad3a`.
+- The preceding package (before the direct-start merge) displayed the title and entered the postal interior through Continue in a native EXE window. Further native interaction was interrupted by user input/window minimization. The final integrated package has automated validation above, with native interaction and listening acceptance still pending.
 
-Local evidence: `D:/Codex-build-cache/paper-polish-packed-qa`, `D:/Codex-build-cache/paper-polish-build.log`, `test-results/check-20261115-234930`, and `test-results/package-20261115-235027`.
+Final evidence: `D:/Codex-build-cache/paper-polish-integrated-qa`, `D:/Codex-build-cache/paper-polish-integrated-build.log`, `test-results/check-20261116-000022`, and `test-results/package-20261116-000100`. Pre-merge evidence remains in `D:/Codex-build-cache/paper-polish-packed-qa` and `D:/Codex-build-cache/paper-polish-build.log`.
 
 Earlier attempts are retained: an unguarded missing tween metadata read was corrected; one bilingual fixture failed to reset its initial tab; the first button GPU fixture asserted before its tween finished. The final button fixture waits for completion and uses an unfocusable test window. These were not recorded as passes.
 
