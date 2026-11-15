@@ -7,8 +7,12 @@ var _return_focus:WeakRef
 var _blocked:Array=[]
 
 func _ready()->void:
+	name="ModalFocus"
 	_host=get_parent()
 	get_viewport().gui_focus_changed.connect(_focus_changed)
+
+func remember_opener(control:Control)->void:
+	if is_instance_valid(control):_return_focus=weakref(control)
 
 func _focus_changed(control:Control)->void:
 	if not is_instance_valid(_host.modal) and is_instance_valid(control):

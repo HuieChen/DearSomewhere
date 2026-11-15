@@ -6,6 +6,7 @@ const PhysicalArt = preload("res://scripts/rebuild/physical_art.gd")
 const DraftStore = preload("res://scripts/rebuild/resolution_draft_store.gd")
 const PaperMap = preload("res://scripts/rebuild/final_paper_map.gd")
 const UI = preload("res://scripts/ui/paper_ui.gd")
+const PaperPresentation = preload("res://scripts/ui/paper_presentation.gd")
 const Walker = preload("res://scripts/rebuild/final_walker.gd")
 const Sound = preload("res://scripts/ui/audio_feedback.gd")
 const Workbench = preload("res://scripts/rebuild/mail_workbench.gd")
@@ -66,6 +67,8 @@ var _bag_photo_scroll:=0
 var _photo_thumbnails:Dictionary={}
 var _photo_thumbnail_order:Array[String]=[]
 var _title_action_pending:=false
+var _modal_dismissing_id:=0
+var _modal_input_shield:Control
 
 func _ready() -> void:
 	get_tree().auto_accept_quit=false
@@ -225,6 +228,40 @@ func _update_preference_save_notice()->void:
 	notice.z_index=300
 	notice.mouse_filter=Control.MOUSE_FILTER_IGNORE
 
+func _input(_event:InputEvent)->void:
+	# Keep the outgoing paper in charge until the last fade frame. Repeated
+	# Escape/Enter/clicks must not activate a newly exposed world control.
+	if _modal_dismissing_id!=0:get_viewport().set_input_as_handled()
+
+func _remember_tool_opener(action:String)->void:
+	var names:={"bag":"OpenBag","map":"OpenMap","book":"OpenBook","camera":"OpenCamera","recorder":"OpenRecorder","settings":"OpenSettings"}
+	var focus:=get_node_or_null("ModalFocus")
+	if focus!=null and is_instance_valid(stage) and names.has(action):
+		focus.remember_opener(stage.find_child(names[action],true,false))
+
+func _tool_shortcut(code:Key)->bool:
+	if busy or _modal_dismissing_id!=0 or view not in ["world","counter","post_office_room"]:return false
+	var action:String={KEY_B:"bag",KEY_M:"map",KEY_J:"book",KEY_C:"camera",KEY_R:"recorder"}.get(code,"")
+	if action.is_empty():return false
+	if is_instance_valid(modal):
+		# Only passive papers can be exchanged directly. Camera/recording saves,
+		# dialogue and editable documents keep their own close safeguards.
+		if modal.name not in ["MailBag","MapInspection"]:return false
+		var focused:=get_viewport().gui_get_focus_owner()
+		if focused is LineEdit or focused is TextEdit:return false
+		if (modal.name=="MailBag" and action=="bag") or (modal.name=="MapInspection" and action=="map"):
+			_dismiss_modal(true)
+			return true
+		_close()
+	_remember_tool_opener(action)
+	match action:
+		"bag":_bag()
+		"map":_map()
+		"book":_book()
+		"camera":_camera()
+		"recorder":_recorder()
+	return true
+
 func _unhandled_input(event:InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.ctrl_pressed or event.alt_pressed or event.meta_pressed:return
@@ -236,18 +273,11 @@ func _unhandled_input(event:InputEvent) -> void:
 				if modal.has_method("request_close"): modal.request_close()
 				elif modal.has_method("close_safely"): modal.close_safely()
 				elif not core.state.active_operation.is_empty(): return
-				else: _close(true)
+				else: _dismiss_modal(true)
 			elif view!="title": _pause()
 			else:_request_quit()
 			get_viewport().set_input_as_handled()
-		elif not is_instance_valid(modal) and view in ["world","counter","post_office_room"]:
-			if event.keycode==KEY_M: _map()
-			elif event.keycode==KEY_J: _book()
-			elif event.keycode==KEY_R: _recorder()
-			elif event.keycode==KEY_B: _bag()
-			elif event.keycode==KEY_C:
-				get_viewport().set_input_as_handled()
-				_camera()
+		elif _tool_shortcut(event.keycode):get_viewport().set_input_as_handled()
 
 func _new_stage(next_view:String) -> void:
 	var notice:=get_node_or_null("SaveFailureNotice")
@@ -390,10 +420,8 @@ func _stage_plan(id:String) -> Dictionary:
 	return result
 
 func _start() -> void:
-	if core.has_save():
-		sound.play("paper")
-		_sheet(_tr("开启新的旅程？","A new journey?"), _tr("这会替换当前旅程的进度。","This will replace your current journey's progress."),[[_tr("继续当前旅程","Continue current journey"),_resume],[_tr("开始新旅程","Start new journey"),_fresh]],true)
-	else: _fresh()
+	if busy:return
+	await _fresh()
 
 func _fresh() -> void:
 	core.new_game()
@@ -569,6 +597,9 @@ func _hud(_id:String, show_carried:bool=true) -> void:
 	bar.z_index=3
 	bar.set_action_enabled("camera",true)
 	bar.set_action_enabled("recorder",true)
+	bar.buttons.bag.tooltip_text=_tr("背包 · B","Bag · B")
+	bar.buttons.book.tooltip_text=_tr("本子 · J","Journal · J")
+	bar.buttons.map.tooltip_text=_tr("地图 · M","Map · M")
 	bar.buttons.camera.tooltip_text=_tr("相机 · C","Camera · C")
 	bar.buttons.recorder.tooltip_text=_tr("录音机 · R","Recorder · R")
 	bar.action_requested.connect(_quickbar_action)
@@ -576,6 +607,7 @@ func _hud(_id:String, show_carried:bool=true) -> void:
 
 func _quickbar_action(action:String) -> void:
 	if busy or is_instance_valid(modal):return
+	_remember_tool_opener(action)
 	match action:
 		"map":_map()
 		"book":_book()
@@ -919,6 +951,12 @@ func _hide_courier_for_closeup() -> void:
 	walker.hide()
 
 func _close(user_feedback:bool=false) -> void:
+	_modal_dismissing_id=0
+	if is_instance_valid(_modal_input_shield):
+		remove_child(_modal_input_shield)
+		_modal_input_shield.queue_free()
+	_modal_input_shield=null
+	if is_instance_valid(modal):PaperPresentation.cancel(modal)
 	if _photo_composition!=null:
 		_photo_composition.restore();_photo_composition=null
 		if is_instance_valid(_street_road):_street_road.photo_composition_active=false
@@ -953,10 +991,28 @@ func _close(user_feedback:bool=false) -> void:
 		if view=="world":walker.show()
 	_update_preference_save_notice()
 
-func _overlay() -> Control:
+func _dismiss_modal(user_feedback:bool=false)->void:
+	if not is_instance_valid(modal) or _modal_dismissing_id!=0:return
+	if not modal.get_meta("paper_overlay",false):
+		_close(user_feedback)
+		return
+	if user_feedback:sound.play("paper")
+	_modal_dismissing_id=modal.get_instance_id()
+	var expected_id:=_modal_dismissing_id
+	_modal_input_shield=Control.new()
+	_modal_input_shield.name="PaperDismissInputShield"
+	_modal_input_shield.z_index=modal.z_index+1
+	_modal_input_shield.mouse_filter=Control.MOUSE_FILTER_STOP
+	UI.place(_modal_input_shield,self,Rect2(0,0,1600,900))
+	PaperPresentation.leave(modal,func():
+		if is_instance_valid(modal) and modal.get_instance_id()==expected_id:_close())
+
+func _overlay(animate:bool=true) -> Control:
 	_close()
 	modal=Control.new()
 	UI.place(modal,self,Rect2(0,0,1600,900))
+	modal.set_meta("paper_overlay",true)
+	if animate:PaperPresentation.fade_in(modal)
 	var shade:=ColorRect.new()
 	shade.color=Color(0.10,0.16,0.17,0.22)
 	UI.place(shade,modal,Rect2(0,0,1600,900))
@@ -967,13 +1023,14 @@ func _sheet(title:String, copy:String, actions:Array,rounded_actions:bool=false)
 	var root:=_overlay()
 	var paper:=preload("res://scripts/ui/paper_sheet.gd").new()
 	root.add_child(paper)
-	paper.configure(title,copy,actions,_close.bind(true),rounded_actions)
+	paper.configure(title,copy,actions,_dismiss_modal.bind(true),rounded_actions)
 	return paper
 
 func _bag(focus_letter:String="",feedback:bool=true) -> void:
 	if busy:return
 	if not focus_letter.is_empty():_bag_photos_visible=false
-	var root:=_overlay()
+	var rebuilding_bag:=is_instance_valid(modal) and modal.name=="MailBag"
+	var root:=_overlay(not rebuilding_bag)
 	root.name="MailBag"
 	var photos:Array[String]=FieldCamera.photo_paths(_photo_directory())
 	var letters:Array[String]=[]
@@ -985,9 +1042,10 @@ func _bag(focus_letter:String="",feedback:bool=true) -> void:
 	if _bag_photos_visible:paper_size=Vector2(1112,660)
 	var paper_rect:=Rect2((Vector2(1600,900)-paper_size)*.5,paper_size)
 	var paper:=UI.panel(root,paper_rect,Color("f7efdc"))
+	paper.add_theme_stylebox_override("panel",PaperPresentation.backing(Color("f7efdc")))
 	paper.name="BagPaper"
 	UI.label(paper,_tr("背包","Bag"),Rect2(48,35,paper_size.x-250,56),32)
-	UI.button(paper,"×",Rect2(paper_size.x-82,26,54,54),_close.bind(true)).name="CloseBag"
+	UI.button(paper,"×",Rect2(paper_size.x-82,26,54,54),_dismiss_modal.bind(true)).name="CloseBag"
 	var satchel:=_sprite(paper,"satchel",Rect2(paper_size.x-210,14,90,98),true)
 	satchel.name="OpenSatchelArtwork"
 	var letter_tab:=UI.button(paper,_tr("信件 ","Letters ")+str(letters.size()),Rect2(48,98,180,42),_switch_bag_tab.bind(false))
@@ -996,7 +1054,13 @@ func _bag(focus_letter:String="",feedback:bool=true) -> void:
 	photo_tab.name="BagPhotosTab"
 	var recordings:=UI.button(paper,_tr("录音","Recordings"),Rect2(444,98,180,42),_bag_recordings)
 	recordings.name="BagRecordingsTab"
-	(letter_tab if not _bag_photos_visible else photo_tab).add_theme_color_override("font_color",Color("a15836"))
+	var selected_tab:Button=photo_tab if _bag_photos_visible else letter_tab
+	selected_tab.add_theme_color_override("font_color",UI.TEAL)
+	var selected_line:=StyleBoxFlat.new()
+	selected_line.bg_color=Color.TRANSPARENT
+	selected_line.border_color=UI.TEAL
+	selected_line.border_width_bottom=3
+	selected_tab.add_theme_stylebox_override("normal",selected_line)
 	if _bag_photos_visible:
 		var places:Array[String]=[""]
 		for path:String in photos:
@@ -1386,7 +1450,7 @@ func _map() -> void:
 	var map:=PaperMap.new()
 	map.current_destination=_nearest_landmark()
 	UI.place(map,root,Rect2(175,80,1250,740))
-	UI.button(root,"×",Rect2(1460,35,65,64),_close.bind(true))
+	UI.button(root,"×",Rect2(1460,35,65,64),_dismiss_modal.bind(true))
 	var art:=PaperMap.map_texture()
 	var scale_factor:=minf(map.size.x/art.get_width(),map.size.y/art.get_height())
 	var origin:=(map.size-art.get_size()*scale_factor)*0.5
@@ -1526,7 +1590,7 @@ func _cancel_quit(from_title:bool,from_settings:bool=false,return_pause:bool=tru
 
 func _pause(return_from_settings:bool=false) -> void:
 	if busy:return
-	var paper:=_sheet(_tr("暂歇一会儿","Pause"),"",[[_tr("回到场景","Resume"),_close],[_tr("设置","Settings"),_settings_page],[_tr("保存并回到封面","Save and title"),_save_to_title],[_tr("退出游戏","Quit game"),_request_quit]])
+	var paper:=_sheet(_tr("暂歇一会儿","Pause"),"",[[_tr("回到场景","Resume"),_dismiss_modal],[_tr("设置","Settings"),_settings_page],[_tr("保存并回到封面","Save and title"),_save_to_title],[_tr("退出游戏","Quit game"),_request_quit]])
 	if return_from_settings:
 		# The previous pause sheet was replaced. Restore its logical opener after
 		# the new sheet's default focus callback, including a changed UI language.

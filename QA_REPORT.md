@@ -1,3 +1,7 @@
+## 2026-11-15 — Direct new-journey entry
+
+Removed the requested new-journey confirmation. One cover-button click now starts loading and enters the post office even with an existing save; repeated calls during loading are ignored. Resume and save-failure handling remain available. Source and exported PCK each pass the updated UI/input suite (17 checks, zero failures), including Chinese and English entry. Typography fixture no longer expects the deleted dialog. Native verification was interrupted by user input in the review window and is not counted as passed. Only isolated QA saves were used.
+
 ## 2026-11-09 — Wooden opening-door recording
 
 Opening now uses a licensed wooden kitchen-door recording; the approved crisp shutter and closing audio are unchanged. Standard complete PCK passes 23 audio checks plus exact hash verification of the three selected WAVs. Original source recordings and user saves are preserved. See [WOOD_DOOR_AUDIO_20261109.md](docs/testing/WOOD_DOOR_AUDIO_20261109.md).
