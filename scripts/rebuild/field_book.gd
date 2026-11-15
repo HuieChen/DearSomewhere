@@ -175,9 +175,7 @@ func _rebuild() -> void:
 	close.position = Vector2(1464,16)
 	close.size = Vector2(96,66)
 	close.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	close.add_theme_stylebox_override("normal", _tab_style(false))
-	close.add_theme_stylebox_override("hover", _tab_style(true))
-	close.add_theme_stylebox_override("pressed", _tab_style(true))
+	preload("res://scripts/ui/paper_ui.gd").apply_button_style(close)
 	var available := _available_sections()
 	if available.is_empty(): section = 0; page = 0; selected_id = ""
 	if not available.is_empty() and section not in available:
