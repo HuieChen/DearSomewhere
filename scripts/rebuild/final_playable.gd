@@ -412,7 +412,21 @@ func _fresh() -> void:
 		_show_save_problem(_tr("暂时无法准备新旅程，请稍后重试。","The new journey could not be prepared. Please try again."),draft_error)
 		return
 	sound.play("paper")
+	# Starting a new journey is the one deliberate loading moment. The supplied
+	# line animation and wave bar get enough time to read before the counter is
+	# revealed; short in-game swaps below use a quiet paper fade instead.
+	busy=true
+	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
+	fade.sound=sound
+	UI.place(fade,self,Rect2(0,0,1600,900))
+	await fade.cover(true)
+	if not is_inside_tree():return
 	_post_office_room()
+	fade.set_progress(0.82)
+	await get_tree().create_timer(0.70).timeout
+	await fade.uncover(true)
+	if is_instance_valid(fade):remove_child(fade);fade.queue_free()
+	busy=false
 	_briefing_pending=false
 
 func _begin_briefing() -> void:
@@ -1407,12 +1421,13 @@ func _change_scene(build:Callable)->void:
 	if is_instance_valid(walker):walker.cancel();walker.manual_enabled=false
 	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
 	fade.sound=sound
+	fade.set_loading_enabled(false)
 	UI.place(fade,self,Rect2(0,0,1600,900))
-	await fade.cover()
+	await fade.cover(false)
 	if not is_inside_tree():return
 	build.call()
 	fade.set_progress(0.78)
-	await fade.uncover()
+	await fade.uncover(false)
 	if is_instance_valid(fade):remove_child(fade);fade.queue_free()
 	busy=false
 	if is_instance_valid(walker):walker.manual_enabled=view=="world"
@@ -1437,8 +1452,10 @@ func _depart(id:String,minutes:int,_map:Control=null) -> void:
 		await get_tree().create_timer(0.28).timeout
 	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
 	fade.sound=sound
+	var show_loading:=minutes > 15
+	fade.set_loading_enabled(show_loading)
 	UI.place(fade,self,Rect2(0,0,1600,900))
-	await fade.cover()
+	await fade.cover(show_loading)
 	fade.set_progress(0.42)
 	var error:String=core.travel(id,minutes)
 	if error.is_empty():
@@ -1447,7 +1464,7 @@ func _depart(id:String,minutes:int,_map:Control=null) -> void:
 		else:_world(id)
 	# Newly created stage stays under this overlay during the arrival fade.
 	move_child(fade,get_child_count()-1)
-	await fade.uncover()
+	await fade.uncover(show_loading)
 	fade.queue_free();busy=false
 	if is_instance_valid(walker):walker.manual_enabled=view=="world"
 	if not error.is_empty():_say(error)
