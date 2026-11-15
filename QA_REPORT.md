@@ -1,6 +1,6 @@
 ## 2026-11-16 — Upper-body registration and alpha debris
 
-Continuous upper-body placement now softens source-pose position jumps while boots retain their grounded UVs. Runtime removes 603 measured detached courier pixels without changing source files. Source checks pass 159/159. Whole-screen black dots remain unreproduced and unresolved; four authored leg poses still limit gait continuity. See [WALK_REGISTRATION_20261116.md](docs/testing/WALK_REGISTRATION_20261116.md).
+Continuous upper-body placement now softens source-pose position jumps while boots retain their grounded UVs. The user clarified that the flickering dots are courier cutout remnants: runtime removes 603 measured detached pixels without changing source files. Source checks pass 159/159. Four authored leg poses still limit gait continuity; subjective acceptance is open. See [WALK_REGISTRATION_20261116.md](docs/testing/WALK_REGISTRATION_20261116.md).
 
 ## 2026-11-16 — Painted stride matches world travel
 
