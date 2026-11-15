@@ -11,6 +11,7 @@ class Surface extends Control:
 func _initialize()->void:
 	_run.call_deferred()
 func _run()->void:
+	root.unfocusable=true
 	var window_connections:=root.focus_exited.get_connections().size()
 	var host:=Surface.new();host.sound=SoundProbe.new();host.add_child(host.sound);root.add_child(host)
 	var button:=UI.button(host,"Test",Rect2(0,0,180,50),func():callback_count+=1)
@@ -19,7 +20,8 @@ func _run()->void:
 	await create_timer(.15).timeout
 	_check(not feedback.is_processing(),"idle feedback does not poll")
 	button.button_down.emit()
-	await create_timer(.11).timeout
+	var press_motion:Tween=feedback.get("_motion")
+	await press_motion.finished
 	_check(button.scale.is_equal_approx(Vector2.ONE*.97),"press reaches authored scale")
 	var old:Tween=feedback.get("_motion")
 	for i in range(12):
