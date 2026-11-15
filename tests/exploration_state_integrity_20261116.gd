@@ -76,7 +76,7 @@ func run()->void:
 			root.size=pixels;recorder.open_library();await process_frame;await RenderingServer.frame_post_draw
 			check(Rect2(Vector2.ZERO,Vector2(1600,900)).encloses(recorder.title_edit.get_global_rect()),locale+" library naming fits design canvas "+str(pixels.x))
 			root.get_texture().get_image().save_png(out.path_join(locale+"_library_"+str(pixels.x)+".png"))
-		check(not recorder.movement_hint.visible and recorder.put_away_button.text==recorder.t("Esc  返回","Esc  Back"),locale+" library labels describe nested back and paused movement")
+		check(recorder.get_node_or_null("RecorderDock")==null and recorder._page.has_node("RecorderDock") and recorder.library_button.text==recorder.t("收起列表","Hide list"),locale+" retains latest compact recorder dock and nested list state")
 		recorder._toggle_library()
 		recorder.request_close();await process_frame
 		game._bag();game._bag_recordings();await create_timer(.2).timeout
