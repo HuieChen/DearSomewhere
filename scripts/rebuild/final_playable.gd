@@ -456,6 +456,7 @@ func _fresh() -> void:
 	if is_instance_valid(fade):remove_child(fade);fade.queue_free()
 	busy=false
 	_briefing_pending=false
+	if _window_close_deferred:_close_window_after_save.call_deferred()
 
 func _begin_briefing() -> void:
 	# The supervisor speaks from the other side of the counter. No invented portrait.
@@ -1121,7 +1122,7 @@ func _bag(focus_letter:String="",feedback:bool=true) -> void:
 func _bag_recordings()->void:
 	_close();_recorder()
 	if not is_instance_valid(modal):return
-	modal.library.get_parent().show()
+	modal.open_library()
 	modal.closed.disconnect(_close)
 	modal.closed.connect(func():_close();_bag("",false))
 

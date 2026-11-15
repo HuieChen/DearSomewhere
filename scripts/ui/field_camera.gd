@@ -8,6 +8,7 @@ signal actor_visibility_changed(visible:bool)
 signal pending_save_finished
 signal cue(kind:String)
 const FONT=preload("res://assets/fonts/DearRounded.tres")
+const Metadata=preload("res://scripts/ui/media_metadata.gd")
 const ART="res://assets/authoring/camera_20261105/viewfinder.png"
 const DESIGN:=Vector2(1600,900)
 var locale:="zh"
@@ -255,31 +256,13 @@ static func photo_paths(directory_path:String)->Array[String]:
 		if filename.begins_with("DearSomewhere_") and filename.ends_with(".png"):result.append(directory_path.path_join(filename))
 	result.sort();return result
 static func caption_for(photo_path:String)->String:
-	for suffix:String in [".json",".json.bak"]:
-		if not FileAccess.file_exists(photo_path+suffix):continue
-		var payload:Variant=JSON.parse_string(FileAccess.get_file_as_string(photo_path+suffix))
-		if payload is Dictionary:return str(payload.get("caption",""))
-	return ""
+	return str(photo_metadata(photo_path).get("caption",""))
 static func _write_caption(photo_path:String,text:String)->bool:
 	if not FileAccess.file_exists(photo_path):return false
-	var target:=ProjectSettings.globalize_path(photo_path+".json")
-	var temporary:=target+".tmp";var backup:=target+".bak"
-	var payload:Dictionary={"version":1,"caption":text}
-	if FileAccess.file_exists(target):
-		var prior:Variant=JSON.parse_string(FileAccess.get_file_as_string(target))
-		if prior is Dictionary:payload=prior.duplicate();payload.caption=text;payload.version=1
-	var file:=FileAccess.open(temporary,FileAccess.WRITE)
-	if file==null:return false
-	file.store_string(JSON.stringify(payload,"\t"));file.flush();var error:=file.get_error();file.close()
-	if error!=OK:return false
-	var had_original:=FileAccess.file_exists(target)
-	if had_original:
-		if FileAccess.file_exists(backup) and DirAccess.remove_absolute(backup)!=OK:return false
-		if DirAccess.rename_absolute(target,backup)!=OK:return false
-	if DirAccess.rename_absolute(temporary,target)!=OK:
-		if had_original:DirAccess.rename_absolute(backup,target)
-		return false
-	return true
+	var payload:=photo_metadata(photo_path).duplicate(true)
+	if not payload.has("version"):payload.version=1
+	payload.caption=text
+	return Metadata.write(photo_path+".json",payload)
 func _save_caption()->bool:
 	# TextEdit batches text_changed; a close in the same frame must still save
 	# the editor's current text instead of relying on that deferred notification.
@@ -474,15 +457,13 @@ func take_photo()->void:
 	var original_dir:=save_directory.path_join("originals")
 	var original_path:=original_dir.path_join(stem+".png")
 	var original_saved:bool=DirAccess.make_dir_recursive_absolute(original_dir)==OK and original.save_png(original_path)==OK
-	var metadata:=FileAccess.open(path+".json",FileAccess.WRITE)
-	if metadata!=null:
-		metadata.store_string(JSON.stringify({"version":2,"caption":"","favorite":false,"location":location_caption,"original":original_path if original_saved else "","camera":lab.metadata() if lab!=null else {}}))
+	var metadata_saved:=Metadata.write(path+".json",{"version":2,"caption":"","favorite":false,"location":location_caption,"original":original_path if original_saved else "","camera":lab.metadata() if lab!=null else {}})
 
 	last_photo_path=path;gallery_paths.append(path);_refresh_count();_refresh_thumbnail();photo_saved.emit(path)
 	_finish_capture_save()
 	if _closing or not is_inside_tree():return
 	capture_busy=false;shutter.disabled=false
-	_status(_t("已保存","Saved") if original_saved else _t("照片已保存；原片备份失败","Photo saved; original backup failed"))
+	_status(_t("照片已保存；附加信息未保存","Photo saved; details not saved") if not metadata_saved else (_t("已保存","Saved") if original_saved else _t("照片已保存；原片备份失败","Photo saved; original backup failed")))
 	_develop(ImageTexture.create_from_image(pixels))
 
 func _capture_failed(message:String)->void:
@@ -514,9 +495,7 @@ func _develop(texture:Texture2D)->void:
 	_animation.chain().tween_callback(func():_print_clip.hide();_slot.hide())
 
 static func photo_metadata(path:String)->Dictionary:
-	if not FileAccess.file_exists(path+".json"):return {}
-	var data:Variant=JSON.parse_string(FileAccess.get_file_as_string(path+".json"))
-	return data if data is Dictionary else {}
+	return Metadata.read(path+".json")
 
 func _refresh_favorite()->void:
 	if not is_instance_valid(_favorite) or _review_index<0:return
@@ -527,13 +506,9 @@ func _toggle_favorite()->void:
 	var path:String=gallery_paths[_review_index]
 	var data:=photo_metadata(path)
 	data.favorite=not bool(data.get("favorite",false))
-	var temp:=path+".favorite.tmp"
-	var file:=FileAccess.open(temp,FileAccess.WRITE)
-	if file==null:_caption_notice.text=_t("未保存，请重试","Not saved. Retry.");return
-	file.store_string(JSON.stringify(data));file.flush();var error:=file.get_error();file.close()
-	if error!=OK or DirAccess.rename_absolute(ProjectSettings.globalize_path(temp),ProjectSettings.globalize_path(path+".json"))!=OK:
+	if not Metadata.write(path+".json",data):
 		_caption_notice.text=_t("未保存，请重试","Not saved. Retry.");return
-	_refresh_favorite();cue.emit("paper")
+	_caption_notice.text="";_refresh_favorite();cue.emit("paper")
 
 func _status(message:String)->void:
 	status_label.text=message;status_label.visible=not message.is_empty()
