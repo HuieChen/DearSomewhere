@@ -48,45 +48,22 @@ func _ready()->void:
 	if is_instance_valid(road) and is_instance_valid(road.courier):road.courier.manual_enabled=true
 	_page=Control.new();UI.place(_page,self,Rect2(0,0,1600,900));_page.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	var surface:=Control.new();surface.name="RecordingWalkSurface";UI.place(surface,_page,Rect2(0,0,1600,900));surface.mouse_default_cursor_shape=Control.CURSOR_CROSS;surface.gui_input.connect(_aim_input)
-	var instrument:=Control.new();instrument.name="StereoDisplay";UI.place(instrument,_page,Rect2(28,24,430,184));instrument.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	instrument.draw.connect(func():
-		var shadow:=StyleBoxFlat.new();shadow.bg_color=Color(0.03,0.07,0.07,.34);shadow.set_corner_radius_all(22);instrument.draw_style_box(shadow,Rect2(6,8,instrument.size.x-2,instrument.size.y-2))
-		var shell:=StyleBoxFlat.new();shell.bg_color=Color("354b4a");shell.set_corner_radius_all(21);shell.set_border_width_all(2);shell.border_color=Color("213837");instrument.draw_style_box(shell,Rect2(Vector2.ZERO,instrument.size))
-		# A raised shoulder and a clipped side make the panel read as a device.
-		instrument.draw_colored_polygon(PackedVector2Array([Vector2(22,15),Vector2(292,15),Vector2(312,31),Vector2(22,31)]),Color("4b625d"))
-		var top_plate:=StyleBoxFlat.new();top_plate.bg_color=Color("ead9bb");top_plate.set_corner_radius_all(9);top_plate.set_border_width_all(1);top_plate.border_color=Color("a99e84");instrument.draw_style_box(top_plate,Rect2(28,16,326,29))
-		var screen_frame:=StyleBoxFlat.new();screen_frame.bg_color=Color("758b7d");screen_frame.set_corner_radius_all(12);instrument.draw_style_box(screen_frame,Rect2(28,46,326,100))
-		var screen:=StyleBoxFlat.new();screen.bg_color=Color("1e3030");screen.set_corner_radius_all(9);screen.set_border_width_all(1);screen.border_color=Color("92a38f");instrument.draw_style_box(screen,Rect2(34,52,314,88))
-		instrument.draw_line(Vector2(35,157),Vector2(348,157),Color("819487"),1.0)
-		# Left grille, right input knob and a small recording lamp.
-		for i in 8:
-			instrument.draw_circle(Vector2(43+i*10,29),2.0,Color("7e9385"))
-		instrument.draw_circle(Vector2(388,80),20,Color("263d3b"))
-		instrument.draw_circle(Vector2(388,80),15,Color("b7c2a2"))
-		instrument.draw_circle(Vector2(388,80),7,Color("64766b"))
-		instrument.draw_line(Vector2(388,65),Vector2(388,73),Color("e7d8ba"),2.0)
-		instrument.draw_circle(Vector2(402,28),5.0,Color("bc416b"))
-		instrument.draw_circle(Vector2(402,28),2.0,Color("f3a0a9"))
-		# Tactile transport row under the screen.
-		for i in 4:
-			var x:=54.0+i*28.0
-			instrument.draw_circle(Vector2(x,173),7.0,Color("243a39"))
-			instrument.draw_circle(Vector2(x,173),3.0,Color("d8c49e"))
-		instrument.draw_line(Vector2(188,173),Vector2(316,173),Color("789083"),2.0)
-		instrument.draw_circle(Vector2(332,173),5.0,Color("bc416b")))
-	# The recorder remains a compact edge HUD. Its physical shell carries the
-	# visual weight, while the central world stays open for walking and aiming.
+	var instrument := Control.new()
+	instrument.name = "StereoDisplay"
+	UI.place(instrument, _page, Rect2(28, 24, 360, 234))
+	instrument.mouse_filter = Control.MOUSE_FILTER_STOP
+	instrument.draw.connect(func(): _draw_recorder_body(instrument))
 	var style:=StyleBoxFlat.new();style.bg_color=Color("f7edd9");style.set_corner_radius_all(14)
-	label(t("录音机 · 双声道","RECORDER · STEREO"),Rect2(58,43,220,27),17)
-	clock_label=label("00:00",Rect2(276,42,78,30),20)
+	label(t("录音机 · 双声道","RECORDER · STEREO"),Rect2(52,48,214,27),17)
+	clock_label=label("00:00",Rect2(278,48,78,27),20)
 	clock_label.autowrap_mode=TextServer.AUTOWRAP_OFF
 	clock_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_RIGHT
-	mode_label=label(t("监听","MONITOR"),Rect2(70,72,105,22),15)
+	mode_label=label(t("监听","MONITOR"),Rect2(92,86,105,22),15)
 	mode_label.add_theme_color_override("font_color",Color("e7d8ba"))
-	var left_channel:=label("L",Rect2(54,96,22,20),14);left_channel.add_theme_color_override("font_color",Color("e7d8ba"))
-	var right_channel:=label("R",Rect2(54,116,22,20),14);right_channel.add_theme_color_override("font_color",Color("e7d8ba"))
-	record_button=button(t("R  录音","R  Record"),Rect2(1224,814,176,48),toggle_recording);record_button.name="RecordToggle"
-	play_button=button(t("P  回听","P  Play"),Rect2(1040,814,170,48),toggle_playback);play_button.name="PlaybackToggle"
+	var left_channel:=label("L",Rect2(70,110,22,20),14);left_channel.add_theme_color_override("font_color",Color("e7d8ba"))
+	var right_channel:=label("R",Rect2(70,130,22,20),14);right_channel.add_theme_color_override("font_color",Color("e7d8ba"))
+	record_button=button(t("R  录音","R  Record"),Rect2(48,198,152,42),toggle_recording);record_button.name="RecordToggle"
+	play_button=button(t("P  回听","P  Play"),Rect2(212,198,152,42),toggle_playback);play_button.name="PlaybackToggle"
 	button("×",Rect2(1500,28,56,48),request_close).name="CloseRecorder"
 	button(t("Esc  收起","Esc  Put away"),Rect2(1405,814,175,48),request_close).name="PutAwayRecorder"
 	visual_hint=CheckButton.new();visual_hint.text=t("方向提示","Direction hints");visual_hint.add_theme_font_override("font",FONT);visual_hint.add_theme_font_size_override("font_size",18)
@@ -94,7 +71,7 @@ func _ready()->void:
 	visual_hint.add_theme_color_override("font_outline_color",Color(.12,.16,.17,.75));visual_hint.add_theme_constant_override("outline_size",4)
 	UI.place(visual_hint,_page,Rect2(1288,32,205,40));visual_hint.tooltip_text=t("H · 方向提示","H · Direction hints")
 	library_button=button(t("录音列表","Recordings"),Rect2(36,814,194,48),_toggle_library);library_button.name="RecordingLibrary"
-	status=label("",Rect2(42,214,240,34),18)
+	status=label("",Rect2(42,270,320,34),18)
 	status.add_theme_color_override("font_color",Color("fff4db"));status.add_theme_color_override("font_outline_color",Color(.12,.16,.17,.8));status.add_theme_constant_override("outline_size",3)
 	var movement:=label(t("WASD / 方向键移动 · 鼠标收音","WASD / Arrows to walk · Mouse to aim"),Rect2(270,824,650,30),18)
 	movement.add_theme_color_override("font_color",Color("fff4db"));movement.add_theme_color_override("font_outline_color",Color(.12,.16,.17,.8));movement.add_theme_constant_override("outline_size",3)
@@ -117,6 +94,30 @@ func _ready()->void:
 	if is_instance_valid(road):road.field_sound.set_focus(true,_world_aim())
 	_refresh_library();get_window().focus_exited.connect(_focus_lost)
 	record_button.grab_focus()
+
+func _draw_recorder_body(instrument: Control) -> void:
+	# Two microphone caps break the silhouette above a compact enamel case.
+	for x: float in [48.0, 246.0]:
+		var microphone := UI.style(Color("b4baa7"), Color("354c48"), 5)
+		instrument.draw_style_box(microphone, Rect2(x, -10, 64, 18))
+		for rib in 8:
+			instrument.draw_line(Vector2(x + 7 + rib * 7, -7), Vector2(x + 7 + rib * 7, 4), Color("617970"), 1.5)
+	var body := UI.style(Color("45665f"), Color("2c4842"), 18)
+	body.shadow_color = Color(0.06, 0.12, 0.10, 0.23)
+	body.shadow_size = 3
+	body.shadow_offset = Vector2(3, 5)
+	instrument.draw_style_box(body, Rect2(Vector2.ZERO, instrument.size))
+	instrument.draw_line(Vector2(20, 8), Vector2(340, 8), Color("819b89"), 2, true)
+	var label_plate := UI.style(Color("f1e4c9"), Color("b5b89b"), 6)
+	instrument.draw_style_box(label_plate, Rect2(18, 20, 324, 34))
+	var bezel := UI.style(Color("263f39"), Color("91a58b"), 10)
+	instrument.draw_style_box(bezel, Rect2(20, 58, 320, 101))
+	var screen := UI.style(Color("20362f"), Color("20362f"), 7)
+	instrument.draw_style_box(screen, Rect2(25, 63, 310, 91))
+	instrument.draw_line(Vector2(22, 166), Vector2(338, 166), Color("2f4c43"), 2)
+	for screw: Vector2 in [Vector2(12, 18), Vector2(348, 18), Vector2(12, 219), Vector2(348, 219)]:
+		instrument.draw_circle(screw, 2.5, Color("a9b69a"))
+		instrument.draw_line(screw - Vector2(1.5, 0), screw + Vector2(1.5, 0), Color("45665f"), 1)
 func label(text:String,rect:Rect2,px:int)->Label:
 	var value:=UI.label(_page,text,rect,px,Color("47534b"));value.mouse_filter=Control.MOUSE_FILTER_IGNORE;return value
 func button(text:String,rect:Rect2,callback:Callable)->Button:
@@ -185,18 +186,18 @@ func _process(delta:float)->void:
 	play_button.disabled=recording or (selected_path.is_empty() and last_path.is_empty())
 	_ink.queue_redraw()
 func _draw_feedback()->void:
-	_ink.draw_circle(Vector2(58,77),4,Color("b25949") if recording else Color("91a78c"))
+	_ink.draw_circle(Vector2(78,97),4,Color("b25949") if recording else Color("91a78c"))
 	for channel in 2:
 		var normalized:=clampf((linear_to_db(maxf(levels[channel],.00001))+60.0)/60.0,0.0,1.0)
 		var held:=clampf((linear_to_db(maxf(_meter_peak[channel],.00001))+60.0)/60.0,0.0,1.0)
 		for i in 35:
 			var color:=Color("739781") if i<28 else Color("bf9560")
 			if float(i)/35.0>=normalized:color=Color("d8d8c5")
-			_ink.draw_rect(Rect2(80+i*8,96+channel*20,6,8),color)
-		_ink.draw_line(Vector2(80+held*280,95+channel*20),Vector2(80+held*280,105+channel*20),Color("667455"),1.5)
+			_ink.draw_rect(Rect2(100+i*7,116+channel*20,5,7),color)
+		_ink.draw_line(Vector2(100+held*245,115+channel*20),Vector2(100+held*245,124+channel*20),Color("667455"),1.5)
 	for i in _wave_history.size():
 		var height:=_wave_history[i]*7.0
-		_ink.draw_line(Vector2(80+i*5,145-height),Vector2(80+i*5,145+height),Color("829580"),2.0)
+		_ink.draw_line(Vector2(76+i*5,164-height),Vector2(76+i*5,164+height),Color("829580"),2.0)
 
 	if visual_hint.button_pressed:
 		_ink.draw_arc(aim_point,16,0,TAU,24,Color("fff3d5"),2,true)
