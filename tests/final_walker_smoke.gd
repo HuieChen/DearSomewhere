@@ -21,23 +21,28 @@ func _run() -> void:
 	walker = Walker.new()
 	root.add_child(walker)
 	_check(walker._window_focused==root.has_focus(), "initial keyboard focus comes from the actual Window")
-	_check(walker._poses.size()==11 and walker._turn_keys.size()==7 and walker._turn_keys[0]=="CHAR_courier_walk_2" and walker._turn_keys[-1]=="CHAR_courier" and walker._walk_keys.size()==5 and not walker._poses.values().has(null), "five walk poses, authored idle and five preserved turn poses are warm before first step")
-	_check(walker._walk_keys==["CHAR_courier_walk_0","CHAR_courier_walk_1","CHAR_courier_walk_2","CHAR_courier_walk_3","CHAR_courier_walk_4"], "complete latest authored cycle is ordered without obsolete frames")
-	_check(is_equal_approx(walker._cycle_seconds,0.625) and is_equal_approx(walker._idle_time,0.25),"original8fps period and idle2 timing loaded")
-	for index:int in range(5):
-		_check(walker._frame_for_time(float(index)*0.125+0.00001)==index and walker._frame_for_time(float(index)*0.125+0.1249)==index,"original125ms frame duration "+str(index))
-	_check(walker._frame_for_time(0.625)==0 and walker._frame_for_time(1.0)==3,"timestamp selection wraps through exact source duration")
-	var registration:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/authoring/courier_20261030/walk-registration.json"))
-	for key:String in walker._walk_keys:
-		var geometry:Dictionary=walker._frame_geometry[key]
-		_check(geometry==registration[str(walker._walk_keys.find(key))], "authored cropped walk uses its approved cap/foot registration: "+key)
+	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/authoring/courier_walk_20261110/walk.json"))
+	var frames: Array = manifest.frames
+	_check(frames.size()==12 and int(manifest.fps)==6, "approved supplied walk contains twelve frames at six fps")
+	_check(walker._walk_keys.size()==frames.size() and walker._turn_keys.size()==7 and walker._turn_keys[0]==walker._walk_keys[2] and walker._turn_keys[-1]=="CHAR_courier" and not walker._poses.values().has(null), "supplied walk and preserved turns are ready before first step")
+	var elapsed:=0.0
+	for index:int in range(frames.size()):
+		var frame:Dictionary=frames[index]
+		var key:String=walker._walk_keys[index]
+		var duration:float=float(frame.duration_seconds)
+		_check(key=="supplied_walk_%02d" % index and int(frame.source_frame)==index and FileAccess.get_sha256(frame.path)==frame.sha256, "authored frame order and source bytes "+str(index))
+		_check(walker._frame_geometry[key]==frame and is_instance_valid(walker._poses[key]), "authored frame geometry and texture "+str(index))
+		_check(walker._frame_for_time(elapsed+duration*.01)==index and walker._frame_for_time(elapsed+duration*.99)==index, "authored frame duration "+str(index))
+		elapsed+=duration
+	_check(is_equal_approx(walker._cycle_seconds,elapsed) and is_zero_approx(walker._idle_time), "supplied cycle and starting phase loaded")
+	_check(walker._frame_for_time(elapsed+.00001)==0, "timestamp selection wraps through exact source duration")
 	walker.arrived.connect(func() -> void: arrivals += 1)
 	walker.footstep.connect(func() -> void: footsteps += 1)
 	walker.configure(null, Rect2(40, 170, 900, 230), Vector2(120, 300))
-	_check(walker._frame_for_time(walker._walk_time)==2,"start pose matches static original idle without a first-frame jump")
+	_check(walker._frame_for_time(walker._walk_time)==0,"start phase selects first supplied walk frame")
 	var timing_start:float=walker._walk_time
 	walker._advance_phase(25.0)
-	_check(is_equal_approx(walker._walk_time,fposmod(timing_start+0.125,0.625)),"25worldpx at200px/s advances exactly one original frame")
+	_check(is_equal_approx(walker._walk_time,fposmod(timing_start+25.0/walker.max_speed,walker._cycle_seconds)),"animation phase follows actual travelled distance")
 	walker.cancel()
 	walker.walk_to(Vector2(480, 300), func() -> void: callbacks.append("first"))
 	_check(callbacks.is_empty() and walker.walking, "hotspot action waits for approach rather than firing on click")
@@ -46,7 +51,7 @@ func _run() -> void:
 	walker._process(1.0 / 60.0)
 	_check(first_speed > 0.0 and walker.velocity.length() > first_speed and walker.velocity.length() < walker.max_speed, "actor accelerates into its walk")
 	_finish_walk()
-	_check(footsteps >= 2 and footsteps <= 3, "walking emits one conservative grounded contact per source cycle from actual travelled distance")
+	_check(footsteps == int(floor(360.0/(walker.max_speed*walker._cycle_seconds))), "walking emits one conservative grounded contact per source cycle from actual travelled distance")
 	var settled_steps: int = footsteps
 	_check(callbacks == ["first"] and arrivals == 1, "arrival runs the pending action once")
 	_check(walker.foot.distance_to(Vector2(480, 300)) < 0.01 and walker.velocity.length() < 0.02, "feet settle at target with no residual movement")
@@ -180,11 +185,11 @@ func _test_cadence_and_arrival() -> void:
 		walker.configure(null,Rect2(40,170,900,230),Vector2(120,300))
 		walker.walk_to(Vector2(900,300))
 		var poses:Dictionary={}
-		for tick:int in range(int(rate)):
+		for tick:int in range(int(rate*walker._cycle_seconds)+int(rate*.2)):
 			walker._process(1.0/rate)
 			poses[walker._frame_for_time(walker._walk_time)]=true
-		trajectories.append(walker.foot)
-		_check(poses.size()==5,"real movement visits all latest source poses at"+str(rate)+"fps")
+			if tick==int(rate)-1:trajectories.append(walker.foot)
+		_check(poses.size()==walker._walk_keys.size(),"real movement visits all latest source poses at"+str(rate)+"fps")
 		var last_speed:float=0.0
 		for tick:int in range(int(rate)*8):
 			last_speed=walker.velocity.length()
