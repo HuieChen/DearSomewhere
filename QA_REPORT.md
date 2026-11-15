@@ -1,3 +1,7 @@
+## 2026-11-16 — Painted stride matches world travel
+
+Supersedes the 12-fps adjustment below after the user clarified foot sliding. Gait follows distance and actor size, and standing turns remain stationary. Source checks pass 157/157, including rendered supporting-foot contact measurements. Native ground-click movement/arrival was observed; subjective gait acceptance remains open. See [GROUNDED_STRIDE_20261116.md](docs/testing/GROUNDED_STRIDE_20261116.md).
+
 ## 2026-11-16 — Crisp walking cadence
 
 Removed walking/settling crossfades and doubled runtime pose playback to 12 fps without changing physical movement speed or original artwork. Source checks pass 153/153. Native review was stopped by the user's physical Escape and remains unverified; concurrent-load frame samples are not a performance-improvement claim. See [CRISP_WALK_20261116.md](docs/testing/CRISP_WALK_20261116.md).

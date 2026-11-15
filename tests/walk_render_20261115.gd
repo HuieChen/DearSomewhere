@@ -2,6 +2,7 @@ extends SceneTree
 const Walker=preload("res://scripts/rebuild/final_walker.gd")
 var failures:Array[String]=[]
 var checks:=0
+var contacts:Dictionary={}
 var out:="user://qa/walk-render-20261115"
 func _initialize():
 	for argument:String in OS.get_cmdline_user_args():
@@ -21,6 +22,18 @@ func difference(a:Image,b:Image)->float:
 			var p:=a.get_pixel(x,y);var q:=b.get_pixel(x,y)
 			total+=absf(p.r-q.r)+absf(p.g-q.g)+absf(p.b-q.b)
 	return total
+func planted_boot_x(picture:Image,w:Control)->float:
+	var points:Array[Vector2i]=[]
+	var bottom:=0
+	for y in range(int(w.foot.y-w.actor_height*.3),mini(picture.get_height(),int(w.foot.y)+1)):
+		for x in range(100,460):
+			var p:=picture.get_pixel(x,y)
+			if p.a>.95 and p.r<.23 and p.g<.23 and p.b<.16:
+				points.append(Vector2i(x,y));bottom=maxi(bottom,y)
+	var sum:=0.0;var count:=0
+	for p in points:
+		if p.y>=bottom-maxi(1,roundi(16.0*w.actor_height/1830.0)):sum+=p.x;count+=1
+	return sum/maxi(count,1) if count>0 else -1000.0
 func run():
 	root.unfocusable=true;root.size=Vector2i(640,480);root.content_scale_size=Vector2i(640,480)
 	root.transparent_bg=true
@@ -29,11 +42,11 @@ func run():
 	w.set_process(false)
 	w._turn_position=0.0;w._was_in_motion=true
 	var first:Image=await shot(w,0.0)
-	var mid:Image=await shot(w,1.0/24.0)
-	var last:Image=await shot(w,1.0/12.0)
+	var mid:Image=await shot(w,1.0/12.0)
+	var last:Image=await shot(w,1.0/6.0)
 	check(w.material==w._walk_material,"normal walk route uses the new material")
 	check(difference(first,mid)<0.01,"mid-frame retains one crisp painted silhouette without ghost outlines")
-	check(difference(mid,last)>2,"a new source pose is visible after 1/12 second")
+	check(difference(mid,last)>2,"next source phase displays a new original pose")
 	var overlap:=0;var translucent:=0
 	for y in range(90,460,2):
 		for x in range(100,460,2):
@@ -47,6 +60,21 @@ func run():
 		failures.append("Cannot create rendering evidence directory")
 	for entry:Array in [["first",first],["mid",mid],["last",last]]:
 		if entry[1].save_png(out+"/"+entry[0]+".png")!=OK:failures.append("Cannot save "+entry[0])
-	FileAccess.open(out+"/receipt.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":checks,"failures":failures,"opaque_overlap_pixels":overlap}))
+	# Measure the actual rendered supporting boot against a fixed world point,
+	# across the source's three dark-boot stance poses and both game sizes.
+	w._turn_position=0.0
+	for height:float in [156.0,295.0]:
+		w.actor_height=height;w.foot=Vector2(280,455);w._walk_time=0.0
+		var planted:Array[float]=[]
+		for index in range(3):
+			var pose:Image=await shot(w,w._walk_time)
+			planted.append(planted_boot_x(pose,w))
+			var travel:float=w._walk_cycle_distance()/12.0
+			w.foot.x+=travel;w._advance_phase(travel)
+		# A two-pixel antialiased sole changes its measured centroid as its
+		# footprint narrows. Budget four screen pixels at either display scale.
+		check(planted.min()>0 and planted.max()-planted.min()<4.0,"rendered supporting boot drifts less than 4px across stance poses at height "+str(height)+": "+str(planted))
+		contacts[str(height)]=planted
+	FileAccess.open(out+"/receipt.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":checks,"failures":failures,"opaque_overlap_pixels":overlap,"rendered_contact_x":contacts}))
 	print("WALK_RENDER ",checks," / ",failures.size()," overlap=",overlap)
 	w.queue_free();await process_frame;quit(0 if failures.is_empty() else 1)
