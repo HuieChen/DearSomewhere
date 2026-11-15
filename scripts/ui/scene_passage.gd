@@ -24,6 +24,7 @@ var loading_enabled := true:
 var coverage := 0.0:
     set(value):
         coverage = clampf(float(value), 0.0, 1.0)
+        _sync_visibility()
         queue_redraw()
 var progress := 0.0:
     set(value):
