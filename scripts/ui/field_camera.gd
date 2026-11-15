@@ -220,8 +220,8 @@ func _label(text:String,rect:Rect2,font_size:int,align:HorizontalAlignment=HORIZ
 func _button(text:String,rect:Rect2,font_size:int)->Button:
 	var button:=Button.new();button.text=text;button.flat=true;button.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
 	button.add_theme_font_override("font",FONT);button.add_theme_font_size_override("font_size",font_size)
-	for state:String in ["normal","hover","pressed","focus"]:button.add_theme_stylebox_override(state,StyleBoxEmpty.new())
-	button.add_theme_color_override("font_color",Color("fff5dc"));button.add_theme_color_override("font_hover_color",Color("c8e8ce"));button.add_theme_color_override("font_pressed_color",Color("e1ca9d"));button.add_theme_color_override("font_focus_color",Color("c8e8ce"));button.add_theme_color_override("font_outline_color",Color("5a6151"));button.add_theme_constant_override("outline_size",2)
+	preload("res://scripts/ui/paper_ui.gd").apply_button_style(button)
+	button.flat=false
 	_place(button,canvas,rect);return button
 func _build_review()->void:
 	_review=Control.new();_review.name="PhotoReview";_review.mouse_filter=Control.MOUSE_FILTER_STOP;_place(_review,canvas,Rect2(Vector2.ZERO,DESIGN));_review.hide()

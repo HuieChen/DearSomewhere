@@ -3,7 +3,7 @@ extends RefCounted
 
 const INK = Color("4f3847")
 const PAPER = Color("fff1df")
-const TEAL = Color("49745b")
+const TEAL = Color("0059ae")
 const MUTED = Color("7c7378")
 const CORAL = Color("bc416b")
 
@@ -52,35 +52,57 @@ static func body(parent: Node, text: String, rect: Rect2, font_size: int = 23) -
 	place(l, parent, rect)
 	return l
 
+# Approved Settings reference: cream surface, blue type, restrained rounding.
+const ACTION_PAPER = Color("fff9ee")
+const ACTION_INK = Color("0059ae")
+const ACTION_HOVER = Color("eaf3f8")
+const ACTION_PRESSED = Color("dcebf4")
+const ACTION_FONT = preload("res://assets/fonts/DearRounded.tres")
+
+static func apply_button_style(button:BaseButton, embedded:bool=false)->void:
+	button.add_theme_font_override("font",ACTION_FONT)
+	button.add_theme_constant_override("outline_size",0)
+	button.add_theme_color_override("font_color",ACTION_INK)
+	button.add_theme_color_override("font_hover_color",Color("0874c2"))
+	button.add_theme_color_override("font_pressed_color",Color("004d96"))
+	button.add_theme_color_override("font_hover_pressed_color",Color("004d96"))
+	button.add_theme_color_override("font_focus_color",ACTION_INK)
+	button.add_theme_color_override("font_disabled_color",Color("8b9eab"))
+	for state:String in ["normal","hover","pressed","hover_pressed","disabled"]:
+		var fill:Color=ACTION_PAPER
+		if embedded:fill=Color.TRANSPARENT
+		if state=="hover":fill=ACTION_HOVER
+		elif state in ["pressed","hover_pressed"]:fill=ACTION_PRESSED
+		elif state=="disabled" and not embedded:fill=Color("f1eee6")
+		var box:=style(fill,Color.TRANSPARENT,14)
+		box.set_border_width_all(0)
+		box.content_margin_left=8;box.content_margin_right=8
+		box.content_margin_top=0;box.content_margin_bottom=0
+		button.add_theme_stylebox_override(state,box)
+	var focus:=style(Color.TRANSPARENT,Color("75add1"),14)
+	focus.set_border_width_all(2)
+	focus.content_margin_left=0;focus.content_margin_right=0
+	focus.content_margin_top=0;focus.content_margin_bottom=0
+	button.add_theme_stylebox_override("focus",focus)
+	button.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
+	for state:String in ["icon_normal_color","icon_hover_color","icon_pressed_color","icon_focus_color"]:button.add_theme_color_override(state,ACTION_INK)
+	if button is OptionButton:
+		var menu:PopupMenu=button.get_popup()
+		menu.add_theme_font_override("font",ACTION_FONT)
+		menu.add_theme_font_size_override("font_size",21)
+		menu.add_theme_color_override("font_color",ACTION_INK)
+		menu.add_theme_color_override("font_hover_color",ACTION_INK)
+		menu.add_theme_stylebox_override("panel",style(ACTION_PAPER,Color("dcebf4"),14))
+		menu.add_theme_stylebox_override("hover",style(ACTION_HOVER,Color.TRANSPARENT,8))
+
 static func button(parent: Node, text: String, rect: Rect2, callback: Callable, primary: bool = false) -> Button:
 	var b = Button.new()
 	b.text = text
 	b.add_theme_font_size_override("font_size", 21)
-	b.add_theme_color_override("font_color", TEAL if primary else INK)
-	b.add_theme_color_override("font_hover_color", CORAL)
-	b.add_theme_color_override("font_focus_color", CORAL)
-	b.add_theme_color_override("font_pressed_color", INK)
-	b.add_theme_color_override("font_disabled_color", MUTED)
-	var line=StyleBoxFlat.new()
-	line.bg_color=Color.TRANSPARENT
-	line.border_color=CORAL
-	line.border_width_bottom=2
-	b.add_theme_stylebox_override("normal",StyleBoxEmpty.new())
-	b.add_theme_stylebox_override("hover",line)
-	b.add_theme_stylebox_override("pressed",line)
-	b.add_theme_stylebox_override("focus",line)
-	b.add_theme_stylebox_override("disabled",StyleBoxEmpty.new())
+	apply_button_style(b)
 	if text=="×":
-		# A close control sits over many differently colored world surfaces.
-		# Give the cross its own quiet, readable ground instead of relying on
-		# whatever happens to be painted behind it.
 		b.add_theme_font_size_override("font_size",32)
 		b.action_mode=BaseButton.ACTION_MODE_BUTTON_PRESS
-		for state:String in ["normal","hover","pressed","focus"]:
-			var close_style:=style(PAPER if state=="normal" else Color("eee2ca"),Color("53716a"),24)
-			close_style.content_margin_left=0;close_style.content_margin_right=0
-			close_style.content_margin_top=0;close_style.content_margin_bottom=0
-			b.add_theme_stylebox_override(state,close_style)
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	place(b, parent, rect)
 	b.pivot_offset = rect.size * 0.5

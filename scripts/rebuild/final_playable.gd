@@ -1068,10 +1068,7 @@ func _bag(focus_letter:String="",feedback:bool=true) -> void:
 			var place:String=FieldCamera.photo_metadata(path).get("location","")
 			if not place.is_empty() and place not in places:places.append(place)
 		var place_picker:=OptionButton.new();place_picker.name="PhotoPlaceFilter";place_picker.add_theme_font_size_override("font_size",20)
-		var filter_style:=StyleBoxFlat.new();filter_style.bg_color=Color("e5d6ba");filter_style.set_corner_radius_all(8)
-		for state:String in ["normal","hover","pressed","focus"]:
-			place_picker.add_theme_stylebox_override(state,filter_style);place_picker.add_theme_color_override("font_"+state+"_color",Color("665240"))
-		place_picker.add_theme_color_override("font_color",Color("665240"))
+		UI.apply_button_style(place_picker)
 		UI.place(place_picker,paper,Rect2(646,98,242,42));place_picker.add_item(_tr("全部地点","All places"))
 		for i in range(1,places.size()):place_picker.add_item(places[i])
 		if _photo_place_filter not in places:_photo_place_filter=""

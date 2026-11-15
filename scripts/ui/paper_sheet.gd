@@ -25,14 +25,14 @@ func configure(title:String,copy:String,actions:Array,close_action:Callable,roun
 		_body.name="SheetBody"
 		_body.focus_mode=Control.FOCUS_ALL
 		var focus_line:=StyleBoxFlat.new();focus_line.bg_color=Color.TRANSPARENT
-		focus_line.border_color=Color("49745b");focus_line.border_width_bottom=2
+		focus_line.border_color=UI.ACTION_INK;focus_line.border_width_bottom=2
 		_body.add_theme_stylebox_override("focus",focus_line)
 	for i:int in range(actions.size()):
 		var button:Button
 		if _rounded_actions:
 			button=preload("res://scripts/ui/confirmation_paper_button.gd").new()
 			button.text=str(actions[i][0])
-			UI.place(button,self,Rect2((_width-550)*.5,0,550,110))
+			UI.place(button,self,Rect2((_width-550)*.5,0,550,60))
 			button.pressed.connect(actions[i][1])
 		else:button=UI.button(self,str(actions[i][0]),Rect2(42,0,_width-84,54),actions[i][1],i==0)
 		button.name="SheetAction_"+str(i)
@@ -46,7 +46,7 @@ func configure(title:String,copy:String,actions:Array,close_action:Callable,roun
 func _layout()->void:
 	if not is_inside_tree():return
 	var y:=maxf(108.0,32.0+_heading.get_minimum_size().y+24.0)
-	var step:=124.0 if _rounded_actions else 64.0
+	var step:=74.0 if _rounded_actions else 64.0
 	var action_height:=float(_actions.size())*step-10.0 if not _actions.is_empty() else 0.0
 	if _body!=null:
 		var body_height:=clampf(float(_body.get_content_height())+8.0,64.0,minf(330.0,740.0-y-action_height-68.0))
