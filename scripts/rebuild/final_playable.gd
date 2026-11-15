@@ -390,10 +390,8 @@ func _stage_plan(id:String) -> Dictionary:
 	return result
 
 func _start() -> void:
-	if core.has_save():
-		sound.play("paper")
-		_sheet(_tr("开启新的旅程？","A new journey?"), _tr("这会替换当前旅程的进度。","This will replace your current journey's progress."),[[_tr("继续当前旅程","Continue current journey"),_resume],[_tr("开始新旅程","Start new journey"),_fresh]],true)
-	else: _fresh()
+	if busy:return
+	await _fresh()
 
 func _fresh() -> void:
 	core.new_game()

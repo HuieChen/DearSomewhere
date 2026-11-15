@@ -33,16 +33,12 @@ func run()->void:
 	game._save()
 	for language:String in ["zh","en"]:
 		game.preferences.values.language=language;game._title();await create_timer(.3).timeout
-		game._start();await create_timer(.4).timeout
-		var paper:Control=game.modal.get_node("PaperSheet")
-		for id:int in [0,1]:
-			var button:Button=paper.get_node("SheetAction_"+str(id))
-			check(button.get_script().resource_path.ends_with("confirmation_paper_button.gd"),"new journey uses generated paper")
-			check(button.get_theme_stylebox("focus") is StyleBoxEmpty,"no old pink divider")
-			check(button.get_global_rect().end.y<900,"actions stay on screen")
-		check(view.gui_get_focus_owner()==paper.get_node("SheetAction_0"),"continue is safe default")
+		await click(game.stage.find_child("NewShift",true,false))
+		check(not is_instance_valid(game.modal),"new journey skips confirmation even with an existing save")
+		while game.busy:await process_frame
+		check(game.view=="post_office_room","one start click reaches the post office")
 		await frame(language+"_new_journey")
-		await click(paper.get_node("CloseSheet"))
+		game._title();await create_timer(.3).timeout
 		game._request_quit();await create_timer(.4).timeout
 		await frame(language+"_quit")
 		await click(game.modal.get_node("PaperSheet/SheetAction_0"))
