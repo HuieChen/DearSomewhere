@@ -29,10 +29,10 @@ func _run() -> void:
 	for index:int in range(frames.size()):
 		var frame:Dictionary=frames[index]
 		var key:String=walker._walk_keys[index]
-		var duration:float=float(frame.duration_seconds)
+		var duration:float=float(frame.duration_seconds)/Walker.WALK_PLAYBACK_RATE
 		_check(key=="supplied_walk_%02d" % index and int(frame.source_frame)==index and FileAccess.get_sha256(frame.path)==frame.sha256, "authored frame order and source bytes "+str(index))
 		_check(walker._frame_geometry[key]==frame and is_instance_valid(walker._poses[key]), "authored frame geometry and texture "+str(index))
-		_check(walker._frame_for_time(elapsed+duration*.01)==index and walker._frame_for_time(elapsed+duration*.99)==index, "authored frame duration "+str(index))
+		_check(walker._frame_for_time(elapsed+duration*.01)==index and walker._frame_for_time(elapsed+duration*.99)==index, "runtime pose interval "+str(index))
 		elapsed+=duration
 	_check(is_equal_approx(walker._cycle_seconds,elapsed) and walker._frame_for_time(walker._idle_time)==2, "supplied cycle starts at the preserved turn bridge pose")
 	_check(walker._frame_for_time(elapsed+.00001)==0, "timestamp selection wraps through exact source duration")
