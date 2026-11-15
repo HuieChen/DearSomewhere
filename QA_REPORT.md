@@ -1,3 +1,7 @@
+## 2026-11-16 — Map badge and integration review
+
+Localized the post-office hub badge with the shared rounded font and measured text layout. Preserved the no-light map, newer paper navigation, recorder and walk changes. Final integrated PCK passes 247 scoped offscreen GPU/input/audio-data checks; zh/en layouts and normal-speed map footage inspected. Updated stale dismissal timing and isolated recorder fixture focus/FPS; initial failed runs remain documented. Native/listening acceptance is separate. See [MAP_REFINEMENT_20261116.md](docs/testing/MAP_REFINEMENT_20261116.md).
+
 ## 2026-11-15 — Direct new-journey entry
 
 Removed the requested new-journey confirmation. One cover-button click now starts loading and enters the post office even with an existing save; repeated calls during loading are ignored. Resume and save-failure handling remain available. Source and exported PCK each pass the updated UI/input suite (17 checks, zero failures), including Chinese and English entry. Typography fixture no longer expects the deleted dialog. Native verification was interrupted by user input in the review window and is not counted as passed. Only isolated QA saves were used.

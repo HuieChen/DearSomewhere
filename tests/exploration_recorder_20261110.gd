@@ -11,6 +11,9 @@ func check(ok:bool,message:String):
 	checks+=1
 	if not ok:failures.append(message);push_error(message)
 func run():
+	# Keep isolated audio/render checks independent of desktop focus and uncapped FPS.
+	root.unfocusable=true
+	Engine.max_fps=60
 	DirAccess.make_dir_recursive_absolute(out)
 	root.size=Vector2i(1280,720);root.content_scale_size=Vector2i(1600,900);root.content_scale_mode=Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	var game=load("res://scripts/rebuild/final_playable.gd").new();game.allow_display_changes=false;root.add_child(game);game.size=Vector2(1600,900)

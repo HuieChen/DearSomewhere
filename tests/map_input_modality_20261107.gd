@@ -35,6 +35,10 @@ func wait_arrival()->void:
 	var deadline:=Time.get_ticks_msec()+4000
 	while game.busy and Time.get_ticks_msec()<deadline:await process_frame
 	check(not game.busy,"Scene change completed")
+func wait_dismissal()->void:
+	# Paper now leaves over 120 ms; the former 80 ms settle predates that motion.
+	var deadline:=Time.get_ticks_msec()+500
+	while is_instance_valid(game.modal) and Time.get_ticks_msec()<deadline:await process_frame
 func shot(label:String)->void:
 	await RenderingServer.frame_post_draw
 	view.get_texture().get_image().save_png(out+label+".png")
@@ -88,9 +92,9 @@ func run()->void:
 		check(map._active_destination()==null,locale+" close focus has no stale destination marker")
 		await shot("close_focus_"+locale)
 		var location:String=game.core.state.location
-		await key(KEY_ENTER);await settle()
+		await key(KEY_ENTER);await wait_dismissal()
 		check(not is_instance_valid(game.modal) and game.core.state.location==location,locale+" Enter on close dismisses without travel")
-		map=await open_map();await key(KEY_ESCAPE);await settle()
+		map=await open_map();await key(KEY_ESCAPE);await wait_dismissal()
 		check(not is_instance_valid(game.modal),locale+" Escape still closes map")
 	game.sound.shutdown();await settle(.4);game.queue_free();await process_frame;view.queue_free();await process_frame
 	FileAccess.open(out+"receipt.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":checks,"failures":failures,"method":"Production host, offscreen GPU and real viewport key/pointer events; isolated save data; not OS-input playtesting."},"  "))
