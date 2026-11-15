@@ -13,6 +13,7 @@ const WALK_GEOMETRY := "res://assets/faefever_v2/characters/courier_walk_regions
 # turn images bridge movement back to the authored idle without replacing it.
 # Geometry, animation state, materials and callbacks remain instance-local.
 const MAX_PREPARED_TEXTURES := 23
+const WALK_PLAYBACK_RATE := 2.0
 static var _prepared_textures: Dictionary = {}
 static func _prepared_texture(path:String) -> Texture2D:
 	if _prepared_textures.has(path):return _prepared_textures[path]
@@ -175,7 +176,9 @@ func _load_supplied_walk() -> void:
 		_walk_keys.append(key)
 		_poses[key] = prepared[index]
 		_frame_geometry[key] = data.frames[index]
-		_cycle_seconds += float(data.frames[index].duration_seconds)
+		# Twelve crisp poses per second at normal walking speed. The original
+		# six-fps recording is unchanged; turns keep their separate timing.
+		_cycle_seconds += float(data.frames[index].duration_seconds) / WALK_PLAYBACK_RATE
 		_frame_ends.append(_cycle_seconds)
 
 func _load_turns() -> void:
@@ -338,7 +341,7 @@ func _draw() -> void:
 			_draw_pose(_turn_keys[index], 1.0)
 		else:
 			if not _was_in_motion and _settle_time < 0.10:
-				_draw_pose(_walk_keys[_frame_for_time(_settle_phase)],1.0,_turn_keys[0],smoothstep(0.0,0.10,_settle_time))
+				_draw_pose(_walk_keys[_frame_for_time(_settle_phase)],1.0)
 			else:
 				_draw_walk_cycle(_walk_time, 1.0)
 		return
@@ -348,33 +351,15 @@ func _draw() -> void:
 		_draw_walk_cycle(_walk_time,blend)
 
 func _draw_walk_cycle(seconds:float,opacity:float)->void:
-	# One shader pass blends premultiplied samples. Drawing two translucent
-	# sprites made the overlapping body see-through during every transition.
-	var index:=_frame_for_time(seconds)
-	var current:=_walk_keys[index]
-	if _cycle_seconds<=0.0:
-		_draw_pose(current,opacity)
-		return
-	var at:=fposmod(seconds,_cycle_seconds)
-	var frame_start:=0.0 if index==0 else _frame_ends[index-1]
-	var duration:=maxf(_frame_ends[index]-frame_start,0.001)
-	var local:=(at-frame_start)/duration
-	if local<0.4 or _walk_keys.size()<2:
-		_draw_pose(current,opacity)
-		return
-	var next:=_walk_keys[(index+1)%_walk_keys.size()]
-	var fade:=smoothstep(0.0,1.0,clampf((local-0.4)/0.6,0.0,1.0))
-	_draw_pose(current,opacity,next,fade)
+	# One painted silhouette, never overlapping faded outlines. Faster source
+	# playback supplies the cadence without translucent hands/feet or warping.
+	_draw_pose(_walk_keys[_frame_for_time(seconds)],opacity)
 
-func _draw_pose(key:String,opacity:float,next_key:String="",mix_amount:float=0.0)->void:
+func _draw_pose(key:String,opacity:float)->void:
 	var art:Texture2D=_poses.get(key)
 	if art==null:return
 	var supplied:=key.begins_with("supplied_walk_")
 	material=_walk_material if supplied else _portrait_material
-	if supplied:
-		_walk_material.set_shader_parameter("current_pose",art)
-		_walk_material.set_shader_parameter("next_pose",_poses.get(next_key,art))
-		_walk_material.set_shader_parameter("pose_mix",mix_amount)
 	var eye: Rect2 = EYE_RECTS.get(key, Rect2())
 	if not supplied and material is ShaderMaterial:
 		material.set_shader_parameter("eye_rect",Vector4(eye.position.x,eye.position.y,eye.size.x,eye.size.y))

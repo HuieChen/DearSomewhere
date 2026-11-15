@@ -1,9 +1,6 @@
 shader_type canvas_item;
 render_mode unshaded;
 #include "res://scripts/rebuild/character_palette.gdshaderinc"
-uniform sampler2D next_pose : filter_linear_mipmap, repeat_disable;
-uniform sampler2D current_pose : filter_linear_mipmap, repeat_disable;
-uniform float pose_mix : hint_range(0.0,1.0) = 0.0;
 varying vec4 item_tint;
 void vertex() { item_tint = COLOR; }
 
@@ -26,9 +23,7 @@ vec4 clean_sample(sampler2D source, vec2 uv, vec2 probe) {
 }
 void fragment() {
 	vec2 probe=max(TEXTURE_PIXEL_SIZE*2.0,fwidth(UV)*0.75);
-	vec4 a=clean_sample(current_pose,UV,probe);
-	vec4 b=clean_sample(next_pose,UV,probe);
-	vec4 blended=mix(a,b,pose_mix);
-	vec3 rgb=blended.rgb/max(blended.a,0.0001);
-	COLOR=vec4(character_pigment(rgb,item_tint.rgb),blended.a)*item_tint;
+	vec4 painted=clean_sample(TEXTURE,UV,probe);
+	vec3 rgb=painted.rgb/max(painted.a,0.0001);
+	COLOR=vec4(character_pigment(rgb,item_tint.rgb),painted.a)*item_tint;
 }

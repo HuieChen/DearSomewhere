@@ -2,6 +2,10 @@
 
 Localized the post-office hub badge with the shared rounded font and measured text layout. Preserved the no-light map, newer paper navigation, recorder and walk changes. Final integrated PCK passes 247 scoped offscreen GPU/input/audio-data checks; zh/en layouts and normal-speed map footage inspected. Updated stale dismissal timing and isolated recorder fixture focus/FPS; initial failed runs remain documented. Native/listening acceptance is separate. See [MAP_REFINEMENT_20261116.md](docs/testing/MAP_REFINEMENT_20261116.md).
 
+## 2026-11-16 — Crisp walking cadence
+
+Removed walking/settling crossfades and doubled runtime pose playback to 12 fps without changing physical movement speed or original artwork. Source checks pass 153/153. Native review was stopped by the user's physical Escape and remains unverified; concurrent-load frame samples are not a performance-improvement claim. See [CRISP_WALK_20261116.md](docs/testing/CRISP_WALK_20261116.md).
+
 ## 2026-11-15 — Direct new-journey entry
 
 Removed the requested new-journey confirmation. One cover-button click now starts loading and enters the post office even with an existing save; repeated calls during loading are ignored. Resume and save-failure handling remain available. Source and exported PCK each pass the updated UI/input suite (17 checks, zero failures), including Chinese and English entry. Typography fixture no longer expects the deleted dialog. Native verification was interrupted by user input in the review window and is not counted as passed. Only isolated QA saves were used.
@@ -424,3 +428,7 @@ Compact green recorder body with microphone caps and integrated working Record/P
 Source suites and actual PCK suites: photo 28, recorder 42, navigation 21, close 6; 97/97 each. Evidence: qa-recorder-controls-final and qa-recorder-integrated-package in the exploration build cache. Screenshots include zh/en at 1280/1920/2560.
 Native Windows inspection through Computer Use observed record activation, saved status and playback activation. Native walking action was interrupted by a helper-busy response; walking remains covered by the automated input suite, not by this native check. Subjective listening and user aesthetic approval remain open.
 Runtime source e60cc35; PCK SHA256 f20fe57256cbf435be0963f7ab6d28929262ee755ba9574389c460887f9b274a. Export returned 0 with existing unused DialogueManager C# example-loader diagnostics; scoped PCK tests passed.
+## 2026-11-16 — Existing exploration feature audit and state repair
+
+Detailed Chinese audit and concrete implementation plan: [EXISTING_FEATURE_AUDIT_20261116.md](docs/testing/EXISTING_FEATURE_AUDIT_20261116.md). Fixed recorder movement-key ownership across library/edit/focus transitions, unified bag-to-library entry and nested back focus, added empty/selected-duration states, protected full photo/recording metadata with validated atomic sidecar recovery, and dispatched deferred window close after new-journey loading. Preserved collaborator `0ff26bd` compact recorder dock and walk renderer. Final actual PCK passes 212 focused checks; default source checks and the updated 91-check settings failure suite pass. Retained pre-fix failures, intermediate fixture failures and one intermittent recorder attempt. Native window review was interrupted by user input/minimization and remains incomplete; Dummy audio is not listening acceptance. Cross-file journey initialization, first-capture multi-file recovery, long-clip latency and broader content/novice gates remain open as specified in the audit.
+

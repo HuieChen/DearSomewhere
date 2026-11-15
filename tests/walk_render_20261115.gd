@@ -28,18 +28,19 @@ func run():
 	w.configure(null,Rect2(0,0,640,480),Vector2(360,455));w.actor_height=350
 	w.set_process(false)
 	w._turn_position=0.0;w._was_in_motion=true
-	var first:Image=await shot(w,0.07)
-	var mid:Image=await shot(w,0.12)
-	var last:Image=await shot(w,1.0/6.0)
+	var first:Image=await shot(w,0.0)
+	var mid:Image=await shot(w,1.0/24.0)
+	var last:Image=await shot(w,1.0/12.0)
 	check(w.material==w._walk_material,"normal walk route uses the new material")
-	check(difference(first,mid)>2 and difference(mid,last)>2,"normal draw route produces a real intermediate framebuffer")
+	check(difference(first,mid)<0.01,"mid-frame retains one crisp painted silhouette without ghost outlines")
+	check(difference(mid,last)>2,"a new source pose is visible after 1/12 second")
 	var overlap:=0;var translucent:=0
 	for y in range(90,460,2):
 		for x in range(100,460,2):
 			if first.get_pixel(x,y).a>.99 and last.get_pixel(x,y).a>.99:
 				overlap+=1
 				if mid.get_pixel(x,y).a<.98:translucent+=1
-	check(overlap>500 and translucent==0,"overlapping body stays opaque throughout interpolation")
+	check(overlap>500 and translucent==0,"body stays opaque between pose changes")
 	w._turn_position=1.0;w.queue_redraw();await process_frame;await RenderingServer.frame_post_draw
 	check(w.material==w._portrait_material,"standing returns to preserved portrait material")
 	if DirAccess.make_dir_recursive_absolute(out)!=OK:

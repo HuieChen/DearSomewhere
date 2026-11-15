@@ -24,6 +24,10 @@ func run():
 	var baseline_buses:=AudioServer.bus_count
 	game._recorder();await create_timer(.5).timeout
 	var recorder=game.modal;var field=game._street_road.field_sound
+	# This offscreen flow calls _focus_lost explicitly below. Desktop focus
+	# changes outside the fixture must not interrupt its timed recording/playback.
+	# Actual native focus delivery remains a separate window acceptance check.
+	root.focus_exited.disconnect(recorder._focus_lost)
 	check(recorder.name=="FieldRecorder" and game.sound.recorder_focus,"Recorder accessible and sound focus entered")
 	check(game.walker.manual_enabled,"Recorder permits walking during monitoring")
 	check(game.sound.music.stream_paused and game.sound._music_gain==0.0,"Guitar fully silent after recorder entry fade")
@@ -45,6 +49,7 @@ func run():
 		if i==10:
 			await RenderingServer.frame_post_draw;root.get_texture().get_image().save_png(out+"recorder_recording.png")
 	check(recorder.recording and recorder.elapsed>2.0,"Recording advances without a fixed progress gate")
+	print("RECORDER_INTERVAL recording=",recorder.recording," elapsed=",recorder.elapsed," status=",recorder.status.text," window_focused=",root.has_focus())
 	check(metered_peak>.00001,"Meter reflects samples over the recorded interval, including silent gaps")
 	check(recorder.stop_recording(),"Stop saves recording")
 	var first:String=recorder.last_path
@@ -58,6 +63,7 @@ func run():
 	wav.save_to_wav(out+"recorded_environment.wav")
 	recorder.title_edit.text="树边 / Trees";check(recorder._save_name(),"Recording name saved")
 	recorder.toggle_playback();await create_timer(.25).timeout
+	print("RECORDER_REPLAY playing=",recorder.playback.playing," focused=",game.sound.recorder_playback," status=",recorder.status.text," length=",wav.get_length())
 	check(recorder.playback.playing and game.sound.recorder_playback,"Playback works and ducks current ambience")
 	recorder.toggle_recording();check(not recorder.playback.playing and not game.sound.recorder_playback,"New recording stops replay, prevents feedback")
 	await create_timer(.6).timeout
@@ -118,5 +124,5 @@ func run():
 	check(AudioServer.bus_count==baseline_buses,"Repeated recorder use does not grow buses")
 	game._street_road.field_sound.shutdown();game.sound.shutdown();await create_timer(.3).timeout
 	game.queue_free();await process_frame;await process_frame;await create_timer(.5).timeout
-	FileAccess.open(out+"receipt.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":checks,"failures":failures,"audio_driver":AudioServer.get_driver_name(),"recording":first}))
+	FileAccess.open(out+"receipt.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":checks,"failures":failures,"audio_driver":AudioServer.get_driver_name(),"recording":first,"focus_method":"Offscreen timed flow isolates native focus delivery; _focus_lost is explicitly exercised. Native window focus acceptance is separate."}))
 	quit(0 if failures.is_empty() else 1)
