@@ -424,15 +424,15 @@ func _process(delta: float) -> void:
 	_detail_after -= delta
 	if _detail_after <= 0.0:
 		_detail_after = _rng.randf_range(16.0, 30.0) * (1.4 if minute >= 1020 else 1.0)
-		if muted or indoors or _quiet or _settings_feedback_mode or location_id=="title":return
+		# Streets already own spatial birds, chess and tram voices. A second
+		# non-spatial copy competes with them and ignores the recorder's aim.
+		if muted or indoors or _quiet or _settings_feedback_mode or location_id=="title" or positional_field:return
 		if location_id == "bus_stop" and _rng.randf() < 0.55:
 			_spawn("tram_ambient", "tram_pass.wav", -29.0, AMBIENT_BUS, _rng.randf_range(0.96, 1.02))
 		elif location_id == "chess_stall" and _rng.randf() < 0.35:
 			_spawn("chess_piece", "wood_piece.wav", -27.0, AMBIENT_BUS, _rng.randf_range(0.97, 1.03))
 		elif minute>=360 and minute<1140 and _rng.randf() < (0.72 if location_id == "lookout" else 0.42):
-			# Outdoor ambience was previously suppressed by positional_field, so
-			# ordinary streets only had looping beds. Let a restrained bird layer
-			# fill the mid/high space while leaving the guitar and dialogue clear.
+			# Fallback for hosts without the street's positional soundscape.
 			_spawn("bird_ambient", "birds.wav", -28.0 if location_id == "lookout" else -30.0, AMBIENT_BUS, _rng.randf_range(0.93, 1.05))
 
 
