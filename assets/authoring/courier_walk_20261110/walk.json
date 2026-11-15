@@ -1,5 +1,8 @@
 {
   "source_sha256": "82ff56db98d1994d9807e50caf23fff3adecfe7a317cb31f2b4adfa26a9b9ff9",
+  "source_file": "走路(2).mov",
+  "runtime_role": "supplied_walk_cycle",
+  "turn_bridge": "res://assets/authoring/courier_turn_20261031/turns.json",
   "fps": 6,
   "source_size": [
     4096,
