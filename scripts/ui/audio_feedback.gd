@@ -156,7 +156,9 @@ func set_location(id: String, at_minute: int = 540, inside: bool = false) -> voi
 	_town_base_gain = float(_targets["town_bed.ogg"])
 	set_time_of_day(at_minute)
 	if changed:
-		_detail_after = _rng.randf_range(8.0, 17.0)
+		# Keep a gentle layer of local detail present without turning the streets
+		# into a loop of obvious one-shots.
+		_detail_after = _rng.randf_range(7.0, 13.0)
 		if id == "title": _detail_after = 1.5
 		# A location transition must not leave the previous tram/bird one-shot
 		# audible indoors or in an unrelated courtyard.
@@ -202,9 +204,10 @@ func play(kind: String = "paper") -> void:
 	_last_played[feedback_key] = _elapsed
 	var variants: Array = []
 	if kind == "step":
-		var surface: String = "wood" if indoors else "concrete"
-		# Authored streets all have paved walking lanes, including residential.
-		for index: int in range(1, 4): variants.append("soft_step_%s_%d.wav" % [surface, index])
+		var surface: String = "wood" if indoors else ("grass" if location_id == "residential" else "concrete")
+		# Residential paths use the softer grass contact. Other outdoor streets use stone/concrete.
+		for index: int in range(1, 4):
+			variants.append(("step_grass_%d.wav" % index) if surface == "grass" else ("soft_step_%s_%d.wav" % [surface, index]))
 	else:
 		variants = POOLS.get(kind, POOLS.paper)
 	if settings_cue and kind=="paper":variants=["paper_1.wav","paper_2.wav"]
@@ -420,14 +423,17 @@ func _process(delta: float) -> void:
 		if not _settings_mode and _menu_gain<0.0002:menu_music.stop()
 	_detail_after -= delta
 	if _detail_after <= 0.0:
-		_detail_after = _rng.randf_range(20.0, 42.0) * (1.4 if minute >= 1020 else 1.0)
-		if muted or indoors or _quiet or _settings_feedback_mode or positional_field or location_id=="title":return
+		_detail_after = _rng.randf_range(16.0, 30.0) * (1.4 if minute >= 1020 else 1.0)
+		if muted or indoors or _quiet or _settings_feedback_mode or location_id=="title":return
 		if location_id == "bus_stop" and _rng.randf() < 0.55:
-			_spawn("tram_ambient", "tram_pass.wav", -28.0, AMBIENT_BUS)
+			_spawn("tram_ambient", "tram_pass.wav", -29.0, AMBIENT_BUS, _rng.randf_range(0.96, 1.02))
 		elif location_id == "chess_stall" and _rng.randf() < 0.35:
-			_spawn("chess_piece", "wood_piece.wav", -24.0, AMBIENT_BUS)
-		elif not positional_field and minute>=360 and minute<1140:
-			_spawn("bird_ambient", "birds.wav", -25.0 if location_id == "lookout" else -21.0, AMBIENT_BUS, _rng.randf_range(0.94, 1.04))
+			_spawn("chess_piece", "wood_piece.wav", -27.0, AMBIENT_BUS, _rng.randf_range(0.97, 1.03))
+		elif minute>=360 and minute<1140 and _rng.randf() < (0.72 if location_id == "lookout" else 0.42):
+			# Outdoor ambience was previously suppressed by positional_field, so
+			# ordinary streets only had looping beds. Let a restrained bird layer
+			# fill the mid/high space while leaving the guitar and dialogue clear.
+			_spawn("bird_ambient", "birds.wav", -28.0 if location_id == "lookout" else -30.0, AMBIENT_BUS, _rng.randf_range(0.93, 1.05))
 
 
 func shutdown() -> void:
