@@ -3,6 +3,7 @@ const Walker=preload("res://scripts/rebuild/final_walker.gd")
 var failures:Array[String]=[]
 var checks:=0
 var contacts:Dictionary={}
+var height_ranges:Dictionary={}
 var out:="user://qa/walk-render-20261115"
 func _initialize():
 	for argument:String in OS.get_cmdline_user_args():
@@ -86,6 +87,18 @@ func run():
 		# footprint narrows. Budget four screen pixels at either display scale.
 		check(planted.min()>0 and planted.max()-planted.min()<4.0,"rendered supporting boot drifts less than 4px across stance poses at height "+str(height)+": "+str(planted))
 		contacts[str(height)]=planted
-	FileAccess.open(out+"/receipt.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":checks,"failures":failures,"opaque_overlap_pixels":overlap,"rendered_contact_x":contacts}))
+	# Measure every pose and its intermediate placement, in both directions.
+	# Foot coordinates stay fixed, so any top-edge drift is visual height bob.
+	for height:float in [156.0,295.0]:
+		for facing:float in [-1.0,1.0]:
+			w.actor_height=height;w.foot=Vector2(320,455);w._facing=facing
+			var tops:Array[int]=[]
+			for index in range(48):
+				var frame:Image=await shot(w,float(index)/24.0)
+				tops.append(frame.get_used_rect().position.y)
+			var span:int=tops.max()-tops.min()
+			height_ranges[str(height)+"_"+str(facing)]=span
+			check(span<=3,"full walk loop keeps visual height within 3px at "+str(height)+" facing "+str(facing)+": "+str(span))
+	FileAccess.open(out+"/receipt.json",FileAccess.WRITE).store_string(JSON.stringify({"checks":checks,"failures":failures,"opaque_overlap_pixels":overlap,"rendered_contact_x":contacts,"height_range_px":height_ranges}))
 	print("WALK_RENDER ",checks," / ",failures.size()," overlap=",overlap)
 	w.queue_free();await process_frame;quit(0 if failures.is_empty() else 1)

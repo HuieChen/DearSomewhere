@@ -384,6 +384,10 @@ func _draw_walk_cycle(seconds:float,opacity:float)->void:
 		var next:=_head_offsets[(index+1)%count]
 		var after:=_head_offsets[(index+2)%count]
 		var continuous:=current.cubic_interpolate(next,before,after,weight)
+		# Keep the head at the side pose used by the standing turn. Following
+		# the source's vertical offsets made the street actor bob by 16 pixels.
+		# Cancel each pose's height offset; only horizontal registration moves.
+		continuous.y=_head_offsets[_frame_for_time(_idle_time)].y
 		shift=continuous-current
 	_draw_pose(_walk_keys[index],opacity,shift)
 
