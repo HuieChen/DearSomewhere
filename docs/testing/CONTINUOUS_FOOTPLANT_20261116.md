@@ -12,6 +12,8 @@ This supersedes the earlier claim that matching a few stance endpoints was enoug
   sole moves backward relative to the root while the other boot lifts and swings.
 - Use numeric region spans around solid boot pigment, including the compressed
   edge, so moving a boot does not leave its old dark fringe behind.
+- Prepare and share all boot masks during scene loading to avoid first-use
+  allocation and mipmap work during a step.
 - Retain the existing turn/idle images, distance-driven movement, head-height
   stabilization and detached-alpha cleanup. No source PNG/video was rewritten;
   no crossfade or generated replacement drawing was introduced.
@@ -42,5 +44,10 @@ is separate.
 
 Evidence directory: `D:/Codex-build-cache/dear-exploration-audio-20261110/` under
 `walk-footplant-continuous`, `walk-footplant-source`, and `walk-footplant-native`.
-Packaged verification and installed hash are recorded in the local delivery
-receipt after the final package completes.
+Final package: `walk-footplant-final-20261116.pck`, 1268 entries. All five suites
+also pass against this PCK from an empty host project: 231/231. Shader and
+numeric registration hashes match source; the controller is exported bytecode.
+SHA-256: `EFA0B59F2196DC3734DF05BEDCBC8494EA7A0F9ED753544035EFEBDE67D2A421`.
+Package evidence is in `walk-footplant-final-package-qa`. The export retains
+existing missing optional example-balloon/import diagnostics; this is a scoped
+runtime verification, not a claim that all editor diagnostics are resolved.

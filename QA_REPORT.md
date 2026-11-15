@@ -1,6 +1,6 @@
 ## 2026-11-16 — Continuous supporting-foot motion
 
-Corrected between-frame skating by measuring source sole travel and continuously articulating the original boot pixels. Rendered contact sampling now covers intermediate frames in both directions and sizes; source checks pass 231/231. Native rightward start/arrival and leftward start were observed. Source artwork and original turns remain intact; subjective motion acceptance remains open. See [CONTINUOUS_FOOTPLANT_20261116.md](docs/testing/CONTINUOUS_FOOTPLANT_20261116.md).
+Corrected between-frame skating by measuring source sole travel and continuously articulating the original boot pixels. Rendered contact sampling now covers intermediate frames in both directions and sizes; source and final PCK each pass 231/231 checks. Native rightward start/arrival and leftward start were observed. Source artwork and original turns remain intact; subjective motion acceptance remains open. See [CONTINUOUS_FOOTPLANT_20261116.md](docs/testing/CONTINUOUS_FOOTPLANT_20261116.md).
 
 ## 2026-11-16 — Map badge and integration review
 
