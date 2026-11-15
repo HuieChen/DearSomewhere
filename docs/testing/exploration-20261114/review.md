@@ -17,6 +17,7 @@ The implementation borrows interaction patterns, not pixels or authored assets. 
 ## Implemented observations
 
 - Camera controls use the shared paper/ink/teal language and remain readable against the painted street. Film controls are grouped as an instrument panel; the bottom paper slot and gradual slide/develop animation are restored for both landscape and instant formats.
+- Character pigment now uses a slightly lower saturation, softer contrast and a restrained warm paper wash before the scene light tint. This keeps the courier and ambient figures readable while reducing the cutout contrast against the authored street plates.
 - Recorder monitoring is an edge HUD with a compact stereo instrument card, L/R meter, short waveform history and coral REC state. The central scene remains clear. The library is opt-in and is the only recorder state that pauses walking.
 - While recording, the courier accepts WASD/arrow movement and ground clicks; right-click still cancels a walk. Guitar music is silent on recorder entry and resumes after close. Playback ducks the scene bus separately.
 - Scene voice layers reuse the existing painted anchors and add a fountain, market, food-truck, tram, lookout-wind and small book/chess/grocery details. The recorder captures `SolmereAmbience` only.
