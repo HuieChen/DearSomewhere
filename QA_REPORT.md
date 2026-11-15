@@ -1,3 +1,7 @@
+## 2026-11-16 — Crisp walking cadence
+
+Removed walking/settling crossfades and doubled runtime pose playback to 12 fps without changing physical movement speed or original artwork. Source checks pass 153/153. Native review was stopped by the user's physical Escape and remains unverified; concurrent-load frame samples are not a performance-improvement claim. See [CRISP_WALK_20261116.md](docs/testing/CRISP_WALK_20261116.md).
+
 ## 2026-11-15 — Direct new-journey entry
 
 Removed the requested new-journey confirmation. One cover-button click now starts loading and enters the post office even with an existing save; repeated calls during loading are ignored. Resume and save-failure handling remain available. Source and exported PCK each pass the updated UI/input suite (17 checks, zero failures), including Chinese and English entry. Typography fixture no longer expects the deleted dialog. Native verification was interrupted by user input in the review window and is not counted as passed. Only isolated QA saves were used.
