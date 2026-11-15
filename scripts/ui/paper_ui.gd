@@ -83,6 +83,13 @@ static func button(parent: Node, text: String, rect: Rect2, callback: Callable, 
 			b.add_theme_stylebox_override(state,close_style)
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	place(b, parent, rect)
+	b.pivot_offset = rect.size * 0.5
+	b.button_down.connect(func():
+		b.create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).tween_property(b, "scale", Vector2(0.97, 0.97), 0.08)
+	)
+	b.button_up.connect(func():
+		b.create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT).tween_property(b, "scale", Vector2.ONE, 0.12)
+	)
 	b.mouse_entered.connect(func():_play_sound(b,"title_hover"))
 	b.pressed.connect(func():_play_sound(b,"paper"))
 	b.pressed.connect(callback)
