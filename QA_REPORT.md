@@ -1,6 +1,14 @@
+## 2026-11-16 — Continuous supporting-foot motion
+
+Corrected between-frame skating by measuring source sole travel and continuously articulating the original boot pixels. Rendered contact sampling now covers intermediate frames in both directions and sizes; source and final PCK each pass 231/231 checks. Native rightward start/arrival and leftward start were observed. Source artwork and original turns remain intact; subjective motion acceptance remains open. See [CONTINUOUS_FOOTPLANT_20261116.md](docs/testing/CONTINUOUS_FOOTPLANT_20261116.md).
+
 ## 2026-11-16 — Map badge and integration review
 
 Localized the post-office hub badge with the shared rounded font and measured text layout. Preserved the no-light map, newer paper navigation, recorder and walk changes. Final integrated PCK passes 315 scoped offscreen GPU/input/audio-data checks; zh/en layouts and normal-speed map footage inspected. Updated stale dismissal timing and isolated recorder fixture focus/FPS; initial failed runs remain documented. Native/listening acceptance is separate. See [MAP_REFINEMENT_20261116.md](docs/testing/MAP_REFINEMENT_20261116.md).
+## 2026-11-16 — Stable walking height
+
+Fixed upper-body vertical registration to the existing turn-bridge side pose. The complete street-size walk loop's measured top-edge range drops from 16px to 2px; both directions and both actor sizes are covered. Source checks pass 163/163. Native review remains uncompleted due to foreground user interaction. See [STABLE_WALK_HEIGHT_20261116.md](docs/testing/STABLE_WALK_HEIGHT_20261116.md).
+
 ## 2026-11-16 — Upper-body registration and alpha debris
 
 Continuous upper-body placement now softens source-pose position jumps while boots retain their grounded UVs. The user clarified that the flickering dots are courier cutout remnants: runtime removes 603 measured detached pixels without changing source files. Source checks pass 159/159. Four authored leg poses still limit gait continuity; subjective acceptance is open. See [WALK_REGISTRATION_20261116.md](docs/testing/WALK_REGISTRATION_20261116.md).
@@ -438,4 +446,8 @@ Runtime source e60cc35; PCK SHA256 f20fe57256cbf435be0963f7ab6d28929262ee755ba95
 ## 2026-11-16 — Existing exploration feature audit and state repair
 
 Detailed Chinese audit and concrete implementation plan: [EXISTING_FEATURE_AUDIT_20261116.md](docs/testing/EXISTING_FEATURE_AUDIT_20261116.md). Fixed recorder movement-key ownership across library/edit/focus transitions, unified bag-to-library entry and nested back focus, added empty/selected-duration states, protected full photo/recording metadata with validated atomic sidecar recovery, and dispatched deferred window close after new-journey loading. Preserved collaborator `0ff26bd` compact recorder dock and walk renderer. Final actual PCK passes 212 focused checks; default source checks and the updated 91-check settings failure suite pass. Retained pre-fix failures, intermediate fixture failures and one intermittent recorder attempt. Native window review was interrupted by user input/minimization and remains incomplete; Dummy audio is not listening acceptance. Cross-file journey initialization, first-capture multi-file recovery, long-clip latency and broader content/novice gates remain open as specified in the audit.
+
+# 2026-11-16 全局体验：回听响应与环境声音
+
+整合主线连续落脚改动，长录音加载和完整峰值分析改为可取消后台任务；街道去掉重复非定位环境事件。最终实际 PCK 483 项自动断言通过，原生候选完成两分钟录音/回听，最终 EXE 封面已查看。听感、全场景逐边艺术检查与长时间性能未宣称验收。详见 `docs/testing/GLOBAL_EXPERIENCE_20261116.md`。
 
