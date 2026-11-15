@@ -43,7 +43,7 @@ function Invoke-TaskGodot {
         $taskScriptError=(Test-Path -LiteralPath $taskLog) -and ((Get-Content -LiteralPath $taskLog -Raw) -match 'SCRIPT ERROR:|SHADER ERROR:|Shader compilation failed')
         if ($taskScriptError -or $taskTimer.Elapsed.TotalSeconds -gt 600) {
             # Stop only this harness's launcher and engine carrying its exact log.
-            Get-CimInstance Win32_Process -Filter "Name LIKE 'Godot%'" | Where-Object { $_.CommandLine.Contains($taskLog) } | ForEach-Object { Stop-Process -Id $_.ProcessId -ErrorAction SilentlyContinue }
+            Get-CimInstance Win32_Process -Filter "Name LIKE 'Godot%'" | Where-Object { $null -ne $_.CommandLine -and $_.CommandLine.Contains($taskLog) } | ForEach-Object { Stop-Process -Id $_.ProcessId -ErrorAction SilentlyContinue }
             throw "$Name stopped after script error or 600-second bound; see $taskLog"
         }
     }
