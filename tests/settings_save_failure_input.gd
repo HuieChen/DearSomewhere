@@ -66,6 +66,8 @@ func _run()->void:
 	_check_sentinel("reentry and title quit readiness")
 	# Exercise the currently opened demo route, not the hidden old briefing.
 	await _click_named("NewShift")
+	var opening_deadline:=Time.get_ticks_msec()+6000
+	while (game.view!="post_office_room" or game.busy) and Time.get_ticks_msec()<opening_deadline:await process_frame
 	_check(game.view=="post_office_room" and not game.busy,"new journey opens the current post-office demo")
 	# Seed a retained legacy-save guard while the Core is at the post office.
 	# This does not expose the hidden mail UI in the current demo.
@@ -143,7 +145,9 @@ func _check_status(expected:String)->void:
 func _check_sentinel(stage:String)->void:
 	_check(FileAccess.get_file_as_bytes(sentinel_path)==sentinel_bytes,"original sentinel bytes preserved after "+stage)
 func _open()->void:
-	await _click_named("OpenSettings");await process_frame;await process_frame
+	await _click_named("OpenSettings")
+	var deadline:=Time.get_ticks_msec()+3000
+	while not is_instance_valid(game.modal) and Time.get_ticks_msec()<deadline:await process_frame
 	_check(is_instance_valid(game.modal) and game.modal.has_node("SettingsWater"),"actual title control opens Settings")
 func _drag_master(fraction:float)->void:
 	var slider:HSlider=game.modal.controls.master
