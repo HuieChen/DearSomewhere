@@ -45,6 +45,10 @@ var _closing:=false
 var _page:Control
 var _ink:Control
 var library_button:Button
+var _replay_preparing:=false
+var _replay_job:Node
+var _replay_key:=""
+var _replay_cache:Dictionary={}
 func t(zh:String,en:String)->String:return en if locale=="en" else zh
 func _ready()->void:
 	name="FieldRecorder";mouse_filter=Control.MOUSE_FILTER_STOP
@@ -267,22 +271,39 @@ func _select(index:int)->void:
 	if index<0 or index>=paths.size():return
 	stop_playback();selected_path=paths[index];title_edit.text=str(_metadata(selected_path).get("name",""));_selected_seconds=float(_metadata(selected_path).get("seconds",0.0))
 func toggle_playback()->void:
-	if recording:return
-	if playback.playing:stop_playback();return
+	if recording or _closing:return
+	if playback.playing or _replay_preparing:stop_playback();return
 	var path:=selected_path if not selected_path.is_empty() else last_path
 	if path.is_empty():return
-	playback.stream=AudioStreamWAV.load_from_file(path)
-	if playback.stream==null:status.text=t("无法打开录音","Recording unavailable");return
+	var file:=FileAccess.open(path,FileAccess.READ)
+	if file==null:status.text=t("无法打开录音","Recording unavailable");return
+	_replay_key="%s:%s:%s"%[path,FileAccess.get_modified_time(path),file.get_length()];file.close()
+	if _replay_cache.get("key","")==_replay_key:
+		playback.stream=_replay_cache.stream;_begin_replay(float(_replay_cache.gain));return
+	_replay_preparing=true
+	status.text=t("正在准备回听…","Preparing playback…");play_button.text=t("P  取消","P  Cancel")
+	_replay_job=preload("res://scripts/ui/replay_preparation.gd").new()
+	get_tree().root.add_child(_replay_job)
+	_replay_job.completed.connect(_replay_prepared.bind(_replay_job,_replay_key))
+	if _replay_job.start(path)!=OK:
+		stop_playback();status.text=t("无法准备回听，请重试","Unable to prepare playback; retry")
+func _replay_prepared(result:Dictionary,job:Node,key:String)->void:
+	if not _replay_preparing or job!=_replay_job or _closing:return
+	_replay_job=null;_replay_preparing=false
+	if result.is_empty():
+		_playback_finished();status.text=t("无法打开录音","Recording unavailable");return
+	# Keep only the last decoded clip, rather than accumulating long recordings.
+	_replay_cache={"key":key,"stream":result.stream,"gain":result.gain}
+	playback.stream=result.stream;_begin_replay(float(result.gain))
+func _begin_replay(gain:float)->void:
+	_replay_preparing=false;status.text=""
 	# Playback bypasses the recorded environment bus: never records itself.
-	sound.recorder_playback=true;playback.volume_db=_replay_gain(playback.stream);playback.play();play_button.text=t("P  停止","P  Stop")
-func _replay_gain(stream:AudioStreamWAV)->float:
-	# A fixed gain per clip preserves its dynamics; limit boost and leave 6 dB headroom.
-	if stream.format!=AudioStreamWAV.FORMAT_16_BITS:return 0.0
-	var bytes:=stream.data
-	var peak:=0.0
-	for i in range(0,bytes.size()-1,2):peak=maxf(peak,absf(float(bytes.decode_s16(i)))/32768.0)
-	return clampf(-6.0-linear_to_db(maxf(peak,.00001)),0.0,12.0)
+	sound.recorder_playback=true;playback.volume_db=gain;playback.play();play_button.text=t("P  停止","P  Stop")
 func stop_playback()->void:
+	if _replay_preparing:status.text=""
+	_replay_preparing=false
+	if is_instance_valid(_replay_job):_replay_job.cancel()
+	_replay_job=null
 	if playback!=null:playback.stop()
 	_playback_finished()
 func _playback_finished()->void:
@@ -314,6 +335,7 @@ func request_close()->void:
 	if _closing or not checkpoint_for_quit():return
 	_closing=true;stop_playback();closed.emit()
 func _exit_tree()->void:
+	stop_playback()
 	_release_movement()
 	if effect!=null:effect.set_recording_active(false)
 	if is_instance_valid(sound):sound.recorder_focus=false;sound.recorder_playback=false
