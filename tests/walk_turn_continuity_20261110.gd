@@ -22,7 +22,7 @@ func run():
 	walker=Walker.new();root.add_child(walker);walker.set_process(false)
 	var supplied:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://assets/authoring/courier_walk_20261110/walk.json"))
 	check(walker._walk_keys.size()==12 and supplied.frames.size()==12,"all twelve supplied frames loaded")
-	check(absf(walker._cycle_seconds-2.0)<.0001,"source cadence stays six fps over two seconds")
+	check(absf(walker._cycle_seconds-2.0)<.0001,"original phase timeline is retained; actual distance determines playback")
 	for frame:Dictionary in supplied.frames:
 		check(FileAccess.get_sha256(frame.path)==frame.sha256,"packaged source frame bytes "+str(frame.source_frame))
 	var duplicate:Control=Walker.new();root.add_child(duplicate);duplicate.set_process(false)

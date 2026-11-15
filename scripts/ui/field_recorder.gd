@@ -3,9 +3,11 @@ signal closed
 signal cue(kind:String)
 signal recording_saved(path:String)
 const UI=preload("res://scripts/ui/paper_ui.gd")
+const Metadata=preload("res://scripts/ui/media_metadata.gd")
 const FONT=preload("res://assets/fonts/DearRounded.tres")
 const BUS:="SolmereAmbience"
 const MAX_SECONDS:=120.0
+const MOVEMENT_KEYS:=[KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D]
 var locale:="zh"
 var location_caption:=""
 var location_provider:Callable
@@ -26,16 +28,19 @@ var effect:AudioEffectRecord
 var meter:AudioEffectCapture
 var playback:AudioStreamPlayer
 var pending_audio:AudioStreamWAV
+var _pending_metadata:Dictionary={}
+var _pending_metadata_path:=""
+var _selected_seconds:=0.0
 var record_button:Button
 var play_button:Button
 var clock_label:Label
 var status:Label
 var library:ItemList
 var title_edit:LineEdit
+var empty_library:Label
 var visual_hint:CheckButton
 var levels:=Vector2.ZERO
 var aim_point:=Vector2(800,420)
-var _held:Dictionary={}
 var _closing:=false
 var _page:Control
 var _ink:Control
@@ -73,10 +78,14 @@ func _ready()->void:
 	button("×",Rect2(1174,47,50,48),request_close).name="CloseRecorder"
 	visual_hint=CheckButton.new();visual_hint.text=t("方向提示 · H","Direction hints · H");visual_hint.add_theme_font_override("font",FONT);visual_hint.add_theme_font_size_override("font_size",18);visual_hint.add_theme_color_override("font_color",Color("52665a"))
 	visual_hint.toggled.connect(func(_enabled:bool):cue.emit("paper"))
+	visual_hint.visible=is_instance_valid(road)
 	var list_panel:=Panel.new();list_panel.add_theme_stylebox_override("panel",style);UI.place(list_panel,_page,Rect2(1030,150,510,550));list_panel.hide()
 	UI.place(visual_hint,list_panel,Rect2(18,510,474,32))
 	library=ItemList.new();library.add_theme_font_override("font",FONT);library.add_theme_font_size_override("font_size",21);UI.place(library,list_panel,Rect2(18,22,474,415));library.item_selected.connect(_select)
+	library.focus_entered.connect(_release_movement)
+	empty_library=UI.label(list_panel,t("还没有录音","No recordings yet"),Rect2(36,170,438,60),22,Color("776f61"));empty_library.name="EmptyRecordingLibrary";empty_library.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER;empty_library.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	title_edit=LineEdit.new();title_edit.placeholder_text=t("名称","Name");title_edit.max_length=60;title_edit.add_theme_font_override("font",FONT);title_edit.add_theme_font_size_override("font_size",21);UI.place(title_edit,list_panel,Rect2(18,458,474,48));title_edit.text_submitted.connect(func(_v:String):_save_name());title_edit.focus_exited.connect(_save_name)
+	title_edit.focus_entered.connect(_release_movement)
 	var list_style:=StyleBoxFlat.new();list_style.bg_color=Color("eee2cc");list_style.set_corner_radius_all(8)
 	library.add_theme_stylebox_override("panel",list_style);library.add_theme_color_override("font_color",Color("514b43"));library.add_theme_color_override("font_selected_color",Color("332f29"))
 	var selected_style:=StyleBoxFlat.new();selected_style.bg_color=Color("c9d8cc");selected_style.set_corner_radius_all(5)
@@ -118,14 +127,15 @@ func _aim_input(event:InputEvent)->void:
 		road.world.get_node("WalkTarget")._ground_input(ground)
 func _input(event:InputEvent)->void:
 	if not event is InputEventKey:return
-	# LineEdit consumes Escape before unhandled input. The tool owns this
-	# back action while its library is open, including during name editing.
-	if event.pressed and not event.echo and (event.keycode==KEY_ESCAPE or event.physical_keycode==KEY_ESCAPE) and library.get_parent().visible:
-		_toggle_library();get_viewport().set_input_as_handled();return
+	var key:int=event.physical_keycode if event.physical_keycode else event.keycode
+	# Key-up belongs to the tool even after focus has moved into an editor or
+	# list. Otherwise its explicit movement cache outlives the physical key.
+	if key in MOVEMENT_KEYS and not event.pressed and is_instance_valid(road) and is_instance_valid(road.courier):road.courier.set_tool_movement(key,false)
+	if key==KEY_ESCAPE and event.pressed and not event.echo and library.get_parent().visible:
+		_set_library_visible(false);get_viewport().set_input_as_handled();return
 	var focus:=get_viewport().gui_get_focus_owner()
 	if focus==title_edit or focus==library or event.ctrl_pressed or event.alt_pressed or event.meta_pressed:return
-	var key:int=event.physical_keycode if event.physical_keycode else event.keycode
-	if key in [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D] and is_instance_valid(road) and allows_world_walk() and is_instance_valid(road.courier):
+	if key in MOVEMENT_KEYS and is_instance_valid(road) and allows_world_walk() and is_instance_valid(road.courier):
 		road.courier.set_tool_movement(key,event.pressed)
 	# The walker reads these physical keys. Prevent buttons from also navigating.
 	if key in [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D,KEY_E]:get_viewport().set_input_as_handled()
@@ -161,7 +171,7 @@ func _process(delta:float)->void:
 	if recording:
 		elapsed+=delta
 		if elapsed>=MAX_SECONDS:stop_recording()
-	var seconds:=elapsed if recording else (playback.get_playback_position() if playback.playing else 0.0)
+	var seconds:=elapsed if recording else (playback.get_playback_position() if playback.playing else _selected_seconds)
 	clock_label.text="%02d:%02d"%[int(seconds)/60,int(seconds)%60]
 	library_button.disabled=recording
 	play_button.disabled=recording or (selected_path.is_empty() and last_path.is_empty())
@@ -184,28 +194,42 @@ func _draw_feedback()->void:
 				var delta:Vector2=(screen-aim_point).normalized()
 				_ink.draw_line(aim_point+delta*22,aim_point+delta*42,Color("fff3d5"),2,true)
 func _toggle_library()->void:
-	if recording:return
-	if library.get_parent().visible and not _save_name():return
-	library.get_parent().visible=not library.get_parent().visible
+	_set_library_visible(not library.get_parent().visible)
+func open_library()->bool:
+	return _set_library_visible(true)
+func _release_movement()->void:
+	if not is_instance_valid(road) or not is_instance_valid(road.courier):return
+	for key:Key in MOVEMENT_KEYS:road.courier.set_tool_movement(key,false)
+	road.courier.cancel()
+func _set_library_visible(visible:bool)->bool:
+	if _closing or recording or (not visible and not _save_name()):return false
+	if library.get_parent().visible==visible:
+		if visible:library.grab_focus()
+		return true
+	_release_movement()
+	library.get_parent().visible=visible
+	library_button.text=t("收起列表","Hide list") if visible else t("录音列表","Recordings")
 	if is_instance_valid(road) and is_instance_valid(road.courier):
-		road.courier.manual_enabled=not library.get_parent().visible
-	if library.get_parent().visible:
-		library.grab_focus()
-		if is_instance_valid(road):road.courier.cancel()
+		road.courier.manual_enabled=not visible
+	if visible:library.grab_focus()
+	else:library_button.grab_focus()
+	return true
 func toggle_recording()->void:
 	if recording:stop_recording();return
 	if effect==null or AudioServer.get_bus_index(BUS)<0:return
 	if pending_audio!=null and not _persist_pending():return
+	if not _persist_metadata():return
 	if not _save_name():return
-	library.get_parent().hide();stop_playback();library.mouse_filter=Control.MOUSE_FILTER_IGNORE;library.focus_mode=Control.FOCUS_NONE;title_edit.editable=false;effect.set_recording_active(true);elapsed=0;visited_locations=[location_caption];recording=true;status.text="";record_button.queue_redraw();cue.emit("recorder_start")
+	if not _set_library_visible(false):return
+	stop_playback();library.mouse_filter=Control.MOUSE_FILTER_IGNORE;library.focus_mode=Control.FOCUS_NONE;title_edit.editable=false;record_button.grab_focus();effect.set_recording_active(true);elapsed=0;visited_locations=[location_caption];recording=true;status.text="";record_button.queue_redraw();cue.emit("recorder_start")
 func stop_recording()->bool:
 	if not recording:return _persist_pending()
-	effect.set_recording_active(false);recording=false;library.mouse_filter=Control.MOUSE_FILTER_STOP;library.focus_mode=Control.FOCUS_ALL;title_edit.editable=true;record_button.queue_redraw()
+	effect.set_recording_active(false);recording=false;library.mouse_filter=Control.MOUSE_FILTER_STOP;library.focus_mode=Control.FOCUS_ALL;title_edit.editable=not paths.is_empty();record_button.queue_redraw()
 	pending_audio=effect.get_recording()
 	if pending_audio==null or pending_audio.data.is_empty():pending_audio=null;status.text=t("录音太短","Recording too short");return true
 	var saved:=_persist_pending();cue.emit("recorder_stop");return saved
 func _persist_pending()->bool:
-	if pending_audio==null:return true
+	if pending_audio==null:return _persist_metadata()
 	if DirAccess.make_dir_recursive_absolute(directory)!=OK:status.text=t("未保存，请重试","Not saved. Retry.");return false
 	var stamp:=Time.get_datetime_string_from_system().replace(":","").replace("-","")
 	var path:=directory.path_join("Recording_"+stamp+"_"+str(Time.get_ticks_usec())+".wav")
@@ -213,8 +237,15 @@ func _persist_pending()->bool:
 	if pending_audio.save_to_wav(temp)!=OK or DirAccess.rename_absolute(ProjectSettings.globalize_path(temp),ProjectSettings.globalize_path(path))!=OK:
 		status.text=t("未保存，请重试","Not saved. Retry.");return false
 	var data:={"version":2,"name":"","location":location_caption,"locations":visited_locations.duplicate(),"seconds":pending_audio.get_length(),"captured_bus":BUS}
-	var metadata_saved:=_write_metadata(path,data)
-	last_path=path;selected_path=path;pending_audio=null;status.text=t("已保存","Saved") if metadata_saved else t("录音已保存，名称未保存","Audio saved; name not saved");_refresh_library();recording_saved.emit(path);return true
+	_pending_metadata=data;_pending_metadata_path=path
+	var metadata_saved:=_persist_metadata()
+	last_path=path;selected_path=path;pending_audio=null;_refresh_library();recording_saved.emit(path)
+	if metadata_saved:status.text=t("已保存","Saved")
+	return metadata_saved
+func _persist_metadata()->bool:
+	if _pending_metadata_path.is_empty():return true
+	if not Metadata.write(_pending_metadata_path+".json",_pending_metadata):status.text=t("录音已保存；信息待重试","Audio saved; retry details");return false
+	_pending_metadata.clear();_pending_metadata_path="";status.text=t("已保存","Saved");return true
 func _refresh_library()->void:
 	paths.clear();library.clear()
 	var dir:=DirAccess.open(directory)
@@ -229,11 +260,17 @@ func _refresh_library()->void:
 	if not paths.is_empty():
 		if selected_path not in paths:selected_path=paths[0]
 		library.select(paths.find(selected_path));title_edit.text=str(_metadata(selected_path).get("name",""))
+		_selected_seconds=float(_metadata(selected_path).get("seconds",0.0))
+	else:
+		selected_path="";last_path="";title_edit.text="";_selected_seconds=0.0
+	empty_library.visible=paths.is_empty()
+	title_edit.editable=not recording and not paths.is_empty()
 func _select(index:int)->void:
 	if recording or not _save_name():
 		if selected_path in paths:library.select(paths.find(selected_path))
 		return
-	stop_playback();selected_path=paths[index];title_edit.text=str(_metadata(selected_path).get("name",""))
+	if index<0 or index>=paths.size():return
+	stop_playback();selected_path=paths[index];title_edit.text=str(_metadata(selected_path).get("name",""));_selected_seconds=float(_metadata(selected_path).get("seconds",0.0))
 func toggle_playback()->void:
 	if recording:return
 	if playback.playing:stop_playback();return
@@ -257,24 +294,24 @@ func _playback_finished()->void:
 	if is_instance_valid(sound):sound.recorder_playback=false
 	if is_instance_valid(play_button):play_button.text=t("P  回听","P  Play")
 func _metadata(path:String)->Dictionary:
-	if not FileAccess.file_exists(path+".json"):return {}
-	var data:Variant=JSON.parse_string(FileAccess.get_file_as_string(path+".json"));return data if data is Dictionary else {}
+	if path==_pending_metadata_path:return _pending_metadata.duplicate(true)
+	return Metadata.read(path+".json")
 func _write_metadata(path:String,data:Dictionary)->bool:
-	var temp:=path+".json.tmp";var file:=FileAccess.open(temp,FileAccess.WRITE)
-	if file==null:return false
-	file.store_string(JSON.stringify(data));file.flush();var error:=file.get_error();file.close()
-	return error==OK and DirAccess.rename_absolute(ProjectSettings.globalize_path(temp),ProjectSettings.globalize_path(path+".json"))==OK
+	if not Metadata.write(path+".json",data):return false
+	if path==_pending_metadata_path:_pending_metadata.clear();_pending_metadata_path=""
+	return true
 func _save_name()->bool:
 	if selected_path.is_empty():return true
 	var data:=_metadata(selected_path)
 	if str(data.get("name",""))==title_edit.text:return true
 	data.name=title_edit.text
 	if not _write_metadata(selected_path,data):status.text=t("名称未保存","Name not saved");return false
+	status.text=t("已保存","Saved")
 	var i:=paths.find(selected_path)
 	if i>=0:library.set_item_text(i,(title_edit.text if not title_edit.text.is_empty() else t("录音","Recording"))+" · "+str(data.get("location",""))+" · %ds"%maxi(1,ceili(float(data.get("seconds",0)))))
 	return true
 func _focus_lost()->void:
-	_held.clear()
+	_release_movement()
 	if recording:stop_recording()
 	stop_playback()
 func checkpoint_for_quit()->bool:return stop_recording() and _save_name()
@@ -282,8 +319,7 @@ func request_close()->void:
 	if _closing or not checkpoint_for_quit():return
 	_closing=true;stop_playback();closed.emit()
 func _exit_tree()->void:
-	if is_instance_valid(road) and is_instance_valid(road.courier):
-		for key:Key in [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D]:road.courier.set_tool_movement(key,false)
+	_release_movement()
 	if effect!=null:effect.set_recording_active(false)
 	if is_instance_valid(sound):sound.recorder_focus=false;sound.recorder_playback=false
 	if is_instance_valid(road) and is_instance_valid(road.field_sound):road.field_sound.set_focus(false)

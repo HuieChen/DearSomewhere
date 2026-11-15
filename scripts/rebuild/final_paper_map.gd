@@ -215,12 +215,17 @@ func _draw_post_office_hub_marker()->void:
 	draw_line(center+Vector2(-5.0,1.5),center+Vector2(5.0,1.5),POST_OFFICE_HUB_COLOR,2.0,true)
 	var active:=_active_destination()
 	if is_instance_valid(active) and active.name==&"Map_post_office":
-		var badge:=Rect2(center+Vector2(18.0,-15.0),Vector2(84.0,30.0))
+		var host:=_host()
+		var label:String=host._tr("主枢纽","Main hub") if host!=null else "主枢纽"
+		var font:=_caption.get_theme_font("font")
+		var text_width:=font.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,17).x
+		var badge:=Rect2(center+Vector2(18.0,-15.0),Vector2(maxf(84.0,text_width+24.0),30.0))
 		var style:=StyleBoxFlat.new()
 		style.bg_color=Color(0.96,0.91,0.80,0.96);style.border_color=Color(0.69,0.56,0.38,0.7)
 		style.set_border_width_all(1);style.set_corner_radius_all(8)
 		draw_style_box(style,badge)
-		draw_string(ThemeDB.fallback_font,badge.position+Vector2(12.0,20.0),"主枢纽",HORIZONTAL_ALIGNMENT_LEFT,-1,17,Color("4a3b2b"))
+		var baseline:=badge.position+Vector2((badge.size.x-text_width)*.5,(badge.size.y-font.get_height(17))*.5+font.get_ascent(17))
+		draw_string(font,baseline,label,HORIZONTAL_ALIGNMENT_LEFT,-1,17,Color("4a3b2b"))
 
 func has_post_office_hub_marker()->bool:
 	return bool(get_meta("post_office_hub_marker",false))

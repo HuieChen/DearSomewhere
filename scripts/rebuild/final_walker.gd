@@ -13,14 +13,31 @@ const WALK_GEOMETRY := "res://assets/faefever_v2/characters/courier_walk_regions
 # turn images bridge movement back to the authored idle without replacing it.
 # Geometry, animation state, materials and callbacks remain instance-local.
 const MAX_PREPARED_TEXTURES := 23
+# The movie repeats a four-pose stride three times. Its planted dark boot
+# travels ~193 source pixels per pose at a reference height of 1830 pixels.
+const WALK_STRIDE_PER_HEIGHT := 0.42
+const WALK_POSES_PER_STRIDE := 4
 static var _prepared_textures: Dictionary = {}
+static var _registration: Dictionary = {}
+static func _runtime_registration() -> Dictionary:
+	if _registration.is_empty():
+		var path:="res://assets/authoring/courier_walk_20261110/runtime_registration.json"
+		if FileAccess.file_exists(path):
+			var data:Variant=JSON.parse_string(FileAccess.get_file_as_string(path))
+			if data is Dictionary:_registration=data.get("frames",{})
+	return _registration
 static func _prepared_texture(path:String) -> Texture2D:
 	if _prepared_textures.has(path):return _prepared_textures[path]
 	var pixels:=Image.new()
 	if pixels.load(path)!=OK:return null
 	# Filter colour and coverage together: straight-alpha mipmaps pull the
 	# transparent black movie matte into the hair/skin outline.
-	if path.contains("/courier_walk_20261110/"):pixels.premultiply_alpha()
+	if path.contains("/courier_walk_20261110/"):
+		var cleanup:Dictionary=_runtime_registration().get(path.get_file(),{})
+		if cleanup.get("source_sha256","")==FileAccess.get_sha256(path):
+			for span:Array in cleanup.get("clear_spans",[]):
+				pixels.fill_rect(Rect2i(int(span[0]),int(span[1]),int(span[2]),1),Color.TRANSPARENT)
+		pixels.premultiply_alpha()
 	pixels.generate_mipmaps()
 	var texture:=ImageTexture.create_from_image(pixels)
 	# A changed future manifest still renders normally beyond this fixed budget.
@@ -32,6 +49,7 @@ var _poses: Dictionary = {}
 var _walk_material: ShaderMaterial
 var _portrait_material: ShaderMaterial
 var _walk_keys: Array[String] = []
+var _head_offsets: Array[Vector2] = []
 var _frame_ends: Array[float] = []
 var _cycle_seconds: float = 0.0
 var _idle_time: float = 0.0
@@ -164,6 +182,7 @@ func _load_supplied_walk() -> void:
 		if art == null: return
 		prepared.append(art)
 	_walk_keys.clear()
+	_head_offsets.clear()
 	_frame_ends.clear()
 	_cycle_seconds = 0.0
 	_idle_time = 0.0
@@ -173,6 +192,9 @@ func _load_supplied_walk() -> void:
 		# only to the original idle/turn source, never to these new poses.
 		var key := "supplied_walk_%02d" % index
 		_walk_keys.append(key)
+		var measured:Dictionary=_runtime_registration().get(str(data.frames[index].path).get_file(),{})
+		var offset:Array=measured.get("head_translation_px",[0.0,0.0])
+		_head_offsets.append(Vector2(float(offset[0]),float(offset[1])))
 		_poses[key] = prepared[index]
 		_frame_geometry[key] = data.frames[index]
 		_cycle_seconds += float(data.frames[index].duration_seconds)
@@ -228,6 +250,7 @@ func walk_to(destination: Vector2, action: Callable = Callable()) -> void:
 	_gesture_name = ""
 	_pending_action = action
 	target = _bounded(destination)
+	if velocity.length()<3.0:face_towards(target)
 	walking = true
 	set_process(true)
 	queue_redraw()
@@ -338,7 +361,7 @@ func _draw() -> void:
 			_draw_pose(_turn_keys[index], 1.0)
 		else:
 			if not _was_in_motion and _settle_time < 0.10:
-				_draw_pose(_walk_keys[_frame_for_time(_settle_phase)],1.0,_turn_keys[0],smoothstep(0.0,0.10,_settle_time))
+				_draw_walk_cycle(_settle_phase,1.0)
 			else:
 				_draw_walk_cycle(_walk_time, 1.0)
 		return
@@ -348,33 +371,28 @@ func _draw() -> void:
 		_draw_walk_cycle(_walk_time,blend)
 
 func _draw_walk_cycle(seconds:float,opacity:float)->void:
-	# One shader pass blends premultiplied samples. Drawing two translucent
-	# sprites made the overlapping body see-through during every transition.
+	# One painted silhouette. Cadence follows the painted stride's world size,
+	# rather than an arbitrary multiplier or the configured maximum speed.
 	var index:=_frame_for_time(seconds)
-	var current:=_walk_keys[index]
-	if _cycle_seconds<=0.0:
-		_draw_pose(current,opacity)
-		return
-	var at:=fposmod(seconds,_cycle_seconds)
-	var frame_start:=0.0 if index==0 else _frame_ends[index-1]
-	var duration:=maxf(_frame_ends[index]-frame_start,0.001)
-	var local:=(at-frame_start)/duration
-	if local<0.4 or _walk_keys.size()<2:
-		_draw_pose(current,opacity)
-		return
-	var next:=_walk_keys[(index+1)%_walk_keys.size()]
-	var fade:=smoothstep(0.0,1.0,clampf((local-0.4)/0.6,0.0,1.0))
-	_draw_pose(current,opacity,next,fade)
+	var shift:=Vector2.ZERO
+	if _head_offsets.size()==_walk_keys.size() and _cycle_seconds>0.0:
+		var start:=0.0 if index==0 else _frame_ends[index-1]
+		var weight:=clampf((fposmod(seconds,_cycle_seconds)-start)/maxf(_frame_ends[index]-start,.001),0.0,1.0)
+		var count:=_head_offsets.size()
+		var before:=_head_offsets[(index+count-1)%count]
+		var current:=_head_offsets[index]
+		var next:=_head_offsets[(index+1)%count]
+		var after:=_head_offsets[(index+2)%count]
+		var continuous:=current.cubic_interpolate(next,before,after,weight)
+		shift=continuous-current
+	_draw_pose(_walk_keys[index],opacity,shift)
 
-func _draw_pose(key:String,opacity:float,next_key:String="",mix_amount:float=0.0)->void:
+func _draw_pose(key:String,opacity:float,upper_shift:Vector2=Vector2.ZERO)->void:
 	var art:Texture2D=_poses.get(key)
 	if art==null:return
 	var supplied:=key.begins_with("supplied_walk_")
 	material=_walk_material if supplied else _portrait_material
-	if supplied:
-		_walk_material.set_shader_parameter("current_pose",art)
-		_walk_material.set_shader_parameter("next_pose",_poses.get(next_key,art))
-		_walk_material.set_shader_parameter("pose_mix",mix_amount)
+	if supplied:_walk_material.set_shader_parameter("upper_shift",upper_shift/art.get_size())
 	var eye: Rect2 = EYE_RECTS.get(key, Rect2())
 	if not supplied and material is ShaderMaterial:
 		material.set_shader_parameter("eye_rect",Vector4(eye.position.x,eye.position.y,eye.size.x,eye.size.y))
@@ -408,10 +426,16 @@ func _process(delta: float) -> void:
 		walking = false
 		_manual_active = true
 		_gesture_name = ""
+		if velocity.length()<3.0 and absf(manual.x)>0.01:_facing=signf(manual.x)
+	_update_idle_transition(delta)
 	var remaining: float = clampf(delta, 0.0, 0.25)
 	while remaining > 0.00001:
 		var step: float = minf(remaining, 1.0 / 120.0)
-		if _manual_active:
+		if not _turn_keys.is_empty() and _turn_position>0.001:
+			# Finish facing the destination before taking the first step. Moving
+			# through the standing turn used to slide the whole figure sideways.
+			velocity=Vector2.ZERO
+		elif _manual_active:
 			_advance_manual(manual,step)
 		elif walking:
 			_advance(step)
@@ -420,7 +444,6 @@ func _process(delta: float) -> void:
 		if _motion_blend < 0.02 and not walking:
 			_motion_blend = 0.0
 		remaining -= step
-	_update_idle_transition(delta)
 	queue_redraw()
 	if not walking and _motion_blend == 0.0 and not manual_enabled and _texture != null and _gesture_name.is_empty() and _pose_mix <= 0.001:
 		set_process(false)
@@ -543,14 +566,17 @@ func _frame_for_time(seconds: float) -> int:
 	return 0
 
 
+func _walk_cycle_distance() -> float:
+	return maxf(actor_height*WALK_STRIDE_PER_HEIGHT*float(_walk_keys.size())/WALK_POSES_PER_STRIDE,1.0)
+
 func _advance_phase(travelled: float) -> void:
 	if travelled<=0.0 or _cycle_seconds<=0.0:return
+	if not _turn_keys.is_empty() and _turn_position>0.001:return
 	# Begin the cycle at the same side pose used by the preserved turn bridge.
 	# Hidden walking must not advance past that pose while the body is turning.
-	if _turn_position <= 0.001:
-		_walk_time=fposmod(_walk_time+travelled/maxf(max_speed,1.0),_cycle_seconds)
+	_walk_time=fposmod(_walk_time+travelled/_walk_cycle_distance()*_cycle_seconds,_cycle_seconds)
 	_step_distance+=travelled
-	var contact_distance:float=maxf(max_speed,1.0)*_cycle_seconds
+	var contact_distance:float=maxf(actor_height*WALK_STRIDE_PER_HEIGHT*0.5,1.0)
 	while _step_distance>=contact_distance:
 		_step_distance-=contact_distance
 		footstep.emit()
