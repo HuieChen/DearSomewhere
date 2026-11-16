@@ -819,12 +819,10 @@ func _post_office_room(index:int=0) -> void:
 	var source_scale:=Vector2(1600,900)/Vector2(1920,1080)
 	var exit:=preload("res://scripts/ui/post_office_door.gd").new()
 	exit.name="PostOfficeExit"
-	# The painted handle supplies feedback; no floating tooltip over the door.
+	# The full painted doorway is clickable; no overlay or handle animation.
 	exit.interaction_allowed=func():return not busy and not is_instance_valid(modal) and not room.transitioning
 	var door_rect:Rect2=PostOfficeInterior.DOOR_RECT
 	UI.place(exit,stage,Rect2(door_rect.position*source_scale,door_rect.size*source_scale))
-	exit.handle_from=Vector2(311,326)
-	exit.handle_to=Vector2(311,420)
 	exit.activated.connect(func():
 		if busy or is_instance_valid(modal) or room.transitioning:return
 		sound.play("door")

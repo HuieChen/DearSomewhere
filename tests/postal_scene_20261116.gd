@@ -45,6 +45,13 @@ func run():
 		check(not game.stage.get_node("CounterReferenceBook").visible,locale+" removed painted book has no ghost hotspot")
 		var door=game.stage.get_node("PostOfficeExit")
 		check(door.get_global_rect()==Rect2(Room.DOOR_RECT.position*5.0/6.0,Room.DOOR_RECT.size*5.0/6.0),locale+" painted door bounds follow new source")
+		await RenderingServer.frame_post_draw
+		var door_region:=Rect2i(door.get_global_rect())
+		var idle_pixels:=view.get_texture().get_image().get_region(door_region).get_data()
+		door.grab_focus();await settle()
+		await RenderingServer.frame_post_draw
+		check(idle_pixels==view.get_texture().get_image().get_region(door_region).get_data(),locale+" focus adds no painted door or handle overlay")
+		door.release_focus()
 		await capture("counter_"+locale)
 		await click(room.next_arrow);await settle()
 		check(game.post_office_room_index==1 and not door.visible,locale+" right passage switches room and hides outside exit")
@@ -56,8 +63,12 @@ func run():
 		check(game.post_office_room_index==0,locale+" modal blocks room navigation")
 		game._close();await settle()
 		var minute:int=game.core.state.minute
-		await click(door)
-		await create_timer(.17).timeout
+		# Click the glass, well away from the handle. Exit starts on mouse-down.
+		var door_point:Vector2=door.get_global_rect().position+door.size*Vector2(.2,.3)
+		var press:=InputEventMouseButton.new();press.position=door_point;press.global_position=door_point;press.button_index=MOUSE_BUTTON_LEFT;press.pressed=true
+		view.push_input(press,true)
+		check(game.busy,locale+" clicking the door glass starts exit immediately")
+		press.pressed=false;view.push_input(press,true)
 		var completed:=await arrival()
 		check(completed and game.view=="world" and game.core.state.location=="post_office",locale+" painted door reaches actual postal exterior")
 		if completed and game.view=="world":

@@ -1,8 +1,5 @@
 {
   "source_sha256": "82ff56db98d1994d9807e50caf23fff3adecfe7a317cb31f2b4adfa26a9b9ff9",
-  "source_file": "走路(2).mov",
-  "runtime_role": "supplied_walk_cycle",
-  "turn_bridge": "res://assets/authoring/courier_turn_20261031/turns.json",
   "fps": 6,
   "source_size": [
     4096,
@@ -14,6 +11,8 @@
     1200,
     1920
   ],
+  "alpha_source": "native HEVC auxiliary alpha, FFmpeg 9 RGBA; premultiplied RGB; no colour key or erosion",
+  "premultiplied_alpha": true,
   "ai_generated": false,
   "frames": [
     {
@@ -25,7 +24,7 @@
         770,
         1905
       ],
-      "sha256": "643a4ca887375b83d1c986d6a9e217156243e21f49f6d54b108fda4191940f53"
+      "sha256": "1005fe938dc63e2a1b0dbe1ea4ac1096125305fbbb6844776735a337e92ac945"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_01.png",
@@ -36,7 +35,7 @@
         770,
         1905
       ],
-      "sha256": "fd1de118434b01a96256e8bbbd36ec13b06a9e5b1c6d7c9faaa69d6c38947ea6"
+      "sha256": "fc5ad18d0530cdc461e21b88b459ec7732272f0ad35532e67f2d3a626993eb81"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_02.png",
@@ -47,7 +46,7 @@
         770,
         1905
       ],
-      "sha256": "680b48a14a255c0d4ea2ba1e6d9cf1a4ad7e4d2760eddc61ae0d5ab8fd7c996a"
+      "sha256": "75d7930b8ac6db8d783e002976dd70a69105cabd71962571b9de081ac402eeba"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_03.png",
@@ -58,7 +57,7 @@
         770,
         1905
       ],
-      "sha256": "34edf324cb8c60c355ecd3d0e1c398de98c23ff1e7bd8cda8cd85896ec89accd"
+      "sha256": "d4cc07109884dc044b8659da06620e49be0b10124a54a4fe7555bb1cbdca60f3"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_04.png",
@@ -69,7 +68,7 @@
         770,
         1905
       ],
-      "sha256": "ecd591386cdf1c42a7868f0f1bb59898554508294f4e3d9266949f281d077a7a"
+      "sha256": "32e5884de046e9864277d06f8040cfe8663686cdfceb04234cd5a372bed283fa"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_05.png",
@@ -80,7 +79,7 @@
         770,
         1905
       ],
-      "sha256": "60d75143f380cedb018b28c12ec265aeb5ed72188dad7d478bc921b87c3844e8"
+      "sha256": "bb5e236979808b0d0a6176a433d12e0eff826f32ae09d382cb2d0694c18c994e"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_06.png",
@@ -91,7 +90,7 @@
         770,
         1905
       ],
-      "sha256": "69761853da61383a569f8fd701533879d025f7c02cdb16da23b785864b759489"
+      "sha256": "686f6c941ec4c6337f9711a076f8666264067d4261f4d53aa206bb7f01708eea"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_07.png",
@@ -102,7 +101,7 @@
         770,
         1905
       ],
-      "sha256": "ad2faeb7d0bb3a9cdd6755287d20a2618eb88333d96457a5a23a9b8eb9d0d365"
+      "sha256": "4568526c8fab54d02e141d551a3d51d85cf2ce9de38f13cebbb8f776da803b7a"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_08.png",
@@ -113,7 +112,7 @@
         770,
         1905
       ],
-      "sha256": "c0110fe4ff78cc6530523434d753bb89c7e58bb4bfc70068df10d06f859eec01"
+      "sha256": "4ed2c291925fd92d0c6740aee534f3580c8be2643489cdb17045d4e9c124f541"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_09.png",
@@ -124,7 +123,7 @@
         770,
         1905
       ],
-      "sha256": "1b0b68a18eb4e65a9194747d0cddd6e412ce03bbd527f22942f7039f2a09c61d"
+      "sha256": "0f7bb322c2c7157ac2aed74ad877879b15b672ccfa3f939f6f6f7e529cd532c3"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_10.png",
@@ -135,7 +134,7 @@
         770,
         1905
       ],
-      "sha256": "47e696f056c7b4ff1ddcfcd3ec25b7daed81c21b8a1a645f65364b2fc690d115"
+      "sha256": "d584b0487c94fa8b76ef124c65a81df571dc3450d2cf8f7c1b6b768cd328d1da"
     },
     {
       "path": "res://assets/authoring/courier_walk_20261110/walk_11.png",
@@ -146,7 +145,7 @@
         770,
         1905
       ],
-      "sha256": "19fa700edc7316380aa2cbaf542cb54a6bcefd1f38a3890eb89df80dac276347"
+      "sha256": "e38640588e00db50468c3a62b0770e3440d6ce1ef283afcbfd7caf2b7e38f99a"
     }
   ]
 }

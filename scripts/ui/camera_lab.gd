@@ -1,6 +1,7 @@
 extends RefCounted
 const LabShader=preload("res://scripts/ui/camera_lab.gdshader")
 const FontArt=preload("res://assets/fonts/DearRounded.tres")
+const ToolUI=preload("res://scripts/ui/field_tool_ui.gd")
 # Original artistic recipes, inspired by instant/negative film characteristics.
 # name zh/en, warmth, saturation, contrast, fade, grain, vignette
 const RECIPES=[
@@ -38,7 +39,7 @@ func _init(camera:Control):
  material=ShaderMaterial.new();material.shader=LabShader;effect.material=material;owner.add_child(effect);owner.move_child(effect,0)
 func t(zh:String,en:String)->String:return en if owner.locale=="en" else zh
 func build(canvas:Control):
- toggle=owner._button(t("胶片与调色","Film & light"),Rect2(90,128,300,48),24);toggle.name="CameraLabToggle"
+ toggle=owner._button(t("胶片与调色","Film & light"),ToolUI.FIRST_ACTION,20);toggle.name="CameraLabToggle"
  panel=PanelContainer.new();panel.name="CameraLabPanel";panel.position=Vector2(64,188);panel.size=Vector2(390,0);panel.mouse_filter=Control.MOUSE_FILTER_STOP
  var style=StyleBoxFlat.new();style.bg_color=Color("fff9ee");style.set_corner_radius_all(18);style.content_margin_left=20;style.content_margin_right=20;style.content_margin_top=16;style.content_margin_bottom=16
  panel.add_theme_stylebox_override("panel",style);canvas.add_child(panel)

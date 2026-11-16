@@ -58,6 +58,11 @@ func run()->void:
 	var photo:=Image.load_from_file(camera.last_photo_path)
 	check(photo!=null and photo.get_width()==1600 and photo.get_height()==900,"landscape capture retains full viewport")
 	photo.save_png(out+"captured_pan.png")
+	# Capturing now ejects the print and leaves live composition available.
+	# Enter review explicitly before checking that its arrows cannot pan.
+	check(not camera._review.visible,"capture returns to live composition")
+	camera._show_review(camera.gallery_paths.find(camera.last_photo_path))
+	await process_frame
 	await key(KEY_LEFT,true);await create_timer(.15).timeout;await key(KEY_LEFT,false)
 	check(world.position.is_equal_approx(composed),"review navigation cannot move world")
 	camera.request_close();await process_frame

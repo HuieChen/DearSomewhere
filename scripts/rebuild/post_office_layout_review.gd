@@ -26,6 +26,7 @@ class SceneArrow extends Button:
 	var direction := 1
 	var is_close := false
 	var _motion: Tween
+	var _idle_phase := 0.0
 	var _hover_amount := 0.0:
 		set(value): _hover_amount = value; queue_redraw()
 	var _press_amount := 0.0:
@@ -45,8 +46,8 @@ class SceneArrow extends Button:
 	func _animate() -> void:
 		if _motion != null and _motion.is_valid(): _motion.kill()
 		_motion = create_tween().set_parallel(true)
-		_motion.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		_motion.tween_property(self,"_hover_amount",1.0 if not disabled and (is_hovered() or has_focus()) else 0.0,0.14)
+		_motion.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_motion.tween_property(self,"_hover_amount",1.0 if not disabled and (is_hovered() or has_focus()) else 0.0,0.20)
 		_motion.tween_property(self,"_press_amount",1.0 if not disabled and button_pressed else 0.0,0.07)
 
 	func _stroke(points: PackedVector2Array, color: Color, width: float) -> void:
@@ -54,26 +55,41 @@ class SceneArrow extends Button:
 		# Rounded ink ends and joins, rather than a double-outline chevron.
 		for point: Vector2 in points: draw_circle(point,width*0.5,color,true,-1,true)
 
+	func _process(delta: float) -> void:
+		if not is_visible_in_tree() or disabled or is_close: return
+		_idle_phase = fposmod(_idle_phase + delta * TAU / 3.2, TAU)
+		queue_redraw()
+
+	func _brush_curve(start: Vector2, control_a: Vector2, control_b: Vector2, end: Vector2, ink: Color, width: float) -> void:
+		# Smooth, slightly tapered painted strokes, evaluated at fixed positions.
+		# No random jitter or moving contour noise at small display sizes.
+		var previous := start
+		for index in range(1,25):
+			var t := float(index) / 24.0
+			var point := start.bezier_interpolate(control_a,control_b,end,t)
+			var weight := width * (0.78 + 0.22 * sin(PI * t))
+			draw_line(previous,point,ink,weight,true)
+			draw_circle(point,weight*0.5,ink,true,-1,true)
+			previous = point
+		draw_circle(start,width*0.39,ink,true,-1,true)
+
 	func _draw() -> void:
-		var center := size * 0.5 + Vector2(float(direction)*3.0*_hover_amount,2.0*_press_amount)
-		var drawn_scale := 1.0 + 0.035*_hover_amount - 0.12*_press_amount
+		var drift := sin(_idle_phase) * 1.2 * (1.0-_hover_amount) if not is_close else 0.0
+		var center := size * 0.5 + Vector2(float(direction)*(drift+3.5*_hover_amount),1.0*_press_amount)
+		var drawn_scale := 1.0 + 0.025*_hover_amount - 0.06*_press_amount
 		draw_set_transform(center,0.0,Vector2.ONE*drawn_scale)
-		var ink := Color("fff2d7").lerp(Color("fffbed"),_hover_amount)
+		var ink := Color("f5e6c9").lerp(Color("fff5df"),_hover_amount)
 		if disabled: ink.a = 0.55
-		var strokes: Array[PackedVector2Array] = []
 		if is_close:
-			strokes.append(PackedVector2Array([Vector2(-9,-9),Vector2(9,9)]))
-			strokes.append(PackedVector2Array([Vector2(9,-9),Vector2(-9,9)]))
+			_stroke(PackedVector2Array([Vector2(-9,-9),Vector2(9,9)]),ink,4.4)
+			_stroke(PackedVector2Array([Vector2(9,-9),Vector2(-9,9)]),ink,4.4)
 		else:
-			strokes.append(PackedVector2Array([Vector2(-21*direction,1),Vector2(-4*direction,-0.5),Vector2(18*direction,0)]))
-			strokes.append(PackedVector2Array([Vector2(1*direction,-16),Vector2(18*direction,0),Vector2(0*direction,16)]))
-		for points: PackedVector2Array in strokes:
-			var shadow := PackedVector2Array()
-			for point: Vector2 in points: shadow.append(point+Vector2(0,2))
-			_stroke(shadow,Color(0.22,0.28,0.22,0.24)*Color(1,1,1,ink.a),7.0)
-		for points: PackedVector2Array in strokes: _stroke(points,ink,6.0)
+			var flip := Vector2(float(direction),1.0)
+			_brush_curve(Vector2(-20,3)*flip,Vector2(-10,-1)*flip,Vector2(6,-2)*flip,Vector2(17,0)*flip,ink,4.6)
+			_brush_curve(Vector2(4,-13)*flip,Vector2(7,-8)*flip,Vector2(12,-2)*flip,Vector2(17,0)*flip,ink,4.8)
+			_brush_curve(Vector2(17,0)*flip,Vector2(13,3)*flip,Vector2(7,9)*flip,Vector2(2,12)*flip,ink,4.8)
 		if has_focus() and not disabled:
-			_stroke(PackedVector2Array([Vector2(-6,27),Vector2(6,27)]),ink,2.0)
+			_stroke(PackedVector2Array([Vector2(-4,25),Vector2(4,25)]),ink,2.0)
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
