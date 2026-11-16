@@ -158,6 +158,8 @@ try {
     }
     Copy-Item -LiteralPath (Join-Path $taskRepo 'addons/phantom_camera/LICENSE') -Destination (Join-Path $taskLicenses 'PhantomCamera-LICENSE.txt')
     Copy-Item -LiteralPath (Join-Path $taskRepo 'addons/dialogue_manager/LICENSE') -Destination (Join-Path $taskLicenses 'DialogueManager-LICENSE.txt')
+    New-Item -ItemType Directory -Force (Join-Path $taskLicenses "Handwriting") | Out-Null
+    Get-ChildItem (Join-Path $taskRepo "assets/fonts/handwriting") -File | Where-Object { $_.Extension -in @(".txt", ".json") } | Copy-Item -Destination (Join-Path $taskLicenses "Handwriting") -Force
     $taskPlayerReadme = @(
         'Dear Somewhere',
         '双击 DearSomewhere.exe。当前为已开放功能的探索试玩版。',

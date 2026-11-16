@@ -1,0 +1,49 @@
+{
+  "repository": "https://github.com/google/fonts",
+  "commit": "7af0d90b4d532ffa4b041937b560c6df4e7b1e95",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+    {
+      "file": "LongCang-Regular.ttf",
+      "sha256": "e5bf2c3f24ef2327c6f136d8f73e2f9dfdf44896fdbeb35a9515f44777bb91bc",
+      "license": "longcang-OFL.txt",
+      "source": "https://github.com/google/fonts/blob/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/longcang/LongCang-Regular.ttf",
+      "family": "longcang"
+    },
+    {
+      "file": "ZhiMangXing-Regular.ttf",
+      "sha256": "644e0cae9b40f0b10ab729a01bd32032e3973bac22be3dccae01bf6ae7fde969",
+      "license": "zhimangxing-OFL.txt",
+      "source": "https://github.com/google/fonts/blob/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/zhimangxing/ZhiMangXing-Regular.ttf",
+      "family": "zhimangxing"
+    },
+    {
+      "file": "MaShanZheng-Regular.ttf",
+      "sha256": "6d2546bb189c732a8ca29af9e22457b152387d158aa459e4ac2ce1e51788b7fb",
+      "license": "mashanzheng-OFL.txt",
+      "source": "https://github.com/google/fonts/blob/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/mashanzheng/MaShanZheng-Regular.ttf",
+      "family": "mashanzheng"
+    },
+    {
+      "file": "LXGWWenKaiTC-Light.ttf",
+      "sha256": "48cabec60b908f145002192c366d805b674d6e890a98c24f8a39fd33542273fd",
+      "license": "lxgwwenkaitc-OFL.txt",
+      "source": "https://github.com/google/fonts/blob/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/lxgwwenkaitc/LXGWWenKaiTC-Light.ttf",
+      "family": "lxgwwenkaitc"
+    },
+    {
+      "file": "LXGWWenKaiTC-Regular.ttf",
+      "sha256": "4fcc5aec11cbbf737b0cfab7b63796f7f280087a7a656b2f13342cd5e5318d95",
+      "license": "lxgwwenkaitc-OFL.txt",
+      "source": "https://github.com/google/fonts/blob/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/lxgwwenkaitc/LXGWWenKaiTC-Regular.ttf",
+      "family": "lxgwwenkaitc"
+    },
+    {
+      "file": "LXGWMarkerGothic-Regular.ttf",
+      "sha256": "e6a55cfd5f18dc393f92670a164397a69242cb4eabe1d3feb5dc22fc4947a8ba",
+      "license": "lxgwmarkergothic-OFL.txt",
+      "source": "https://github.com/google/fonts/blob/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/lxgwmarkergothic/LXGWMarkerGothic-Regular.ttf",
+      "family": "lxgwmarkergothic"
+    }
+  ]
+}

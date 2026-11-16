@@ -1,3 +1,6 @@
+## 2026-11-17 — Supplied dialogue and individual handwriting
+
+Bound 441 spoken source records to Anne and eight confirmed NPCs; enabled the independent Xanni and 尘缘 chats while preserving chapter gates. Added 17 speaker handwriting profiles with licensed font provenance, stable ink variation and complete-page pagination. Source and final PCK each pass 636 scoped checks. Native Windows clicking, speaker/font switching and Escape return were observed before the final concurrent art merge; final integrated PCK verification is recorded separately. Missing chapters, unmapped actors and remaining campaign integration are explicit. See [SUPPLIED_DIALOGUE_HANDWRITING_20261117.md](docs/testing/SUPPLIED_DIALOGUE_HANDWRITING_20261117.md).
 ## 2026-11-16 — Supplied postal PSD replacement
 
 Selected the user's new 5120×1440 postal interior, exported from its saved PSD composite with pixel equality and unchanged-source checks. Both full room halves, new door/handle registration and removal of obsolete local-motion masks are covered by 55 scoped source checks. Old source artwork and current gameplay state remain preserved. See [POSTAL_PSD_REPLACEMENT_20261116.md](docs/testing/POSTAL_PSD_REPLACEMENT_20261116.md).
@@ -466,4 +469,5 @@ Corrected enlarged-card transparent fringes and capped source enlargement; origi
 ## 2026-11-17 — Supplied postcard layers
 
 Nine visible source layers now lift, enlarge and return; foreground masks prevent rail/telephone misclicks, and the shelf is restored after every close path. Integrated collaborator cast/loading updates through `5107bed`. Final actual PCK: 193 checks passed (78 postcard, 35 layout, 20 postal route, 34 names, 26 loading). Original PSD/composite unchanged. Native final window observed, but click injection failed with `unknown screenshotId screenshot-0` on retry; native interaction and listening acceptance remain unverified. Details and package hash: `docs/testing/POSTAL_POSTCARDS_20261117.md`.
+
 
