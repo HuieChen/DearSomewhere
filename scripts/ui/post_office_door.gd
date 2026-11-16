@@ -23,8 +23,8 @@ func _process(delta:float)->void:
 	disabled=not allowed or _pending
 	var target:=1.0 if visible and allowed and (is_hovered() or has_focus() or _pending) else 0.0
 	var pressed_target:=1.0 if button_pressed or _pending else 0.0
-	warmth=move_toward(warmth,target,delta*8.0)
-	pressure=move_toward(pressure,pressed_target,delta*15.0)
+	warmth=lerpf(warmth,target,1.0-exp(-12.0*delta))
+	pressure=lerpf(pressure,pressed_target,1.0-exp(-20.0*delta))
 	queue_redraw()
 func _activate()->void:
 	if _pending or (interaction_allowed.is_valid() and not interaction_allowed.call()):return
@@ -37,11 +37,10 @@ func _activate()->void:
 func _draw()->void:
 	if warmth<0.001:return
 	draw_set_transform(Vector2.ZERO,0.0,size/DESIGN)
-	var cream:=Color("fff4d9")
-	# The feedback sits on the painted handle, with a small press displacement.
-	var a:=handle_from+Vector2(2,3)*pressure
-	var b:=handle_to+Vector2(2,3)*pressure
-	draw_line(a,b,Color(cream,0.09*warmth),26.0,true)
-	draw_circle(a,13.0,Color(cream,0.09*warmth));draw_circle(b,13.0,Color(cream,0.09*warmth))
-	draw_line(a,b,Color(cream,(0.16+0.18*pressure)*warmth),8.0,true)
-	draw_circle(a,4.0,Color(cream,0.20*warmth));draw_circle(b,4.0,Color(cream,0.20*warmth))
+	# Catch a little light inside the existing brass, without painting a second
+	# handle or spilling circular glow onto the door and foreground parcel.
+	var a:=handle_from.lerp(handle_to,0.09)
+	var b:=handle_from.lerp(handle_to,0.90)
+	var middle:=a.lerp(b,0.48)
+	var glint:=PackedVector2Array([a+Vector2(-1,0),a+Vector2(1.2,4),middle+Vector2(1.6,0),b+Vector2(0,-2),b+Vector2(-1.4,-5),middle+Vector2(-2.4,0),a+Vector2(-2,5)])
+	draw_colored_polygon(glint,Color(Color("ffe6a7"),(0.18+0.12*pressure)*warmth))

@@ -145,21 +145,21 @@ func _ready()->void:
 		_place(_focus_marks,canvas,Rect2(645,345,310,209))
 	var heading:=_label(_t("相机","Camera"),Rect2(80,60,300,42),30)
 	heading.name="CameraHeading"
-	_format_button=_button(_t("横向照片  ⇄  R","Landscape  ⇄  R"),Rect2(540,65,520,48),24)
+	_format_button=_button(_t("横向照片  ⇄  R","Landscape  ⇄  R"),Rect2(640,65,320,38),20)
 	_format_button.name="PhotoFormat";_format_button.tooltip_text=_t("切换相纸 · R","Switch format · R");_format_button.pressed.connect(_toggle_format)
 	count_label=_label("",Rect2(1130,60,280,42),24,HORIZONTAL_ALIGNMENT_RIGHT)
 	_label(location_caption,Rect2(270,800,430,38),22)
 	shutter=ArtButton.new();shutter.name="CameraShutter";shutter.round_hit=true
 	if texture:
 		var button_atlas:=AtlasTexture.new();button_atlas.atlas=texture;button_atlas.region=Rect2(744,754,182,182);button_atlas.filter_clip=true;shutter.art=button_atlas
-	_place(shutter,canvas,Rect2(748,724,104,104));shutter.tooltip_text=_t("拍照 · C","Take photo · C");shutter.pressed.connect(take_photo)
+	_place(shutter,canvas,Rect2(756,732,88,88));shutter.tooltip_text=_t("拍照 · C","Take photo · C");shutter.pressed.connect(take_photo)
 	_label("C",Rect2(755,831,90,26),18,HORIZONTAL_ALIGNMENT_CENTER)
-	thumbnail=ArtButton.new();thumbnail.name="LastPhoto";thumbnail.tooltip_text=_t("查看照片","View photos");_place(thumbnail,canvas,Rect2(82,760,120,84));thumbnail.pressed.connect(func():_show_review(_thumbnail_index))
+	thumbnail=ArtButton.new();thumbnail.name="LastPhoto";thumbnail.tooltip_text=_t("查看照片","View photos");_place(thumbnail,canvas,Rect2(82,776,96,68));thumbnail.pressed.connect(func():_show_review(_thumbnail_index))
 	status_label=_label("",Rect2(950,788,450,42),23);status_label.hide()
 	if pan_provider.is_valid() and not gallery_only:
-		_label(_t("拖动取景 · 方向键微调","Drag to frame · Arrow keys"),Rect2(1080,680,380,36),19,HORIZONTAL_ALIGNMENT_CENTER)
-		for spec:Array in [["ZoomOut","−",1100.0],["ResetComposition",_t("复位","Reset"),1190.0],["ZoomIn","+",1340.0]]:
-			var control:=_button(str(spec[1]),Rect2(float(spec[2]),725,140 if spec[0]=="ResetComposition" else 70,48),25)
+		_label(_t("拖动取景 · 方向键微调","Drag to frame · Arrow keys"),Rect2(1180,697,260,28),16,HORIZONTAL_ALIGNMENT_CENTER)
+		for spec:Array in [["ZoomOut","−",1216.0],["ResetComposition",_t("复位","Reset"),1270.0],["ZoomIn","+",1374.0]]:
+			var control:=_button(str(spec[1]),Rect2(float(spec[2]),735,94 if spec[0]=="ResetComposition" else 44,38),20)
 			control.name=str(spec[0]);_composition_buttons.append(control)
 			if spec[0]=="ResetComposition":control.pressed.connect(func():if _can_pan() and reset_provider.is_valid():reset_provider.call())
 			else:control.pressed.connect(func():
@@ -172,13 +172,13 @@ func _ready()->void:
 		if node is CanvasItem:_live_nodes.append(node)
 	if lab!=null:
 		lab.build(canvas)
-		_actor_button=_button(_t("人物：显示","Character: on"),Rect2(420,128,300,48),24)
+		_actor_button=_button(_t("人物：显示","Character: on"),Rect2(316,124,190,38),20)
 		_actor_button.name="CameraActor"
 		_actor_button.pressed.connect(func():
 			include_actor=not include_actor
 			_actor_button.text=_t("人物：显示","Character: on") if include_actor else _t("人物：隐藏","Character: off")
 			actor_visibility_changed.emit(include_actor))
-	var close:=_button("×",Rect2(1470,42,74,68),42);close.name="CloseCamera";close.tooltip_text=_t("关闭相机","Close camera");close.pressed.connect(_request_close)
+	var close:=_button("×",Rect2(1496,48,48,46),30);close.name="CloseCamera";close.tooltip_text=_t("关闭相机","Close camera");close.pressed.connect(_request_close)
 	_build_review();_refresh_count();_refresh_thumbnail()
 	_favorite=_button(_t("收藏","Favorite"),Rect2(650,22,300,48),24)
 	_favorite.name="FavoritePhoto";_favorite.reparent(_review)
