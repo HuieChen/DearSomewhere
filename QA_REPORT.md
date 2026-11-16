@@ -471,3 +471,5 @@ Corrected enlarged-card transparent fringes and capped source enlargement; origi
 Nine visible source layers now lift, enlarge and return; foreground masks prevent rail/telephone misclicks, and the shelf is restored after every close path. Integrated collaborator cast/loading updates through `5107bed`. Final actual PCK: 193 checks passed (78 postcard, 35 layout, 20 postal route, 34 names, 26 loading). Original PSD/composite unchanged. Native final window observed, but click injection failed with `unknown screenshotId screenshot-0` on retry; native interaction and listening acceptance remain unverified. Details and package hash: `docs/testing/POSTAL_POSTCARDS_20261117.md`.
 
 
+
+Final dialogue-integrated clarity package fb8db2d: 838 checks passed, including the 242 scoped checks and 596 preserved dialogue/handwriting checks; all 12 alpha frames / 25,778 samples pass. Native final card return verified again. Same report records earlier runtime and final evidence boundaries.

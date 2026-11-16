@@ -15,8 +15,9 @@ authored turns, twelve supplied walk frames and the source 6 fps cadence are
 retained. No foot shear, new poses or crossfade silhouettes are introduced.
 
 Integrated main through a5c63a1, retaining the native-alpha courier correction,
-Siri, loading changes and the current field tool UI. Runtime commit: 70db3af.
-Final PCK SHA256: d1ea8a2cd20f09e11ff1e43432043fd0970c57bb11b42aaa76ae9bb87cd18631.
+Siri, loading changes and the current field tool UI. After preserving the further dialogue/handwriting commits through 9ebc026,
+final runtime commit: fb8db2d.
+Final PCK SHA256: a16f833961d097b8de5568a34ce1afbdf56001e96dcf4b52c351f9ff7d4ab02f.
 
 Sequential review and validation:
 
@@ -48,3 +49,11 @@ before the successful final build. No failed run counts as a pass.
 Limits: low-resolution source interiors retain their original soft brushwork;
 the four principal walk poses at 6 fps still have a low-frame animation feel.
 These repairs do not establish whole-game performance or player acceptance.
+
+Final integrated package repeated all 242 focused checks plus 72 handwriting
+and 524 supplied-dialogue assertions: 838 checks, zero failures; native-alpha
+12 frames / 25,778 samples also passed. Evidence: integrated-qa in the same
+external directory. Build directories: check-20261117-062445 and
+package-20261117-062529. The final integrated native window and Put back
+interaction were checked again. Earlier bidirectional native movement was
+checked before the dialogue-only merge; movement code is unchanged.
