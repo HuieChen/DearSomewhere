@@ -13,23 +13,12 @@ const WALK_GEOMETRY := "res://assets/faefever_v2/characters/courier_walk_regions
 # turn images bridge movement back to the authored idle without replacing it.
 # Geometry, animation state, materials and callbacks remain instance-local.
 const MAX_PREPARED_TEXTURES := 23
-# Fallback for manifests without measured sole contacts. Runtime registration
-# measures each stance segment rather than assuming equally spaced poses.
+# The movie repeats a four-pose stride three times. Its planted dark boot
+# travels ~193 source pixels per pose at a reference height of 1830 pixels.
 const WALK_STRIDE_PER_HEIGHT := 0.42
 const WALK_POSES_PER_STRIDE := 4
 static var _prepared_textures: Dictionary = {}
 static var _registration: Dictionary = {}
-static var _boot_masks: Dictionary = {}
-static func _boot_mask(key:String,dimensions:Vector2i) -> Texture2D:
-	if _boot_masks.has(key):return _boot_masks[key]
-	var record:Dictionary=_runtime_registration().get(key,{})
-	var mask:=Image.create(dimensions.x,dimensions.y,false,Image.FORMAT_RG8)
-	for span:Array in record.get("boot_spans",[]):
-		mask.fill_rect(Rect2i(int(span[0]),int(span[1]),int(span[2]),1),Color(1,0,0) if int(span[3])==0 else Color(0,1,0))
-	mask.generate_mipmaps()
-	var texture:=ImageTexture.create_from_image(mask)
-	_boot_masks[key]=texture
-	return texture
 static func _runtime_registration() -> Dictionary:
 	if _registration.is_empty():
 		var path:="res://assets/authoring/courier_walk_20261110/runtime_registration.json"
@@ -61,9 +50,6 @@ var _walk_material: ShaderMaterial
 var _portrait_material: ShaderMaterial
 var _walk_keys: Array[String] = []
 var _head_offsets: Array[Vector2] = []
-var _boot_contacts: Array[Vector4] = []
-var _stance_lengths: Array[float] = []
-var _stride_source_length:=0.0
 var _frame_ends: Array[float] = []
 var _cycle_seconds: float = 0.0
 var _idle_time: float = 0.0
@@ -197,9 +183,6 @@ func _load_supplied_walk() -> void:
 		prepared.append(art)
 	_walk_keys.clear()
 	_head_offsets.clear()
-	_boot_contacts.clear()
-	_stance_lengths.clear()
-	_stride_source_length=0.0
 	_frame_ends.clear()
 	_cycle_seconds = 0.0
 	_idle_time = 0.0
@@ -212,23 +195,10 @@ func _load_supplied_walk() -> void:
 		var measured:Dictionary=_runtime_registration().get(str(data.frames[index].path).get_file(),{})
 		var offset:Array=measured.get("head_translation_px",[0.0,0.0])
 		_head_offsets.append(Vector2(float(offset[0]),float(offset[1])))
-		var feet:Array=measured.get("foot_contacts_px",[[0.0,0.0],[0.0,0.0]])
-		_boot_contacts.append(Vector4(float(feet[0][0]),float(feet[0][1]),float(feet[1][0]),float(feet[1][1])))
-		var stance:=float(measured.get("stance_travel_px",0.0))
-		_stance_lengths.append(stance)
-		_stride_source_length+=stance
 		_poses[key] = prepared[index]
 		_frame_geometry[key] = data.frames[index]
 		_cycle_seconds += float(data.frames[index].duration_seconds)
 		_frame_ends.append(_cycle_seconds)
-	if _stride_source_length>0.0 and _stance_lengths.min()>0.0:
-		var distance:=0.0
-		for index in range(_frame_ends.size()):
-			distance+=_stance_lengths[index]
-			_frame_ends[index]=distance/_stride_source_length*_cycle_seconds
-			# Prepare shared masks during scene loading, not on the first step
-			# through each pose, where allocation/mipmaps could interrupt motion.
-			_boot_mask(str(data.frames[index].path).get_file(),Vector2i(prepared[index].get_size()))
 
 func _load_turns() -> void:
 	var path := "res://assets/authoring/courier_turn_20261031/turns.json"
@@ -405,8 +375,6 @@ func _draw_walk_cycle(seconds:float,opacity:float)->void:
 	# rather than an arbitrary multiplier or the configured maximum speed.
 	var index:=_frame_for_time(seconds)
 	var shift:=Vector2.ZERO
-	var boot_shift:=Vector4.ZERO
-	var boots_ready:=_stride_source_length>0.0 and _boot_contacts.size()==_walk_keys.size()
 	if _head_offsets.size()==_walk_keys.size() and _cycle_seconds>0.0:
 		var start:=0.0 if index==0 else _frame_ends[index-1]
 		var weight:=clampf((fposmod(seconds,_cycle_seconds)-start)/maxf(_frame_ends[index]-start,.001),0.0,1.0)
@@ -421,25 +389,14 @@ func _draw_walk_cycle(seconds:float,opacity:float)->void:
 		# Cancel each pose's height offset; only horizontal registration moves.
 		continuous.y=_head_offsets[_frame_for_time(_idle_time)].y
 		shift=continuous-current
-		if boots_ready:
-			var feet:=_boot_contacts[index]
-			var next_feet:=_boot_contacts[(index+1)%count]
-			var dark_lift:=sin(PI*weight)*130.0 if index%4==3 else 0.0
-			var light_lift:=sin(PI*(float(index%4)+weight)/3.0)*95.0 if index%4<3 else 0.0
-			boot_shift=Vector4(lerpf(feet.x,next_feet.x,weight)-feet.x,1900.0-dark_lift-feet.y,lerpf(feet.z,next_feet.z,weight)-feet.z,1900.0-light_lift-feet.w)
-	_draw_pose(_walk_keys[index],opacity,shift,boot_shift,boots_ready)
+	_draw_pose(_walk_keys[index],opacity,shift)
 
-func _draw_pose(key:String,opacity:float,upper_shift:Vector2=Vector2.ZERO,boot_shift:Vector4=Vector4.ZERO,animate_boots:bool=false)->void:
+func _draw_pose(key:String,opacity:float,upper_shift:Vector2=Vector2.ZERO)->void:
 	var art:Texture2D=_poses.get(key)
 	if art==null:return
 	var supplied:=key.begins_with("supplied_walk_")
 	material=_walk_material if supplied else _portrait_material
-	if supplied:
-		_walk_material.set_shader_parameter("upper_shift",upper_shift/art.get_size())
-		_walk_material.set_shader_parameter("animate_boots",animate_boots)
-		if animate_boots:
-			_walk_material.set_shader_parameter("boot_regions",_boot_mask(str(_frame_geometry[key].path).get_file(),Vector2i(art.get_size())))
-		_walk_material.set_shader_parameter("boot_shift",boot_shift/Vector4(art.get_width(),art.get_height(),art.get_width(),art.get_height()))
+	if supplied:_walk_material.set_shader_parameter("upper_shift",upper_shift/art.get_size())
 	var eye: Rect2 = EYE_RECTS.get(key, Rect2())
 	if not supplied and material is ShaderMaterial:
 		material.set_shader_parameter("eye_rect",Vector4(eye.position.x,eye.position.y,eye.size.x,eye.size.y))
@@ -614,7 +571,6 @@ func _frame_for_time(seconds: float) -> int:
 
 
 func _walk_cycle_distance() -> float:
-	if _stride_source_length>0.0:return actor_height/1830.0*_stride_source_length
 	return maxf(actor_height*WALK_STRIDE_PER_HEIGHT*float(_walk_keys.size())/WALK_POSES_PER_STRIDE,1.0)
 
 func _advance_phase(travelled: float) -> void:
@@ -624,7 +580,7 @@ func _advance_phase(travelled: float) -> void:
 	# Hidden walking must not advance past that pose while the body is turning.
 	_walk_time=fposmod(_walk_time+travelled/_walk_cycle_distance()*_cycle_seconds,_cycle_seconds)
 	_step_distance+=travelled
-	var contact_distance:float=maxf(_walk_cycle_distance()/maxf(float(_walk_keys.size())/WALK_POSES_PER_STRIDE*2.0,1.0),1.0)
+	var contact_distance:float=maxf(actor_height*WALK_STRIDE_PER_HEIGHT*0.5,1.0)
 	while _step_distance>=contact_distance:
 		_step_distance-=contact_distance
 		footstep.emit()

@@ -55,7 +55,7 @@ func run():
 			if mid.get_pixel(x,y).a>.98:opaque_mid+=1
 			if y>395 and first.get_pixel(x,y)!=mid.get_pixel(x,y):feet_changed+=1
 	check(overlap>500 and absf(float(opaque_mid-overlap))/overlap<.03,"moving upper body retains its solid area rather than crossfade transparency")
-	check(feet_changed>0,"boots move between source poses; world-space planting is checked by walk_footplant_20261116")
+	check(feet_changed==0,"upper-body smoothing leaves the planted boot pixels unchanged")
 	var registration:Dictionary=Walker._runtime_registration()
 	var cleared:=0;var residue:=0
 	for index in range(12):
@@ -81,7 +81,7 @@ func run():
 		for index in range(3):
 			var pose:Image=await shot(w,w._walk_time)
 			planted.append(planted_boot_x(pose,w))
-			var travel:float=w._stance_lengths[index]*height/1830.0
+			var travel:float=w._walk_cycle_distance()/12.0
 			w.foot.x+=travel;w._advance_phase(travel)
 		# A two-pixel antialiased sole changes its measured centroid as its
 		# footprint narrows. Budget four screen pixels at either display scale.

@@ -1,4 +1,8 @@
-## 2026-11-16 — Continuous supporting-foot motion
+## 2026-11-16 — Rejected deformation removed
+
+The user reported that walking looked increasingly strange. Removed the boot shear/lift and unequal phase timing, restoring the prior original-pose cadence while retaining alpha cleanup and stable height. Source regression checks pass 163/163; this verifies containment, not resolution of the earlier sliding complaint. Concurrent main UI/audio/loading changes are preserved. See [WALK_DEFORMATION_ROLLBACK_20261116.md](docs/testing/WALK_DEFORMATION_ROLLBACK_20261116.md).
+
+## 2026-11-16 — Continuous supporting-foot motion — REJECTED
 
 Corrected between-frame skating by measuring source sole travel and continuously articulating the original boot pixels. Rendered contact sampling now covers intermediate frames in both directions and sizes; source and final PCK each pass 231/231 checks. Native rightward start/arrival and leftward start were observed. Source artwork and original turns remain intact; subjective motion acceptance remains open. See [CONTINUOUS_FOOTPLANT_20261116.md](docs/testing/CONTINUOUS_FOOTPLANT_20261116.md).
 

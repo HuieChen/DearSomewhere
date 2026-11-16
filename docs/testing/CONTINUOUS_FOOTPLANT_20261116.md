@@ -1,5 +1,13 @@
 # Continuous courier foot planting — 2026-11-16
 
+**REJECTED by the user and removed.** The user reported that walking looked
+increasingly strange. The boot deformation and unequal phase dwell times broke
+the original silhouette and rhythm. The contact measurements below did not
+establish natural-looking animation and must not be treated as acceptance.
+Runtime boot warping, its masks/metadata and its specialized test were removed;
+the previous pose cadence, alpha cleanup and height stabilization were restored.
+See `WALK_DEFORMATION_ROLLBACK_20261116.md` for the corrective delivery.
+
 The user still saw sliding after the discrete stance checks passed. Those checks
 missed the supporting foot moving with the root between source pose changes.
 This supersedes the earlier claim that matching a few stance endpoints was enough.
