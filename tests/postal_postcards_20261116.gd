@@ -50,7 +50,7 @@ func run():
 		check(is_instance_valid(game.modal) and game.modal.name=="PostcardInspection" and game.modal.card.id==card.id,str(card.id)+" real pointer selects the matching individual layer")
 		if not is_instance_valid(game.modal):continue
 		check(rack.held_id==card.id and rack.patch.visible,str(card.id)+" original shelf slot is cleared while the complete card is held")
-		check(game.modal.presented_rect.size.y>400 and game.modal.presented_rect.size.x>300,str(card.id)+" complete card is enlarged")
+		check(game.modal.presented_rect.size.y>300 and game.modal.presented_rect.size.x>300 and game.modal.presented_rect.size.y<=460.01,str(card.id)+" complete card enlarged within source-resolution limit")
 		if index in [0,5,8]:await capture(str(card.id)+"_open")
 		room.show_room(1);await key(KEY_M)
 		check(room.room_index==0 and game.modal.name=="PostcardInspection",str(card.id)+" scene arrows and map shortcut cannot interrupt inspection")

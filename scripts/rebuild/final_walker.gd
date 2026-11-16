@@ -431,10 +431,12 @@ func _process(delta: float) -> void:
 		_manual_active = true
 		_gesture_name = ""
 		if velocity.length()<3.0 and absf(manual.x)>0.01:_facing=signf(manual.x)
-	_update_idle_transition(delta)
 	var remaining: float = clampf(delta, 0.0, 0.25)
 	while remaining > 0.00001:
 		var step: float = minf(remaining, 1.0 / 120.0)
+		# Turn and travel share the same clock. A slow frame must not finish
+		# the turn, then incorrectly spend that entire frame moving as well.
+		_update_idle_transition(step)
 		if not _turn_keys.is_empty() and _turn_position>0.001:
 			# Finish facing the destination before taking the first step. Moving
 			# through the standing turn used to slide the whole figure sideways.

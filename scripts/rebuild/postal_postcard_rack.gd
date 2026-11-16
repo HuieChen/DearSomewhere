@@ -9,6 +9,14 @@ var held_id:=""
 var patch:TextureRect
 var hotspots:Array[Button]=[]
 static var _textures:Dictionary={}
+static var _inspection_textures:Dictionary={}
+static func inspection_texture(path:String)->Texture2D:
+	if not _inspection_textures.has(path):
+		var pixels:=Image.load_from_file(path)
+		if pixels==null:return null
+		pixels.premultiply_alpha()
+		_inspection_textures[path]=ImageTexture.create_from_image(pixels)
+	return _inspection_textures[path]
 
 static func texture(path:String)->Texture2D:
 	if not _textures.has(path):

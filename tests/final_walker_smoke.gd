@@ -210,6 +210,13 @@ func _test_cadence_and_arrival() -> void:
 	_check(walker.foot==Vector2(300,300) and walker._turn_position>0.0,"initial standing turn stays planted instead of sliding sideways")
 	for tick in range(30):walker._process(1.0/60.0)
 	_check(walker.foot.x>300 and walker._turn_position<.001,"movement starts after facing the destination")
+	var starts:Array[float]=[]
+	for rate:int in [10,30,60,120]:
+		walker.configure(null,Rect2(0,0,2000,1000),Vector2(100,850))
+		walker.walk_to(Vector2(1800,850));walker.set_process(false)
+		for tick:int in int(rate*.3):walker._process(1.0/rate)
+		starts.append(walker.foot.x)
+	_check(starts.max()-starts.min()<.1,"turn completion never double-spends movement time at 10/30/60/120fps")
 
 
 func _check(condition: bool, label: String) -> void:

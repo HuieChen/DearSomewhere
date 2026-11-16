@@ -10,20 +10,29 @@ var locale:="zh"
 var leaving:=false
 var opening:=true
 var face:Texture2D
+var card_image:TextureRect
 var put_back:Button
 var close_button:Button
 var _motion:Tween
 var _shade:=0.0:
 	set(value):_shade=value;queue_redraw()
 var presented_rect:=Rect2():
-	set(value):presented_rect=value;queue_redraw()
+	set(value):
+		presented_rect=value;queue_redraw()
+		if is_instance_valid(card_image):card_image.position=value.position;card_image.size=value.size
 
 func _ready():
 	name="PostcardInspection";z_index=120;mouse_filter=Control.MOUSE_FILTER_STOP
 	size=Vector2(1600,900)
-	face=Rack.texture(str(card.face))
+	face=Rack.inspection_texture(str(card.face))
+	card_image=TextureRect.new();card_image.name="OriginalCardFace";card_image.texture=face
+	card_image.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;card_image.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	var clarity:=ShaderMaterial.new();clarity.shader=preload("res://scripts/ui/postcard_clarity.gdshader");clarity.set_shader_parameter("card_source",face)
+	card_image.material=clarity;add_child(card_image)
 	var dimensions:=face.get_size()
-	dimensions*=minf(620.0/dimensions.x,560.0/dimensions.y)
+	# The supplied layers are 123–203 px wide. Avoid presenting them as huge
+	# high-resolution artwork; the close-up still exceeds the shelf scale.
+	dimensions*=minf(2.8,minf(500.0/dimensions.x,460.0/dimensions.y))
 	var destination:=Rect2(Vector2(800,415)-dimensions*.5,dimensions)
 	presented_rect=origin
 	put_back=UI.button(self,"放回" if locale=="zh" else "Put back",Rect2(728,destination.end.y+30,144,52),func():request_close(false))
@@ -41,9 +50,6 @@ func _ready():
 
 func _draw():
 	draw_rect(Rect2(Vector2.ZERO,size),Color(.12,.15,.14,.38*_shade))
-	if face!=null:
-		draw_texture_rect(face,Rect2(presented_rect.position+Vector2(6,12)*_shade,presented_rect.size),false,Color(0,0,0,.22*_shade))
-		draw_texture_rect(face,presented_rect,false)
 
 func request_close(feedback:bool=true):
 	if leaving:return
