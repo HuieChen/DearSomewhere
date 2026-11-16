@@ -4,6 +4,8 @@ signal activated
 const DESIGN:=Vector2(376,488)
 var _outline:=PackedVector2Array([Vector2(3,3),Vector2(372,3),Vector2(372,457),Vector2(285,432),Vector2(210,410),Vector2(70,457),Vector2(3,486)])
 var interaction_allowed:Callable
+var handle_from:=Vector2(330,309)
+var handle_to:=Vector2(330,422)
 var warmth:=0.0
 var pressure:=0.0
 var _pending:=false
@@ -37,8 +39,8 @@ func _draw()->void:
 	draw_set_transform(Vector2.ZERO,0.0,size/DESIGN)
 	var cream:=Color("fff4d9")
 	# The feedback sits on the painted handle, with a small press displacement.
-	var a:=Vector2(330,309)+Vector2(2,3)*pressure
-	var b:=Vector2(330,422)+Vector2(2,3)*pressure
+	var a:=handle_from+Vector2(2,3)*pressure
+	var b:=handle_to+Vector2(2,3)*pressure
 	draw_line(a,b,Color(cream,0.09*warmth),26.0,true)
 	draw_circle(a,13.0,Color(cream,0.09*warmth));draw_circle(b,13.0,Color(cream,0.09*warmth))
 	draw_line(a,b,Color(cream,(0.16+0.18*pressure)*warmth),8.0,true)

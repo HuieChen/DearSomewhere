@@ -1,6 +1,6 @@
 extends SceneTree
 const Review = preload("res://scripts/rebuild/post_office_layout_review.gd")
-const PROOF := "res://test-results/post-office-layout-20261019/"
+var PROOF := "user://qa/post-office-layout-20261116/"
 var room: Control
 var checks := 0
 var failures: Array[String] = []
@@ -8,6 +8,8 @@ var screenshots: Array[String] = []
 var closes := 0
 
 func _initialize() -> void:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--qa-out="):PROOF=arg.trim_prefix("--qa-out=").trim_suffix("/")+"/"
 	_run.call_deferred()
 
 func _run() -> void:
@@ -18,7 +20,8 @@ func _run() -> void:
 	root.add_child(room)
 	room.close_requested.connect(func(): closes += 1)
 	DirAccess.make_dir_recursive_absolute(PROOF)
-	_check(Review.SOURCE.get_size() == Vector2(3840,1080), "native source resolution retained")
+	_check(Review.SOURCE.get_size() == Vector2(5120,1440), "new PSD native source resolution retained")
+	_check(room.image.material==null,"old illustration motion masks are not applied to new objects")
 	for dimensions: Vector2i in [Vector2i(1280,720),Vector2i(1920,1080),Vector2i(2560,1440)]:
 		root.size = dimensions
 		room.size = Vector2(dimensions)

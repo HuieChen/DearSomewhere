@@ -1,0 +1,34 @@
+{
+  "source_kind": "user_psd_saved_composite",
+  "source_filename": "未命名作品(3).psd",
+  "source_sha256": "7c81c89043f54219d0852c74b7aa78fb0d7216760816c8190197510dd80961da",
+  "sha256": "b7ff790a70d11f9212c2b91781434ea9ca710f2d5fa8aa8004b1d82d3fe71e21",
+  "pixel_sha256": "fe4cf2607ec1a8656ae47f8a0facf3617a6f3ece8ce7b34f050d6e1eabec4f98",
+  "stored_file": "room_pair.png",
+  "dimensions": [
+    5120,
+    1440
+  ],
+  "mode": "RGBA",
+  "layer_record_count": 106,
+  "ai_generated": false,
+  "method": "Pillow PSD frame zero; saved composite pixels; ICC profile retained without conversion",
+  "recomposed": false,
+  "resized": false,
+  "source_unchanged": true,
+  "regions": [
+    [
+      0,
+      0,
+      2560,
+      1440
+    ],
+    [
+      2560,
+      0,
+      2560,
+      1440
+    ]
+  ],
+  "authorization": "User supplied this PSD and requested replacement of the post office scene."
+}

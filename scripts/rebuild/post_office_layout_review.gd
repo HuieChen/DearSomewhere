@@ -4,9 +4,10 @@ signal room_changed(index: int)
 signal close_requested
 
 const DESIGN := Vector2(1920, 1080)
-const SOURCE := preload("res://assets/authoring/post_office_20261019/room_pair.jpg")
-const LocalMotion := preload("res://scripts/rebuild/scene_local_motion.gd")
-const REGIONS := [Rect2(0, 0, 1914, 1080), Rect2(1926, 0, 1914, 1080)]
+const SOURCE := preload("res://assets/authoring/post_office_20261116/room_pair.png")
+# The new supplied composite has two full 16:9 rooms and no guide seam.
+const REGIONS := [Rect2(0, 0, 2560, 1440), Rect2(2560, 0, 2560, 1440)]
+const DOOR_RECT := Rect2(78, 195, 444, 516)
 var room_index := 0
 var transitioning := false
 var navigation_allowed: Callable
@@ -115,7 +116,7 @@ func _image_node(node_name: String) -> TextureRect:
 	node.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	canvas.add_child(node)
-	LocalMotion.attach_room(node)
+	# Old book/page/notice masks target objects absent from this new painting.
 	return node
 
 func _arrow(node_name: String, at: Vector2, direction: int) -> SceneArrow:

@@ -1,3 +1,7 @@
+## 2026-11-16 — Supplied postal PSD replacement
+
+Selected the user's new 5120×1440 postal interior, exported from its saved PSD composite with pixel equality and unchanged-source checks. Both full room halves, new door/handle registration and removal of obsolete local-motion masks are covered by 55 scoped source checks. Old source artwork and current gameplay state remain preserved. See [POSTAL_PSD_REPLACEMENT_20261116.md](docs/testing/POSTAL_PSD_REPLACEMENT_20261116.md).
+
 ## 2026-11-16 — Rejected deformation removed
 
 The user reported that walking looked increasingly strange. Removed the boot shear/lift and unequal phase timing, restoring the prior original-pose cadence while retaining alpha cleanup and stable height. Source regression checks pass 163/163; this verifies containment, not resolution of the earlier sliding complaint. Concurrent main UI/audio/loading changes are preserved. See [WALK_DEFORMATION_ROLLBACK_20261116.md](docs/testing/WALK_DEFORMATION_ROLLBACK_20261116.md).

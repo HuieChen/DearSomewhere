@@ -810,7 +810,10 @@ func _post_office_room(index:int=0) -> void:
 	exit.name="PostOfficeExit"
 	# The painted handle supplies feedback; no floating tooltip over the door.
 	exit.interaction_allowed=func():return not busy and not is_instance_valid(modal) and not room.transitioning
-	UI.place(exit,stage,Rect2(Vector2(110,238)*source_scale,Vector2(376,488)*source_scale))
+	var door_rect:Rect2=PostOfficeInterior.DOOR_RECT
+	UI.place(exit,stage,Rect2(door_rect.position*source_scale,door_rect.size*source_scale))
+	exit.handle_from=Vector2(311,326)
+	exit.handle_to=Vector2(311,420)
 	exit.activated.connect(func():
 		if busy or is_instance_valid(modal) or room.transitioning:return
 		sound.play("door")
