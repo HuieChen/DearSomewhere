@@ -1,8 +1,8 @@
 extends Control
 ## Shared scene transition layer.
 ##
-## Long transitions use the supplied cover with a small transparent figure
-## and caption at the lower right. Short scene swaps
+## Long transitions use the approved paper background and centered transparent
+## figure with a plain Loading percentage. Short scene swaps
 ## crossfade directly from the previous framebuffer; no paper flash.
 
 const FRAME_PATHS := [
@@ -13,7 +13,7 @@ const FRAME_PATHS := [
     "res://assets/authoring/loading_20261114/frame_04.png",
     "res://assets/authoring/loading_20261114/frame_05.png",
 ]
-const COVER_TEXTURE_PATH := "res://assets/display_user/dear_somewhere_cover_USER_20261024.png"
+const PAPER_TEXTURE_PATH := "res://assets/authoring/loading_20261114/paper_texture.png"
 const FONT := preload("res://assets/fonts/DearRounded.tres")
 var locale := "zh"
 
@@ -29,11 +29,12 @@ var coverage := 0.0:
 var progress := 0.0:
     set(value):
         progress = clampf(float(value), 0.0, 1.0)
+        _refresh_caption()
         queue_redraw()
 var sound: Node
 var _frames: Array[Texture2D] = []
 var _frame_time := 0.0
-var _cover: TextureRect
+var _paper: TextureRect
 var _art: TextureRect
 var _caption: Label
 var _snapshot: TextureRect
@@ -57,15 +58,16 @@ func _ready() -> void:
     _snapshot.mouse_filter = Control.MOUSE_FILTER_IGNORE
     add_child(_snapshot)
 
-    _cover = TextureRect.new()
-    _cover.name = "LoadingCover"
-    var cover_pixels := Image.load_from_file(COVER_TEXTURE_PATH)
-    if cover_pixels != null:
-        _cover.texture = ImageTexture.create_from_image(cover_pixels)
-    _cover.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-    _cover.stretch_mode = TextureRect.STRETCH_SCALE
-    _cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    add_child(_cover)
+    _paper = TextureRect.new()
+    _paper.name = "LoadingPaper"
+    _paper.texture = load(PAPER_TEXTURE_PATH) as Texture2D
+    _paper.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    _paper.stretch_mode = TextureRect.STRETCH_TILE
+    _paper.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    var paper_material := ShaderMaterial.new()
+    paper_material.shader = load("res://scripts/ui/cotton_paper.gdshader")
+    _paper.material = paper_material
+    add_child(_paper)
 
     _art = TextureRect.new()
     _art.name = "SuppliedLoadingLineArt"
@@ -81,11 +83,10 @@ func _ready() -> void:
     _art.texture = _frames[0] if not _frames.is_empty() else null
     _caption = Label.new()
     _caption.name = "LoadingCaption"
-    _caption.text = "Loading…" if locale == "en" else "加载中…"
+    _caption.text = "Loading 0%"
     _caption.add_theme_font_override("font",FONT)
-    _caption.add_theme_color_override("font_color",Color("fff9ee"))
-    _caption.add_theme_color_override("font_shadow_color",Color(0.05,0.12,0.16,.65))
-    _caption.add_theme_constant_override("shadow_offset_y",2)
+    _caption.add_theme_color_override("font_color",Color("0059ae"))
+    _caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     _caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     _caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
     add_child(_caption)
@@ -106,22 +107,26 @@ func _notification(what: int) -> void:
         _layout()
 
 func _layout() -> void:
-    if not is_instance_valid(_cover):return
-    _cover.position = Vector2.ZERO
-    _cover.size = size
+    if not is_instance_valid(_paper):return
+    _paper.position = Vector2.ZERO
+    _paper.size = size
     _snapshot.position = Vector2.ZERO
     _snapshot.size = size
     var unit := minf(size.x / 1600.0,size.y / 900.0)
-    # One quiet lower-right group; a fixed caption avoids rhythmic layout jumps.
-    _art.size = Vector2(110,176)*unit
-    _art.position = size-Vector2(340,208)*unit
-    _caption.position = size-Vector2(218,100)*unit
-    _caption.size = Vector2(186,56)*unit
+    var center := size*0.5
+    _art.size = Vector2(400,550)*unit
+    _art.position = center+Vector2(-200,-365)*unit
+    _caption.position = center+Vector2(-200,220)*unit
+    _caption.size = Vector2(400,56)*unit
     _caption.add_theme_font_size_override("font_size",roundi(28*unit))
+
+func _refresh_caption() -> void:
+    if is_instance_valid(_caption):
+        _caption.text = "Loading %d%%" % roundi(progress*100.0)
 
 func _sync_visibility() -> void:
     var shown := coverage > 0.002
-    for child in [_cover,_art,_caption]:
+    for child in [_paper,_art,_caption]:
         if is_instance_valid(child):
             child.visible = shown and loading_enabled
             child.modulate.a = coverage
