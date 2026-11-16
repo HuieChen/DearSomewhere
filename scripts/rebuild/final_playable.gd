@@ -19,7 +19,7 @@ const SettingsPage = preload("res://scripts/ui/coastal_settings.gd")
 const FieldCamera = preload("res://scripts/ui/field_camera.gd")
 const CoverPaperButton = preload("res://scripts/ui/cover_paper_button.gd")
 const LOCATIONS = ["post_office","community_center","bus_stop","lookout","residential","chess_stall","tarot_shop"]
-const NAMES = {"post_office":"邮局","community_center":"社区中心","bus_stop":"海岸电车站","lookout":"观景台","residential":"海阶居民楼","chess_stall":"树下棋摊","tarot_shop":"塔楼屋"}
+const NAMES = {"post_office":"邮局","community_center":"社区中心","bus_stop":"海岸电车站","lookout":"观景台","residential":"海阶居民楼","chess_stall":"树下棋摊","tarot_shop":"塔罗店"}
 const PEOPLE = {"post_office":[],"community_center":["june_arlen","community_clerk"],"bus_stop":["chenyuan"],"lookout":["mira_vale"],"residential":["elsie_moran"],"chess_stall":["chenyuan"],"tarot_shop":[]}
 const PERSON_ART = {"mira_vale":"CHAR_mira","june_arlen":"CHAR_june","chenyuan":"CHAR_chenyuan","elsie_moran":"CHAR_elsie","community_clerk":"CHAR_clerk"}
 const DISPOSITION = {"deliver":"当面交付","delegate":"委托顺路交付","forward":"转至批准收信格","repair_and_reenter":"修复后重新入邮路","return_to_sender":"退回寄件人","hold_for_verification":"留待核实","unresolved_with_note":"记录未送原因","archive_review":"送交档案复核","file_officially":"归入正式档案","keep_at_desk":"留在 Desk B","supervisor_next_shift":"交下一班主管"}
@@ -441,11 +441,12 @@ func _fresh() -> void:
 		return
 	sound.play("paper")
 	# Starting a new journey is the one deliberate loading moment. The supplied
-	# line animation and wave bar get enough time to read before the counter is
-	# revealed; short in-game swaps below use a quiet paper fade instead.
+	# centered figure and progress caption stay visible before the counter is
+	# revealed; short in-game swaps retain the scene crossfade.
 	busy=true
 	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
 	fade.sound=sound
+	fade.locale=preferences.values.language
 	UI.place(fade,self,Rect2(0,0,1600,900))
 	await fade.cover(true)
 	if not is_inside_tree():return
@@ -1486,6 +1487,7 @@ func _change_scene(build:Callable)->void:
 	if is_instance_valid(walker):walker.cancel();walker.manual_enabled=false
 	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
 	fade.sound=sound
+	fade.locale=preferences.values.language
 	fade.set_loading_enabled(false)
 	UI.place(fade,self,Rect2(0,0,1600,900))
 	await fade.cover(false)
@@ -1519,6 +1521,7 @@ func _depart(id:String,minutes:int,_map:Control=null) -> void:
 		await get_tree().create_timer(0.28).timeout
 	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
 	fade.sound=sound
+	fade.locale=preferences.values.language
 	var show_loading:=minutes > 15
 	fade.set_loading_enabled(show_loading)
 	UI.place(fade,self,Rect2(0,0,1600,900))

@@ -31,17 +31,17 @@ func run() -> void:
     await process_frame
     check(overlay._frames.size() == 6, "six supplied loading frames loaded")
     check(overlay._frames[0].get_width() > 0, "loading frame has pixels")
-    check(not overlay._art.visible and not overlay._bar.visible, "new transition begins transparent")
+    check(not overlay._art.visible and not overlay._caption.visible, "new transition begins transparent")
     check(overlay._frames[0].get_width() < 900, "alpha-only common bounds exclude hidden RGB matte")
     var first_image:Image = overlay._frames[0].get_image()
     check(first_image.get_pixel(0,0).a < 0.01, "native transparent frame corner")
-    check(absf(overlay._art.position.x + overlay._art.size.x*0.5 - 800.0)<1, "line art horizontally centered")
-    check(overlay._art.size.y >= 500.0, "large line art composition")
+    check(absf(overlay._art.get_rect().get_center().x-800)<1, "transparent figure stays centered")
+    check(overlay._art.size.y >= 500.0, "approved large figure composition")
     overlay.coverage = 1.0
     overlay.set_progress(0.65)
-    check(is_equal_approx(overlay.progress, 0.65), "progress value is exposed")
-    check(overlay._bar.texture.resource_path.ends_with("loading_bar_source.png"), "supplied wave image used")
-    check(overlay._paper.texture != null, "paper texture loaded")
+    check(is_equal_approx(overlay.progress, 0.65) and overlay._caption.text=="Loading 65%", "caption reflects supplied progress")
+    check(overlay.find_child("SuppliedWaveLoadingBar",true,false)==null, "no wave distortion or progress strip remains")
+    check(overlay._paper.texture != null, "approved paper background restored")
     if DisplayServer.get_name() != "headless":
         await process_frame
         RenderingServer.force_draw(false)
@@ -64,12 +64,19 @@ func run() -> void:
         await create_timer(0.65).timeout
         RenderingServer.force_draw(false)
         viewport.get_texture().get_image().save_png(output_directory.path_join("loading.png"))
+    for dims:Vector2i in [Vector2i(1280,720),Vector2i(1920,1080),Vector2i(2560,1440)]:
+        overlay.size=Vector2(dims)
+        overlay._layout()
+        check(Rect2(Vector2.ZERO,overlay.size).encloses(overlay._art.get_rect()) and Rect2(Vector2.ZERO,overlay.size).encloses(overlay._caption.get_rect()),"centered group fits "+str(dims))
+        check(not overlay._art.get_rect().intersects(overlay._caption.get_rect()),"figure and caption remain separate "+str(dims))
+    overlay.size=Vector2(1600,900)
+    overlay._layout()
     await overlay.uncover()
-    check(overlay.coverage < 0.01, "uncover returns to gameplay")
-    check(not overlay._bar.visible and not overlay._art.visible and not overlay._paper.visible, "all children disappear on the final fade frame")
+    check(overlay.coverage < 0.01 and overlay._caption.text=="Loading 100%", "uncover completes percentage and returns to gameplay")
+    check(not overlay._caption.visible and not overlay._art.visible and not overlay._paper.visible, "all children disappear on the final fade frame")
     await overlay.cover(false)
-    check(not overlay._art.visible and not overlay._bar.visible, "short transition skips loading composition")
-    check(not overlay._paper.visible, "short transition never exposes ivory loading paper")
+    check(not overlay._art.visible and not overlay._caption.visible, "short transition skips loading composition")
+    check(not overlay._paper.visible, "short transition never exposes loading cover")
     if DisplayServer.get_name() != "headless":
         check(overlay._snapshot.texture != null, "short transition retains previous framebuffer")
         background.color=Color("375b76")
