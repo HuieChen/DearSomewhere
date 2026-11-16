@@ -1,0 +1,18 @@
+{
+  "name": "Siri",
+  "location": "market",
+  "source_filename": "我(1).png",
+  "sha256": "a790f3f0e038eb07a19ea02523b501538c763e35508631dc949e4de49f27a5f3",
+  "unchanged_source": true,
+  "alpha_bounds": [
+    308,
+    367,
+    1386,
+    2033
+  ],
+  "render_height": 250,
+  "foot": [
+    9850,
+    850
+  ]
+}

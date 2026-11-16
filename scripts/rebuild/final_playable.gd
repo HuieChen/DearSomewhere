@@ -519,7 +519,7 @@ func _world(arrival:String="") -> void:
 	road.courier.z_index=2
 	# Supplied street figures retain their original transparent pixels. They are
 	# ambient neighbours; no invented dialogue or false interaction affordance.
-	for figure:Array in [["postal","Naonao","naonao.png",Vector2(1060,850),300.0,Rect2i(112,91,306,799)],["community","FoodTruckGuest","hoodie_guest.png",Vector2(11730,850),305.0,Rect2i(1514,155,380,771)],["coastal","TarotGuest","tarot_guest.png",Vector2(1220,850),305.0,Rect2i(2151,165,309,750)]]:
+	for figure:Array in [["postal","Naonao","naonao.png",Vector2(1060,850),300.0,Rect2i(112,91,306,799)],["community","FoodTruckGuest","hoodie_guest.png",Vector2(11730,850),305.0,Rect2i(1514,155,380,771)],["coastal","TarotGuest","tarot_guest.png",Vector2(1220,850),305.0,Rect2i(2151,165,309,750)],["community","Siri","siri.png",Vector2(9850,850),250.0,Rect2i(308,367,1386,2033)]]:
 		if road.family!=figure[0]:continue
 		var pixels:=Image.load_from_file("res://assets/authoring/neighbours_20261109/"+figure[2])
 		pixels.generate_mipmaps()
@@ -818,6 +818,7 @@ func _post_office_room(index:int=0) -> void:
 	room.navigation_allowed=func():return not busy and not is_instance_valid(modal)
 	room.name="PostOfficeInterior"
 	room.room_index=post_office_room_index
+	room.postcard_requested.connect(func(card:Dictionary,origin:Rect2):_inspect_postcard(card,origin,room))
 	UI.place(room,stage,Rect2(0,0,1600,900))
 	# The production host owns Escape and pause; the standalone review close
 	# button has no campaign action and is not part of this room.
@@ -826,12 +827,10 @@ func _post_office_room(index:int=0) -> void:
 	var source_scale:=Vector2(1600,900)/Vector2(1920,1080)
 	var exit:=preload("res://scripts/ui/post_office_door.gd").new()
 	exit.name="PostOfficeExit"
-	# The painted handle supplies feedback; no floating tooltip over the door.
+	# The full painted doorway is clickable; no overlay or handle animation.
 	exit.interaction_allowed=func():return not busy and not is_instance_valid(modal) and not room.transitioning
 	var door_rect:Rect2=PostOfficeInterior.DOOR_RECT
 	UI.place(exit,stage,Rect2(door_rect.position*source_scale,door_rect.size*source_scale))
-	exit.handle_from=Vector2(311,326)
-	exit.handle_to=Vector2(311,420)
 	exit.activated.connect(func():
 		if busy or is_instance_valid(modal) or room.transitioning:return
 		sound.play("door")
@@ -852,6 +851,22 @@ func _post_office_room(index:int=0) -> void:
 		desk.visible=false)
 	_hud("post_office",false)
 	_footer()
+
+func _inspect_postcard(card:Dictionary,origin:Rect2,room:Control)->void:
+	if busy or is_instance_valid(modal) or not is_instance_valid(room) or room.room_index!=0:return
+	var paper:=preload("res://scripts/ui/postal_postcard_view.gd").new()
+	paper.card=card
+	var inverse:=get_global_transform().affine_inverse()
+	paper.origin=Rect2(inverse*origin.position,(inverse*origin.end)-(inverse*origin.position))
+	paper.locale=preferences.values.language
+	room.postcard_rack.set_held(str(card.id))
+	modal=paper
+	UI.place(paper,self,Rect2(0,0,1600,900))
+	paper.cue.connect(sound.play)
+	paper.closed.connect(func():_close())
+	paper.tree_exiting.connect(func():
+		if is_instance_valid(room) and is_instance_valid(room.postcard_rack):room.postcard_rack.set_held(""))
+	sound.play("paper")
 
 func _counter() -> void:
 	_new_stage("counter")

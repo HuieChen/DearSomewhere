@@ -9,6 +9,7 @@ signal pending_save_finished
 signal cue(kind:String)
 const FONT=preload("res://assets/fonts/DearRounded.tres")
 const Metadata=preload("res://scripts/ui/media_metadata.gd")
+const ToolUI=preload("res://scripts/ui/field_tool_ui.gd")
 const ART="res://assets/authoring/camera_20261105/viewfinder.png"
 const DESIGN:=Vector2(1600,900)
 var locale:="zh"
@@ -143,23 +144,23 @@ func _ready()->void:
 		var focus_atlas:=AtlasTexture.new();focus_atlas.atlas=texture;focus_atlas.region=Rect2(638,285,388,262);focus_atlas.filter_clip=true
 		_focus_marks=TextureRect.new();_focus_marks.name="FocusMarks";_focus_marks.texture=focus_atlas;_focus_marks.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;_focus_marks.mouse_filter=Control.MOUSE_FILTER_IGNORE
 		_place(_focus_marks,canvas,Rect2(645,345,310,209))
-	var heading:=_label(_t("相机","Camera"),Rect2(80,60,300,42),30)
+	var heading:=_label(_t("相机","Camera"),ToolUI.TITLE,30)
 	heading.name="CameraHeading"
-	_format_button=_button(_t("横向照片  ⇄  R","Landscape  ⇄  R"),Rect2(540,65,520,48),24)
+	_format_button=_button(_t("横向照片  ⇄  R","Landscape  ⇄  R"),ToolUI.STATUS,20)
 	_format_button.name="PhotoFormat";_format_button.tooltip_text=_t("切换相纸 · R","Switch format · R");_format_button.pressed.connect(_toggle_format)
 	count_label=_label("",Rect2(1130,60,280,42),24,HORIZONTAL_ALIGNMENT_RIGHT)
-	_label(location_caption,Rect2(270,800,430,38),22)
+	_label(location_caption,ToolUI.LOCATION,22)
 	shutter=ArtButton.new();shutter.name="CameraShutter";shutter.round_hit=true
 	if texture:
 		var button_atlas:=AtlasTexture.new();button_atlas.atlas=texture;button_atlas.region=Rect2(744,754,182,182);button_atlas.filter_clip=true;shutter.art=button_atlas
-	_place(shutter,canvas,Rect2(748,724,104,104));shutter.tooltip_text=_t("拍照 · C","Take photo · C");shutter.pressed.connect(take_photo)
-	_label("C",Rect2(755,831,90,26),18,HORIZONTAL_ALIGNMENT_CENTER)
-	thumbnail=ArtButton.new();thumbnail.name="LastPhoto";thumbnail.tooltip_text=_t("查看照片","View photos");_place(thumbnail,canvas,Rect2(82,760,120,84));thumbnail.pressed.connect(func():_show_review(_thumbnail_index))
+	_place(shutter,canvas,ToolUI.TRIGGER);shutter.tooltip_text=_t("拍照 · C","Take photo · C");shutter.pressed.connect(take_photo)
+	_label("C",ToolUI.TRIGGER_HINT,18,HORIZONTAL_ALIGNMENT_CENTER)
+	thumbnail=ArtButton.new();thumbnail.name="LastPhoto";thumbnail.tooltip_text=_t("查看照片","View photos");_place(thumbnail,canvas,Rect2(82,776,96,68));thumbnail.pressed.connect(func():_show_review(_thumbnail_index))
 	status_label=_label("",Rect2(950,788,450,42),23);status_label.hide()
 	if pan_provider.is_valid() and not gallery_only:
-		_label(_t("拖动取景 · 方向键微调","Drag to frame · Arrow keys"),Rect2(1080,680,380,36),19,HORIZONTAL_ALIGNMENT_CENTER)
-		for spec:Array in [["ZoomOut","−",1100.0],["ResetComposition",_t("复位","Reset"),1190.0],["ZoomIn","+",1340.0]]:
-			var control:=_button(str(spec[1]),Rect2(float(spec[2]),725,140 if spec[0]=="ResetComposition" else 70,48),25)
+		_label(_t("拖动取景 · 方向键微调","Drag to frame · Arrow keys"),Rect2(1180,697,260,28),16,HORIZONTAL_ALIGNMENT_CENTER)
+		for spec:Array in [["ZoomOut","−",1216.0],["ResetComposition",_t("复位","Reset"),1270.0],["ZoomIn","+",1374.0]]:
+			var control:=_button(str(spec[1]),Rect2(float(spec[2]),735,94 if spec[0]=="ResetComposition" else 44,38),20)
 			control.name=str(spec[0]);_composition_buttons.append(control)
 			if spec[0]=="ResetComposition":control.pressed.connect(func():if _can_pan() and reset_provider.is_valid():reset_provider.call())
 			else:control.pressed.connect(func():
@@ -172,13 +173,13 @@ func _ready()->void:
 		if node is CanvasItem:_live_nodes.append(node)
 	if lab!=null:
 		lab.build(canvas)
-		_actor_button=_button(_t("人物：显示","Character: on"),Rect2(420,128,300,48),24)
+		_actor_button=_button(_t("人物：显示","Character: on"),ToolUI.SECOND_ACTION,20)
 		_actor_button.name="CameraActor"
 		_actor_button.pressed.connect(func():
 			include_actor=not include_actor
 			_actor_button.text=_t("人物：显示","Character: on") if include_actor else _t("人物：隐藏","Character: off")
 			actor_visibility_changed.emit(include_actor))
-	var close:=_button("×",Rect2(1470,42,74,68),42);close.name="CloseCamera";close.tooltip_text=_t("关闭相机","Close camera");close.pressed.connect(_request_close)
+	var close:=_button("×",ToolUI.CLOSE,30);close.name="CloseCamera";close.tooltip_text=_t("关闭相机","Close camera");close.pressed.connect(_request_close)
 	_build_review();_refresh_count();_refresh_thumbnail()
 	_favorite=_button(_t("收藏","Favorite"),Rect2(650,22,300,48),24)
 	_favorite.name="FavoritePhoto";_favorite.reparent(_review)
@@ -214,15 +215,9 @@ func _fit_review_print()->void:
 	_caption_editor.size=Vector2(424,132) if square else Vector2(804,78)
 	_review_paper.queue_redraw()
 func _label(text:String,rect:Rect2,font_size:int,align:HorizontalAlignment=HORIZONTAL_ALIGNMENT_LEFT)->Label:
-	var label:=Label.new();label.text=text;label.horizontal_alignment=align;label.vertical_alignment=VERTICAL_ALIGNMENT_CENTER;label.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_override("font",FONT);label.add_theme_font_size_override("font_size",font_size);label.add_theme_color_override("font_color",Color("fff5dc"));label.add_theme_color_override("font_shadow_color",Color(0.25,0.25,0.19,0.8));label.add_theme_constant_override("shadow_offset_x",1);label.add_theme_constant_override("shadow_offset_y",2)
-	_place(label,canvas,rect);return label
+	return ToolUI.label(canvas,text,rect,font_size,align)
 func _button(text:String,rect:Rect2,font_size:int)->Button:
-	var button:=Button.new();button.text=text;button.flat=true;button.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
-	button.add_theme_font_override("font",FONT);button.add_theme_font_size_override("font_size",font_size)
-	preload("res://scripts/ui/paper_ui.gd").apply_button_style(button)
-	button.flat=false
-	_place(button,canvas,rect);return button
+	return ToolUI.button(canvas,text,rect,font_size)
 func _build_review()->void:
 	_review=Control.new();_review.name="PhotoReview";_review.mouse_filter=Control.MOUSE_FILTER_STOP;_place(_review,canvas,Rect2(Vector2.ZERO,DESIGN));_review.hide()
 	var shade:=ColorRect.new();shade.color=Color(0.08,0.12,0.10,0.72);shade.mouse_filter=Control.MOUSE_FILTER_IGNORE;_place(shade,_review,Rect2(Vector2.ZERO,DESIGN))

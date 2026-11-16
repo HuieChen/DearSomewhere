@@ -3,6 +3,7 @@ signal closed
 signal cue(kind:String)
 signal recording_saved(path:String)
 const UI=preload("res://scripts/ui/paper_ui.gd")
+const ToolUI=preload("res://scripts/ui/field_tool_ui.gd")
 const Metadata=preload("res://scripts/ui/media_metadata.gd")
 const FONT=preload("res://assets/fonts/DearRounded.tres")
 const BUS:="SolmereAmbience"
@@ -57,33 +58,34 @@ func _ready()->void:
 	if is_instance_valid(road) and is_instance_valid(road.courier):road.courier.manual_enabled=true
 	_page=Control.new();UI.place(_page,self,Rect2(0,0,1600,900));_page.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	var surface:=Control.new();surface.name="RecordingWalkSurface";UI.place(surface,_page,Rect2(0,0,1600,900));surface.mouse_default_cursor_shape=Control.CURSOR_CROSS;surface.gui_input.connect(_aim_input)
-	# A single quiet control dock keeps the panorama and character unobstructed.
-	var instrument:=Control.new();instrument.name="RecorderDock";UI.place(instrument,_page,Rect2(340,24,920,98));instrument.mouse_filter=Control.MOUSE_FILTER_STOP
+	# Match the camera's small actions and edge anchors; leave the panorama clear.
+	var instrument:=Control.new();instrument.name="RecorderDock";UI.place(instrument,_page,ToolUI.STATUS);instrument.mouse_filter=Control.MOUSE_FILTER_STOP
 	instrument.draw.connect(func():
-		var paper:=StyleBoxFlat.new();paper.bg_color=UI.ACTION_PAPER;paper.set_corner_radius_all(24);paper.shadow_color=Color(0.14,0.17,0.12,.15);paper.shadow_size=5;paper.shadow_offset=Vector2(0,4)
-		instrument.draw_style_box(paper,Rect2(Vector2.ZERO,instrument.size))
-		instrument.draw_line(Vector2(252,22),Vector2(252,76),Color("d9cfb8"),1.0))
-	var style:=StyleBoxFlat.new();style.bg_color=UI.ACTION_PAPER;style.set_corner_radius_all(18);style.shadow_size=8;style.shadow_color=Color(0,0,0,.14)
-	label(t("录音机","FIELD RECORDER"),Rect2(370,79,132,24),16)
-	clock_label=label("00:00",Rect2(499,42,82,32),27)
-	mode_label=label(t("监听","MONITOR"),Rect2(392,46,102,24),17)
-	status=label("",Rect2(510,83,218,26),16);status.clip_text=true;status.tooltip_text=""
-	record_button=button("",Rect2(740,39,68,68),toggle_recording);record_button.name="RecordToggle";record_button.tooltip_text=t("R · 开始 / 停止录音","R · Start / stop recording");record_button.accessibility_name=t("录音 / 停止","Record / stop")
-	for state:String in ["normal","hover","pressed","disabled"]:
-		var circle:=StyleBoxFlat.new();circle.bg_color=Color("b86050") if state=="normal" else (Color("a34c40") if state=="pressed" else Color("c77260"));circle.set_corner_radius_all(34)
+		var paper:=StyleBoxFlat.new();paper.bg_color=UI.ACTION_PAPER;paper.set_corner_radius_all(14)
+		instrument.draw_style_box(paper,Rect2(Vector2.ZERO,instrument.size)))
+	var style:=StyleBoxFlat.new();style.bg_color=UI.ACTION_PAPER;style.set_corner_radius_all(18)
+	ToolUI.label(_page,t("录音机","Recorder"),ToolUI.TITLE,30).name="RecorderHeading"
+	ToolUI.label(_page,location_caption,ToolUI.LOCATION,22)
+	clock_label=label("00:00",Rect2(770,69,72,30),20)
+	mode_label=label(t("监听","MONITOR"),Rect2(665,69,99,30),18)
+	status=ToolUI.label(_page,"",Rect2(1030,794,450,38),18);status.clip_text=true;status.tooltip_text=""
+	record_button=button("",ToolUI.TRIGGER,toggle_recording);record_button.name="RecordToggle";record_button.tooltip_text=t("R · 开始 / 停止录音","R · Start / stop recording");record_button.accessibility_name=t("录音 / 停止","Record / stop")
+	for state:String in ["normal","hover","pressed","hover_pressed","disabled"]:
+		var circle:=StyleBoxFlat.new();circle.bg_color=Color("b86050") if state=="normal" else (Color("a34c40") if state in ["pressed","hover_pressed"] else Color("c77260"));circle.set_corner_radius_all(44)
 		record_button.add_theme_stylebox_override(state,circle)
-	var record_focus:=StyleBoxFlat.new();record_focus.bg_color=Color.TRANSPARENT;record_focus.set_corner_radius_all(36);record_focus.set_border_width_all(2);record_focus.border_color=UI.ACTION_INK;record_focus.expand_margin_left=4;record_focus.expand_margin_top=4;record_focus.expand_margin_right=4;record_focus.expand_margin_bottom=4;record_button.add_theme_stylebox_override("focus",record_focus)
+	var record_focus:=StyleBoxFlat.new();record_focus.bg_color=Color.TRANSPARENT;record_focus.set_corner_radius_all(46);record_focus.set_border_width_all(2);record_focus.border_color=UI.ACTION_INK;record_focus.expand_margin_left=4;record_focus.expand_margin_top=4;record_focus.expand_margin_right=4;record_focus.expand_margin_bottom=4;record_button.add_theme_stylebox_override("focus",record_focus)
 	record_button.draw.connect(func():
 		if recording:
-			var stop:=StyleBoxFlat.new();stop.bg_color=Color("fff4dd");stop.set_corner_radius_all(4);record_button.draw_style_box(stop,Rect2(23,23,22,22))
-		else:record_button.draw_circle(Vector2(34,34),13,Color("fff4dd")))
-	play_button=button(t("P  回听","P  Play"),Rect2(834,47,112,48),toggle_playback);play_button.name="PlaybackToggle"
-	library_button=button(t("录音列表","Recordings"),Rect2(962,47,174,48),_toggle_library);library_button.name="RecordingLibrary"
-	button("×",Rect2(1174,47,50,48),request_close).name="CloseRecorder"
+			var stop:=StyleBoxFlat.new();stop.bg_color=UI.ACTION_PAPER;stop.set_corner_radius_all(4);record_button.draw_style_box(stop,Rect2(31,31,26,26))
+		else:record_button.draw_circle(Vector2(44,44),16,UI.ACTION_PAPER))
+	ToolUI.label(_page,"R",ToolUI.TRIGGER_HINT,18,HORIZONTAL_ALIGNMENT_CENTER)
+	play_button=button(t("P  回听","P  Play"),ToolUI.FIRST_ACTION,toggle_playback);play_button.name="PlaybackToggle"
+	library_button=button(t("录音列表","Recordings"),ToolUI.SECOND_ACTION,_toggle_library);library_button.name="RecordingLibrary"
+	var close:=button("×",ToolUI.CLOSE,request_close);close.name="CloseRecorder";close.add_theme_font_size_override("font_size",30);close.tooltip_text=t("关闭录音机","Close recorder")
 	visual_hint=CheckButton.new();visual_hint.text=t("方向提示 · H","Direction hints · H");visual_hint.add_theme_font_override("font",FONT);visual_hint.add_theme_font_size_override("font_size",18);visual_hint.add_theme_color_override("font_color",UI.ACTION_INK)
 	visual_hint.toggled.connect(func(_enabled:bool):cue.emit("paper"))
 	visual_hint.visible=is_instance_valid(road)
-	var list_panel:=Panel.new();list_panel.add_theme_stylebox_override("panel",style);UI.place(list_panel,_page,Rect2(1030,150,510,550));list_panel.hide()
+	var list_panel:=Panel.new();list_panel.add_theme_stylebox_override("panel",style);UI.place(list_panel,_page,Rect2(64,188,510,550));list_panel.hide()
 	UI.place(visual_hint,list_panel,Rect2(18,510,474,32))
 	library=ItemList.new();library.add_theme_font_override("font",FONT);library.add_theme_font_size_override("font_size",21);UI.place(library,list_panel,Rect2(18,22,474,415));library.item_selected.connect(_select)
 	library.focus_entered.connect(_release_movement)
@@ -109,8 +111,10 @@ func _ready()->void:
 func label(text:String,rect:Rect2,px:int)->Label:
 	var value:=UI.label(_page,text,rect,px,UI.ACTION_INK);value.autowrap_mode=TextServer.AUTOWRAP_OFF;value.clip_text=true;value.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS;value.size=rect.size;value.mouse_filter=Control.MOUSE_FILTER_IGNORE;return value
 func button(text:String,rect:Rect2,callback:Callable)->Button:
-	var value:=UI.button(_page,text,rect,callback);value.flat=false;value.add_theme_font_override("font",FONT);value.add_theme_font_size_override("font_size",21)
-	UI.apply_button_style(value,true)
+	var value:=ToolUI.button(_page,text,rect);value.pressed.connect(callback)
+	value.add_child(preload("res://scripts/ui/button_press_feedback.gd").new());value.pivot_offset=rect.size*.5
+	value.mouse_entered.connect(func():UI._play_sound(value,"title_hover"))
+	value.button_down.connect(func():UI._play_sound(value,"title_click"))
 	return value
 func allows_world_walk()->bool:
 	return not _closing and is_instance_valid(road) and not library.get_parent().visible
@@ -177,12 +181,12 @@ func _process(delta:float)->void:
 	status.tooltip_text=status.text
 	_ink.queue_redraw()
 func _draw_feedback()->void:
-	_ink.draw_circle(Vector2(376,58),4,Color("b25949") if recording else Color("91a78c"))
+	_ink.draw_circle(Vector2(653,84),3,Color("b25949") if recording else Color("91a78c"))
 	for channel in 2:
 		var normalized:=clampf((linear_to_db(maxf(levels[channel],.00001))+60.0)/60.0,0.0,1.0)
 		for i in 22:
 			var color:=Color("739781") if float(i)/22.0<normalized else Color("d8d8c5")
-			_ink.draw_rect(Rect2(612+i*5,52+channel*12,3,5),color)
+			_ink.draw_rect(Rect2(850+i*4,76+channel*11,2,5),color)
 
 	if visual_hint.button_pressed:
 		_ink.draw_arc(aim_point,16,0,TAU,24,Color("fff3d5"),2,true)

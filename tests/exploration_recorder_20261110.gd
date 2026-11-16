@@ -100,7 +100,8 @@ func run():
 	for child:Node in recorder._page.get_children():
 		if child is Panel and child.visible:visible_panels+=1
 	check(visible_panels==0,"No opaque panel remains during field monitoring")
-	var clear:=Rect2(400,170,800,600)
+	# Shared field-tool controls occupy the top and bottom edges, like the camera.
+	var clear:=Rect2(400,170,800,530)
 	for control:Control in [recorder.record_button,recorder.play_button,recorder.clock_label,recorder.status,recorder.visual_hint,recorder.library_button]:
 		var at:Vector2=recorder._page.get_global_transform().affine_inverse()*control.global_position
 		print("RECORDER_RECT ",control.name," ",at," ",control.size)

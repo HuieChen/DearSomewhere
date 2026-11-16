@@ -37,6 +37,13 @@ def selection(retained_paths=()):
             or hashlib.sha256((ROOT / room_path[6:]).read_bytes()).hexdigest() != current.get('sha256')
             or current.get('sha256') != 'b7ff790a70d11f9212c2b91781434ea9ca710f2d5fa8aa8004b1d82d3fe71e21'):
         raise ValueError('New postal PSD composite differs from the authorized export.')
+    card_dir = ROOT / 'assets/authoring/post_office_20261116/postcards'
+    card_data = json.loads((card_dir / 'cards.json').read_text(encoding='utf-8'))
+    if card_data.get('source_sha256') != current['source_sha256'] or card_data.get('ai_generated') is not False:
+        raise ValueError('Postcard layers must come from the authorized PSD.')
+    for name, expected in card_data['files'].items():
+        if Path(name).name != name or not name.endswith('.png') or hashlib.sha256((card_dir/name).read_bytes()).hexdigest() != expected:
+            raise ValueError('Postcard layer export differs from its source receipt.')
     paths = {'res://scenes/final_slice.tscn',
              'res://assets/authoring/neighbours_20261109/naonao.png',
              'res://assets/authoring/neighbours_20261109/food_truck_guest.png',
@@ -135,6 +142,7 @@ def refreshed_source(source):
     patterns.append('assets/authoring/courier_walk_20261110/walk.json')
     patterns.append('assets/authoring/courier_walk_20261110/runtime_registration.json')
     patterns.extend(['assets/authoring/post_office_20261116/room_pair.png', 'assets/authoring/post_office_20261116/provenance.json'])
+    patterns.extend(['assets/authoring/post_office_20261116/postcards/cards.json', 'assets/authoring/post_office_20261116/postcards/*.png'])
     patterns.extend('assets/authoring/courier_walk_20261110/walk_%02d.png' % i for i in range(12))
     patterns.extend(['assets/authoring/neighbours_20261109/naonao.png', 'assets/authoring/neighbours_20261109/food_truck_guest.png', 'assets/authoring/neighbours_20261109/provenance.json'])
     includes = ','.join(dict.fromkeys(patterns))
