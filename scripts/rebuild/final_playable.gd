@@ -441,7 +441,7 @@ func _fresh() -> void:
 		return
 	sound.play("paper")
 	# Starting a new journey is the one deliberate loading moment. The supplied
-	# cover and lower-right loading figure stay visible before the counter is
+	# centered figure and progress caption stay visible before the counter is
 	# revealed; short in-game swaps retain the scene crossfade.
 	busy=true
 	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
