@@ -9,6 +9,7 @@ const Art = preload("res://scripts/rebuild/physical_art.gd")
 const Authored = preload("res://scripts/rebuild/authored_dialogue_art.gd")
 const ManagedSession=preload("res://scripts/rebuild/authored_dialogue_session.gd")
 const Cast=preload("res://scripts/rebuild/authored_cast.gd")
+const Handwriting=preload("res://scripts/rebuild/character_handwriting.gd")
 const WORDS := Color("493c30")
 const ACCENT := Color("217b87")
 const CHOICES_PER_PAGE := 4
@@ -60,7 +61,8 @@ func set_line(speaker:String,_line:String)->void:
 	_line_transition=create_tween()
 	_line_transition.tween_property(_spoken,"modulate:a",0.0,0.06)
 	_line_transition.tween_callback(func():
-		_speaker=speaker;_speaker_label.text=speaker;_authored_text=_line;_spoken.text=_line if authored_text_enabled else SPOKEN_TEXT
+		_speaker=speaker;_speaker_label.text=speaker;_authored_text=_line
+		Handwriting.apply(_spoken,_speaker_label,_speaker,_line if authored_text_enabled else SPOKEN_TEXT)
 		_reveal=0.0;_spoken.visible_characters=0 if _text_rate>0.0 else -1
 		_fit_spoken_line.call_deferred(_spoken)
 		_speaker_emphasis()
@@ -174,7 +176,8 @@ func _render() -> void:
 			var button:=_text_button(str(choice.get("text","")),Rect2(378,696+(index-first)*37,850,36))
 			button.name="Choice_"+str(choice.get("id",index));button.alignment=HORIZONTAL_ALIGNMENT_LEFT
 			button.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-			button.add_theme_font_size_override("font_size",21)
+			button.add_theme_font_size_override("font_size",23)
+			button.add_theme_font_override("font",Handwriting.font_for("Anne"))
 			button.pressed.connect(func():_choose(str(choice.get("id",index))))
 		if _choice_page>0:
 			var previous:=_text_button("‹",Rect2(389,831,84,45));previous.name="ChoicePagePrevious"
@@ -188,6 +191,7 @@ func _render() -> void:
 		_spoken.add_theme_font_size_override("normal_font_size",26)
 		_spoken.add_theme_constant_override("line_separation",6)
 		UI.place(_spoken,self,Rect2(378,728,840,109))
+		Handwriting.apply(_spoken,_speaker_label,_speaker,_authored_text if authored_text_enabled else SPOKEN_TEXT)
 		# The supplied paper already contains its drawn down arrow.
 		var next:=_text_button("",Rect2(744,835,112,42));next.name=advance_name
 		next.add_theme_font_size_override("font_size",20);next.pressed.connect(_advance)

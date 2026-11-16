@@ -24,7 +24,8 @@
     "石泳琪": "咸鱼",
     "摊主": "咸鱼",
     "餐车摊主": "咸鱼",
-    "塔罗师": "夏透明"
+    "塔罗师": "夏透明",
+    "巫巫": "cici"
   },
   "chapters": [
     {
@@ -334,9 +335,9 @@
         },
         {
           "speaker": "尘缘",
-          "text": "(笑了笑，眼睛望向了远方)说来就有些话长了……以前手机联系还不像现在这样方便，我和她也不在同一座城市，所以每次月假后也许又要等上一两个星期才能再度联系上，期间便是靠着这信互诉肺腑",
+          "text": "说来就有些话长了……以前手机联系还不像现在这样方便，我和她也不在同一座城市，所以每次月假后也许又要等上一两个星期才能再度联系上，期间便是靠着这信互诉肺腑",
           "source_id": "c17_0525",
-          "direction": ""
+          "direction": "(笑了笑，眼睛望向了远方)"
         },
         {
           "speaker": "尘缘",
@@ -2888,8 +2889,8 @@
       "scene": "开场",
       "kind": "dialogue",
       "speaker": "Anne",
-      "text": "(惊讶）没想到它们还会分工，使得好一手声东击西之计",
-      "direction": "",
+      "text": "没想到它们还会分工，使得好一手声东击西之计",
+      "direction": "(惊讶）",
       "source": "9，14，16.docx",
       "position": "p16–p17",
       "actor": "courier",
@@ -3148,8 +3149,8 @@
       "scene": "开场",
       "kind": "dialogue",
       "speaker": "cici",
-      "text": "(无奈地笑了笑)她这次换地方，没来得及通知任何人",
-      "direction": "",
+      "text": "她这次换地方，没来得及通知任何人",
+      "direction": "(无奈地笑了笑)",
       "source": "9，14，16.docx",
       "position": "p87–p88",
       "actor": "community",
@@ -3577,8 +3578,8 @@
       "scene": "开场",
       "kind": "dialogue",
       "speaker": "Anne",
-      "text": "(指着小黑板）你每天收摊前都会留一份饭吗？",
-      "direction": "",
+      "text": "你每天收摊前都会留一份饭吗？",
+      "direction": "(指着小黑板）",
       "source": "9，14，16.docx",
       "position": "p201",
       "actor": "courier",
@@ -3850,8 +3851,8 @@
       "scene": "①地点：邮局。场景：收到封口完整的普通信。",
       "kind": "dialogue",
       "speaker": "Anne",
-      "text": "(掂了掂信封）很轻，不像是装了纸的感觉",
-      "direction": "",
+      "text": "很轻，不像是装了纸的感觉",
+      "direction": "(掂了掂信封）",
       "source": "17一张空白纸.docx",
       "position": "p6",
       "actor": "courier",
@@ -3928,8 +3929,8 @@
       "scene": "②地点：公交终点站附近。场景：确认收件人",
       "kind": "dialogue",
       "speaker": "尘缘",
-      "text": "(微笑)我想那大概是我，不过你找我有什么事吗？",
-      "direction": "",
+      "text": "我想那大概是我，不过你找我有什么事吗？",
+      "direction": "(微笑)",
       "source": "17一张空白纸.docx",
       "position": "p17",
       "actor": "FoodTruckGuest",
@@ -3954,8 +3955,8 @@
       "scene": "②地点：公交终点站附近。场景：确认收件人",
       "kind": "dialogue",
       "speaker": "尘缘",
-      "text": "(微笑）就像这周三，也就是今天一样，坐环镇线过来，在这点上一杯七分甜牛乳茶",
-      "direction": "",
+      "text": "就像这周三，也就是今天一样，坐环镇线过来，在这点上一杯七分甜牛乳茶",
+      "direction": "(微笑）",
       "source": "17一张空白纸.docx",
       "position": "p19",
       "actor": "FoodTruckGuest",
@@ -4110,8 +4111,8 @@
       "scene": "④地点：公交终点站附近。场景：尘缘聊约定的来历",
       "kind": "dialogue",
       "speaker": "尘缘",
-      "text": "(笑了笑，眼睛望向了远方)说来就有些话长了……以前手机联系还不像现在这样方便，我和她也不在同一座城市，所以每次月假后也许又要等上一两个星期才能再度联系上，期间便是靠着这信互诉肺腑",
-      "direction": "",
+      "text": "说来就有些话长了……以前手机联系还不像现在这样方便，我和她也不在同一座城市，所以每次月假后也许又要等上一两个星期才能再度联系上，期间便是靠着这信互诉肺腑",
+      "direction": "(笑了笑，眼睛望向了远方)",
       "source": "17一张空白纸.docx",
       "position": "p39",
       "actor": "FoodTruckGuest",
@@ -4287,6 +4288,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0549",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "在。我就是。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p10",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0550",
       "chapter": 2,
       "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
@@ -4297,6 +4311,32 @@
       "source": "2 7 8 26.docx",
       "position": "p13",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0551",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "镇上日常事务基本都我在处理。\n文件给我吧，我看看。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p16–p17",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0553",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "这个得他本人签。\n你等一下，我去叫真正的上司。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p22–p23",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4313,6 +4353,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0555",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "嗯。我只是替镇长处理日常事务。\n真正的镇长是南星。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p29–p30",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0556",
       "chapter": 2,
       "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
@@ -4323,6 +4376,19 @@
       "source": "2 7 8 26.docx",
       "position": "p33",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0557",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "算是。\n你坐一会儿。它今天心情还可以，大概。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p36–p37",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4339,6 +4405,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0561",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它就是南星。\n镇务办公点的正式负责人。\n你别看它这样，章盖得比我稳。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p48–p49–p50",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0562",
       "chapter": 2,
       "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
@@ -4349,6 +4428,19 @@
       "source": "2 7 8 26.docx",
       "position": "p53",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0563",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "对。南星。\n墙上那张肖像不是装饰。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p56–p57",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4365,6 +4457,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0567",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它问你是不是没带骨头。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p68",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0568",
       "chapter": 2,
       "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
@@ -4375,6 +4480,19 @@
       "source": "2 7 8 26.docx",
       "position": "p71",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0569",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它不会说话。\n但它每次这个表情，都是同一个意思。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p74–p75",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4391,6 +4509,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0572",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "那它不太想签。\n不是不能签，是不太想。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p83–p84",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0573",
       "chapter": 2,
       "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
@@ -4401,6 +4532,19 @@
       "source": "2 7 8 26.docx",
       "position": "p87",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0574",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "对南星来说，拜访者带骨头是礼貌。\n餐车那边有。你可以去拿一根。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p90–p91",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4417,6 +4561,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0576",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "你可以理解为正式签收流程的一部分。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p97",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0578",
       "chapter": 2,
       "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
@@ -4427,6 +4584,19 @@
       "source": "2 7 8 26.docx",
       "position": "p102",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0580",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "现在可以了。\n把签收页放低一点，它够得着。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p107–p108",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4443,6 +4613,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0582",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它自己盖。\n我替它盖，它会不高兴。虽然看不出来，但会。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p114–p115",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0584",
       "chapter": 2,
       "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
@@ -4453,6 +4636,19 @@
       "source": "2 7 8 26.docx",
       "position": "p120",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0585",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "对吧。\n以后镇务的邮件可以直接送这里。\n不过建议你随身带点骨头。小块的就行。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p123–p124–p125",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4469,6 +4665,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0588",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它喜欢你了。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p133",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0589",
       "chapter": 2,
       "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
@@ -4479,6 +4688,19 @@
       "source": "2 7 8 26.docx",
       "position": "p136",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0590",
+      "chapter": 2,
+      "scene": "场景：社区中心。主角带着一封封面写着“Mayor StarSouth”的公务信进来。前台坐着巫巫。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "所以才说喜欢。\n它不喜欢的拜访者，连闻都不闻。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p139–p140",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4495,6 +4717,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0593",
+      "chapter": 2,
+      "scene": "（可选聊天）",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "日常事务。\n排班、公告、居民申请、评选材料、还有它不想见的拜访者。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p148–p149",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0594",
       "chapter": 2,
       "scene": "（可选聊天）",
@@ -4508,6 +4743,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c02_0595",
+      "chapter": 2,
+      "scene": "（可选聊天）",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "没带骨头的。\n还有说话太快的。还有摸它头不先问的。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p155–p156",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c02_0596",
       "chapter": 2,
       "scene": "（可选聊天）",
@@ -4518,6 +4766,19 @@
       "source": "2 7 8 26.docx",
       "position": "p159",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c02_0597",
+      "chapter": 2,
+      "scene": "（可选聊天）",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "还好。\n它至少不会临时改主意。\n它只会临时趴下。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p162–p163–p164",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4560,6 +4821,32 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c07_0607",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "退件？\n我看看。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p192–p193",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0609",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "……这个啊。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p198",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c07_0610",
       "chapter": 7,
       "scene": "场景：社区中心。巫巫正在整理公告。",
@@ -4570,6 +4857,19 @@
       "source": "2 7 8 26.docx",
       "position": "p201–p202",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0611",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "我去叫它。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p205",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4586,6 +4886,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c07_0613",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "这次它自己知道理亏。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p211",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c07_0615",
       "chapter": 7,
       "scene": "场景：社区中心。巫巫正在整理公告。",
@@ -4596,6 +4909,19 @@
       "source": "2 7 8 26.docx",
       "position": "p216",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0617",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "别看我。\n邮差在问你。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p222–p223",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4612,6 +4938,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c07_0621",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说不是。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p236",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c07_0622",
       "chapter": 7,
       "scene": "场景：社区中心。巫巫正在整理公告。",
@@ -4622,6 +4961,19 @@
       "source": "2 7 8 26.docx",
       "position": "p239",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0623",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它把爪子盖在信上，就是“不是”的意思。\n但它心虚的时候也这样。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p242–p243",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4638,6 +4990,32 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c07_0625",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "……南星。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p249",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0627",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它承认了。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p254",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c07_0628",
       "chapter": 7,
       "scene": "场景：社区中心。巫巫正在整理公告。",
@@ -4648,6 +5026,19 @@
       "source": "2 7 8 26.docx",
       "position": "p257",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0629",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "邻镇要求它组织一男一女、适婚、异性恋青年参加联谊。\n还要把报名情况列入优秀镇长评比。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p260–p261",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4664,6 +5055,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c07_0631",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它不愿意为指标干涉居民。\n但它又非常想拿奖。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p267–p268",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c07_0632",
       "chapter": 7,
       "scene": "场景：社区中心。巫巫正在整理公告。",
@@ -4674,6 +5078,19 @@
       "source": "2 7 8 26.docx",
       "position": "p271",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0633",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它以为涂掉名字、塞回退件箱，就可以当作邮件丢了。\n它没想到邮局会查签收记录。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p274–p275",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4690,6 +5107,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c07_0636",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "在解释。\n道歉要等回复写完。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p283–p284",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c07_0637",
       "chapter": 7,
       "scene": "场景：社区中心。巫巫正在整理公告。",
@@ -4700,6 +5130,19 @@
       "source": "2 7 8 26.docx",
       "position": "p287",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0638",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "总得回一封。\n不能真当没收到。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p290–p291",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4716,6 +5159,32 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c07_0640",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "那太好了。\n它口述，我翻译，你写。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p297–p298",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0642",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说：本镇不强制居民参加以评比为目的的联谊。\n但愿意在评选材料中如实说明本镇情况。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p303–p304",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c07_0643",
       "chapter": 7,
       "scene": "场景：社区中心。巫巫正在整理公告。",
@@ -4726,6 +5195,19 @@
       "source": "2 7 8 26.docx",
       "position": "p307",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0644",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它认真起来就这样。\n再加一句：优秀镇长评比应尊重居民个人意愿。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p310–p311",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4742,6 +5224,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c07_0648",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它问，犬类能不能参加。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p323",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c07_0649",
       "chapter": 7,
       "scene": "场景：社区中心。巫巫正在整理公告。",
@@ -4752,6 +5247,19 @@
       "source": "2 7 8 26.docx",
       "position": "p326",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0650",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "参加评比。\n它说邻镇文件里没写必须是人类镇长。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p329–p330",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4768,6 +5276,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c07_0653",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说它会认真准备照片。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p338",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c07_0654",
       "chapter": 7,
       "scene": "场景：社区中心。巫巫正在整理公告。",
@@ -4778,6 +5299,19 @@
       "source": "2 7 8 26.docx",
       "position": "p341–p342",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c07_0656",
+      "chapter": 7,
+      "scene": "场景：社区中心。巫巫正在整理公告。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说可以等。\n但它已经开始想照片了。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p347–p348",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -4976,6 +5510,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c26_0713",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它要给邻镇朋友寄礼物。\n箱子大小固定，装不下太多。它已经挑了半小时。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p519–p520",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c26_0714",
       "chapter": 26,
       "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
@@ -4989,6 +5536,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c26_0715",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "邻镇的一只朋友。\n具体品种它没告诉我。\n它只说要寄“有诚意的”。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p526–p527–p528",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c26_0717",
       "chapter": 26,
       "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
@@ -4999,6 +5559,32 @@
       "source": "2 7 8 26.docx",
       "position": "p533",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0718",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "一根骨头玩具、一个相框、还有一块它喜欢的毯子角。\n毯子角是我剪下来的，它当时不太高兴。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p536–p537",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0720",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说毯子角是礼物的一部分。\n它没有不高兴。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p543–p544",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -5028,6 +5614,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c26_0725",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说相框要正着放。\n收礼物的人第一眼要看见照片。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p558–p559",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c26_0726",
       "chapter": 26,
       "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
@@ -5038,6 +5637,19 @@
       "source": "2 7 8 26.docx",
       "position": "p562",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0727",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它自己。\n它挑了很久。最后选了张看起来比较有威严的。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p565–p566",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -5054,6 +5666,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c26_0729",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说那是“松弛的威严”。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p572",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c26_0730",
       "chapter": 26,
       "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
@@ -5064,6 +5689,32 @@
       "source": "2 7 8 26.docx",
       "position": "p575",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0732",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "对了，镇长评选的回复到了。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p580",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0734",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "邻镇接受犬类报名。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p585",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -5080,6 +5731,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c26_0737",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "没事。它高兴的时候不太控制尾巴。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p593",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c26_0739",
       "chapter": 26,
       "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
@@ -5090,6 +5754,19 @@
       "source": "2 7 8 26.docx",
       "position": "p598",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0740",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说评选照片要慎重。\n这张太糊，这张耳朵没立好，这张看起来像在打哈欠。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p601–p602",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -5106,6 +5783,32 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c26_0742",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说那是在表达对评选标准的思考。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p608",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0744",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它问你哪张好。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p613",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c26_0745",
       "chapter": 26,
       "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
@@ -5116,6 +5819,19 @@
       "source": "2 7 8 26.docx",
       "position": "p616",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0747",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说就这张。\n礼物箱也可以封了。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p621–p622",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -5132,6 +5848,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c26_0749",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "不是。\n礼物箱里要放看起来亲切的。评选要放看起来能负责的。\n它分得很清楚。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p628–p629–p630",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c26_0750",
       "chapter": 26,
       "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
@@ -5142,6 +5871,32 @@
       "source": "2 7 8 26.docx",
       "position": "p633",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0751",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "是啊。\n又要寄礼物，又要挑照片，还要防止自己把评选信塞进退件箱。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p636–p637",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0753",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "我没提名字。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p642",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
@@ -5158,6 +5913,19 @@
       "status": "已绑定·待章节触发"
     },
     {
+      "id": "c26_0757",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说这是邮费。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p653",
+      "actor": "community",
+      "status": "已绑定·待章节触发"
+    },
+    {
       "id": "c26_0758",
       "chapter": 26,
       "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
@@ -5168,6 +5936,19 @@
       "source": "2 7 8 26.docx",
       "position": "p656",
       "actor": "courier",
+      "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "c26_0759",
+      "chapter": 26,
+      "scene": "场景：邮局。南星叼着一只固定大小的箱子进来，巫巫跟在后面，手里抱着一堆东西。",
+      "kind": "dialogue",
+      "speaker": "cici",
+      "text": "它说你可以私下收。",
+      "direction": "",
+      "source": "2 7 8 26.docx",
+      "position": "p659",
+      "actor": "community",
       "status": "已绑定·待章节触发"
     },
     {
