@@ -35,6 +35,17 @@ func run() -> void:
     check(overlay._frames[0].get_width() < 900, "alpha-only common bounds exclude hidden RGB matte")
     var first_image:Image = overlay._frames[0].get_image()
     check(first_image.get_pixel(0,0).a < 0.01, "native transparent frame corner")
+    var authored := Image.load_from_file(overlay.FRAME_PATHS[0])
+    var compared := false
+    for y in range(0,authored.get_height(),5):
+        for x in range(0,authored.get_width(),5):
+            var edge := authored.get_pixel(x,y)
+            if edge.a > 0.25 and edge.a < 0.65 and edge.g > 0.15:
+                check(first_image.get_pixel(x,y).is_equal_approx(edge), "associated edge RGB is not multiplied twice")
+                compared = true
+                break
+        if compared: break
+    check(compared,"partial-alpha authored stroke exercised")
     check(absf(overlay._art.get_rect().get_center().x-800)<1, "transparent figure stays centered")
     check(overlay._art.size.y >= 500.0, "approved large figure composition")
     overlay.coverage = 1.0
@@ -43,6 +54,34 @@ func run() -> void:
     check(overlay.find_child("SuppliedWaveLoadingBar",true,false)==null, "no wave distortion or progress strip remains")
     check(overlay._paper.texture != null, "approved paper background restored")
     if DisplayServer.get_name() != "headless":
+        # Analytic associated-alpha sample: verify full opacity, fade and hidden
+        # decoder RGB over a known white backdrop using the real GPU material.
+        var swatch_back := ColorRect.new()
+        swatch_back.z_index = 201
+        swatch_back.color = Color.WHITE
+        swatch_back.size = Vector2(64,64)
+        viewport.add_child(swatch_back)
+        var swatch := TextureRect.new()
+        swatch.z_index = 202
+        var sample := Image.create(64,64,false,Image.FORMAT_RGBA8)
+        sample.fill(Color(0.2,0.4,0.4,0.5))
+        swatch.texture = ImageTexture.create_from_image(sample)
+        swatch.material = overlay._art.material
+        viewport.add_child(swatch)
+        for opacity:float in [1.0,0.5,0.0]:
+            swatch.modulate.a=opacity
+            await process_frame
+            RenderingServer.force_draw(false)
+            var actual:=viewport.get_texture().get_image().get_pixel(32,32)
+            check(absf(actual.r-(1.0-0.3*opacity))<0.015 and absf(actual.g-(1.0-0.1*opacity))<0.015,"associated-alpha blend and fade at "+str(opacity))
+        sample.fill(Color(0.1,0.1,0.1,0.0))
+        swatch.texture=ImageTexture.create_from_image(sample)
+        swatch.modulate.a=1.0
+        await process_frame
+        RenderingServer.force_draw(false)
+        check(viewport.get_texture().get_image().get_pixel(32,32).is_equal_approx(Color.WHITE),"transparent decoder RGB cannot leave a fringe")
+        swatch.queue_free()
+        swatch_back.queue_free()
         await process_frame
         RenderingServer.force_draw(false)
         var full_pixel := viewport.get_texture().get_image().get_pixel(1200, 752)

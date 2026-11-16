@@ -14,7 +14,7 @@ const FRAME_PATHS := [
     "res://assets/authoring/loading_20261114/frame_05.png",
 ]
 const PAPER_TEXTURE_PATH := "res://assets/authoring/loading_20261114/paper_texture.png"
-const FONT := preload("res://assets/fonts/DearRounded.tres")
+const FONT := preload("res://assets/fonts/Caveat.ttf")
 var locale := "zh"
 
 var loading_enabled := true:
@@ -44,11 +44,12 @@ func _ready() -> void:
     z_index = 200
     mouse_filter = Control.MOUSE_FILTER_STOP
     for path in FRAME_PATHS:
-        var source := load(path) as Texture2D
-        if source != null:
-            var pixels := source.get_image()
+        # HEVC decoder retained associated (premultiplied) RGB. Multiplying it
+        # again darkens every antialiased stroke. Read original PNG pixels so
+        # the texture importer's straight-alpha border repair cannot bleed RGB.
+        var pixels := Image.load_from_file(path)
+        if pixels != null and not pixels.is_empty():
             pixels.convert(Image.FORMAT_RGBA8)
-            pixels.premultiply_alpha()
             pixels.generate_mipmaps()
             _frames.append(ImageTexture.create_from_image(pixels))
 
@@ -77,8 +78,8 @@ func _ready() -> void:
     _art.mouse_filter = Control.MOUSE_FILTER_IGNORE
     add_child(_art)
 
-    var blend := CanvasItemMaterial.new()
-    blend.blend_mode = CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
+    var blend := ShaderMaterial.new()
+    blend.shader = preload("res://scripts/ui/loading_associated_alpha.gdshader")
     _art.material = blend
     _art.texture = _frames[0] if not _frames.is_empty() else null
     _caption = Label.new()
@@ -118,7 +119,7 @@ func _layout() -> void:
     _art.position = center+Vector2(-200,-365)*unit
     _caption.position = center+Vector2(-200,220)*unit
     _caption.size = Vector2(400,56)*unit
-    _caption.add_theme_font_size_override("font_size",roundi(28*unit))
+    _caption.add_theme_font_size_override("font_size",roundi(36*unit))
 
 func _refresh_caption() -> void:
     if is_instance_valid(_caption):

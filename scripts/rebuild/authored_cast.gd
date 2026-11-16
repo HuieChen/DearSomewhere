@@ -1,6 +1,6 @@
 extends RefCounted
 const PLAYER_NAME:="Anne"
-const NAMES:={"TarotGuest":"夏透明","record_clerk":"Xanni","bookseller":"Maya","Naonao":"闹闹","lookout":"Rae","chef":"咸鱼","FoodTruckGuest":"尘缘","grocer":"冥冥","community":"cici"}
+const NAMES:={"Siri":"Siri","TarotGuest":"夏透明","record_clerk":"Xanni","bookseller":"Maya","Naonao":"闹闹","lookout":"Rae","chef":"咸鱼","FoodTruckGuest":"尘缘","grocer":"冥冥","community":"cici"}
 static func speaker_name(value:String)->String:
 	if value in ["你","You","主角","Anne"]:return PLAYER_NAME
 	if value in ["餐车老板","Chef"]:return NAMES.chef
