@@ -1,5 +1,7 @@
 # Latest user feedback — authoritative order
 
+2026-11-17 direct follow-up: recorder and camera must use one UI system with matching compact buttons, typography, positions and spacing. The door highlight is rejected entirely; clicking the whole doorway should start exiting immediately, without a handle animation or dwell delay. This supersedes the restrained handle-light proposal below.
+
 2026-11-16 direct screenshot corrections: shrink the visible camera controls (format, film/colour, character visibility, close, composition controls and shutter) while preserving the approved cream/blue style and paper ejection. The postal door handle feedback looks too stiff: remove the broad straight glow and circular end spots, keeping any light inside the supplied painted handle. Original scene pixels remain unchanged.
 
 2026-11-11 direct correction: user prefers the original photo-ejection design. Restore its centered bottom slot, original paper sizes and gradual slide/develop timing for both landscape and instant photos. The unobstructed recorder requirement must not remove the camera paper ritual. Preserve the current photography data and recording features.
