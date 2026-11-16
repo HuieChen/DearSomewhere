@@ -459,6 +459,10 @@ Detailed Chinese audit and concrete implementation plan: [EXISTING_FEATURE_AUDIT
 
 整合主线连续落脚改动，长录音加载和完整峰值分析改为可取消后台任务；街道去掉重复非定位环境事件。最终实际 PCK 483 项自动断言通过，原生候选完成两分钟录音/回听，最终 EXE 封面已查看。听感、全场景逐边艺术检查与长时间性能未宣称验收。详见 `docs/testing/GLOBAL_EXPERIENCE_20261116.md`。
 
+## 2026-11-17 — Postcard clarity and shared turn/movement clock
+
+Corrected enlarged-card transparent fringes and capped source enlargement; original artwork stays unchanged. Turn progress now uses movement substeps, eliminating the 10 fps startup surge (300 ms travel now 2.75 px at 10/30/60/120 fps). Integrated native-alpha/main changes through a5c63a1. Actual final PCK: 242 focused checks passed, plus 12 frames / 25,778 alpha samples. Native input verified card return, map travel and both walking directions. Original 6 fps pose cadence remains; no human smoothness acceptance or whole-game performance claim. Failed fixture attempts and evidence are recorded in `docs/testing/POSTCARD_CLARITY_WALK_TIMING_20261117.md`.
+
 ## 2026-11-17 — Supplied postcard layers
 
 Nine visible source layers now lift, enlarge and return; foreground masks prevent rail/telephone misclicks, and the shelf is restored after every close path. Integrated collaborator cast/loading updates through `5107bed`. Final actual PCK: 193 checks passed (78 postcard, 35 layout, 20 postal route, 34 names, 26 loading). Original PSD/composite unchanged. Native final window observed, but click injection failed with `unknown screenshotId screenshot-0` on retry; native interaction and listening acceptance remain unverified. Details and package hash: `docs/testing/POSTAL_POSTCARDS_20261117.md`.
