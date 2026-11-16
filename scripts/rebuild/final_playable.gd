@@ -531,6 +531,13 @@ func _world(arrival:String="") -> void:
 		UI.place(neighbour,road.world,Rect2(figure[3]-Vector2(dims.x*.5,dims.y),dims))
 		neighbour.modulate=walker.modulate
 		road.ambient_figures.append(neighbour)
+		if figure[1]=="FoodTruckGuest":
+			var talk:=Button.new();talk.name="Talk_Supplied_Chenyuan";talk.flat=true
+			talk.tooltip_text="尘缘";talk.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
+			for button_state in ["normal","hover","pressed","focus"]:talk.add_theme_stylebox_override(button_state,StyleBoxEmpty.new())
+			UI.place(talk,road.world,Rect2(figure[3]-Vector2(dims.x*.5,dims.y),dims))
+			talk.pressed.connect(func():
+				if road.can_walk():walker.walk_to(Vector2(11570,850),func():_supplied_conversation("FoodTruckGuest")))
 		var pigment:=ShaderMaterial.new();pigment.shader=preload("res://scripts/rebuild/character_palette.gdshader");neighbour.material=pigment
 	var cast:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").RESIDENTS
 	for character_id:String in cast:
@@ -564,6 +571,7 @@ func _look_at(text:String) -> void:
 	line.closed.connect(_close)
 
 func _resident_conversation(character_id:String,index:int)->void:
+	if index==0 and _supplied_conversation(character_id):return
 	if index>=2:
 		if is_instance_valid(modal) and modal is SceneDialogue:modal.finish()
 		return
@@ -1645,3 +1653,32 @@ func _chef_conversation(index:int)->void:
 	dialogue.set_text_rate(preferences.text_rate())
 	dialogue.closed.connect(_close)
 	dialogue.configure_managed_chef(index)
+
+# Optional authored chats work in the exploration demo. Delivery reactions remain
+# chapter data until a real postal event can request them.
+func _supplied_conversation(actor_id:String)->bool:
+	var lines:Array=preload("res://scripts/rebuild/supplied_dialogue.gd").ambient_lines(actor_id)
+	if lines.is_empty():return false
+	_close()
+	_hide_courier_for_closeup()
+	var dialogue:=SceneDialogue.new()
+	dialogue.authored_text_enabled=true
+	dialogue.light_source=walker
+	dialogue.locale=preferences.values.language
+	dialogue.set_meta("supplied_actor",actor_id)
+	dialogue.set_meta("supplied_page",0)
+	modal=dialogue
+	UI.place(dialogue,self,Rect2(0,0,1600,900))
+	var portrait:="cast/record_clerk_portrait.png" if actor_id=="record_clerk" else ""
+	dialogue.configure(str(lines[0].speaker),str(lines[0].text),[],"courier_source.jpg",portrait)
+	# A chibi is not substituted for a missing full portrait.
+	dialogue.set_text_rate(preferences.text_rate())
+	dialogue.cue.connect(sound.play)
+	dialogue.closed.connect(_close)
+	dialogue.advanced.connect(func():
+		var page:=int(dialogue.get_meta("supplied_page"))+1
+		dialogue.set_meta("supplied_page",page)
+		if page>=lines.size():dialogue.finish()
+		else:dialogue.set_line(str(lines[page].speaker),str(lines[page].text)))
+	sound.play("paper")
+	return true

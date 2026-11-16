@@ -17,6 +17,8 @@ const SPEAKER_CENTER:=Vector2(470,72)
 const CONTINUE_CENTER:=Vector2(1330,575)
 var _speaker := ""
 const SPOKEN_TEXT := "……"
+var authored_text_enabled := false
+var _authored_text := ""
 var _choices: Array = []
 var _showing_choices := false
 var _locked := false
@@ -56,7 +58,7 @@ func set_line(speaker:String,_line:String)->void:
 	_line_transition=create_tween()
 	_line_transition.tween_property(_spoken,"modulate:a",0.0,0.06)
 	_line_transition.tween_callback(func():
-		_speaker=speaker;_speaker_label.text=speaker;_spoken.text=SPOKEN_TEXT
+		_speaker=speaker;_speaker_label.text=speaker;_authored_text=_line;_spoken.text=_line if authored_text_enabled else SPOKEN_TEXT
 		_reveal=0.0;_spoken.visible_characters=0 if _text_rate>0.0 else -1
 		_fit_spoken_line.call_deferred(_spoken)
 		_speaker_emphasis()
@@ -85,7 +87,7 @@ func _advance_managed()->void:
 	set_meta("chef_page",int(line.index))
 	set_line(str(line.speaker),str(line.text))
 func _speaker_emphasis()->void:
-	var player_speaks:=_speaker in ["你","You","主角"]
+	var player_speaks:=_speaker in ["你","You","主角","Anne"]
 	if not is_instance_valid(_left_portrait) and not is_instance_valid(_right_portrait):return
 	var t:=create_tween().set_parallel(true)
 	if is_instance_valid(_left_portrait):t.tween_property(_left_portrait,"self_modulate",Color.WHITE if player_speaks else Color(0.94,0.94,0.93),0.16)
@@ -112,7 +114,7 @@ func finish()->void:
 	_transition.tween_property(self,"modulate:a",0.0,0.18)
 	_transition.tween_callback(func():closed.emit())
 func configure(speaker: String, _line: String, choices: Array = [], left_art: String = "", right_art: String = "") -> void:
-	_speaker=speaker;_choices=choices.duplicate(true)
+	_speaker=speaker;_authored_text=_line;_choices=choices.duplicate(true)
 	_left_art=left_art;_right_art=right_art
 	# Keep the player on the left regardless of the current speaker.
 	if _right_art in ["courier_source.jpg", "CHAR_courier"]:
@@ -178,7 +180,7 @@ func _render() -> void:
 			var next_page:=_text_button("›",Rect2(1178,831,84,45));next_page.name="ChoicePageNext"
 			next_page.pressed.connect(func():_choice_page+=1;cue.emit("flip");_render())
 	else:
-		_spoken=RichTextLabel.new();_spoken.name="SpokenLine";_spoken.text=SPOKEN_TEXT;_spoken.scroll_active=true
+		_spoken=RichTextLabel.new();_spoken.name="SpokenLine";_spoken.text=_authored_text if authored_text_enabled else SPOKEN_TEXT;_spoken.scroll_active=true
 		_spoken.add_theme_color_override("default_color",WORDS)
 		_spoken.add_theme_font_size_override("normal_font_size",26)
 		_spoken.add_theme_constant_override("line_separation",6)
