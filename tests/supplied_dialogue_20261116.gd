@@ -42,7 +42,8 @@ func run():
 		for i:int in lines.size():
 			check(dialogue.get_node("SpokenLine").get_parsed_text()==lines[i].text,"visible source text "+actor+str(i))
 			check(dialogue.get_node("Speaker").text==lines[i].speaker,"source speaker "+actor+str(i))
-			check(str(lines[i].text).length()<=105,"bounded text page")
+			check(str(lines[i].text).length()<=lib.MAX_PAGE_CHARACTERS,"bounded text page")
+			check(dialogue.get_node("SpokenLine").get_content_height()<=dialogue.get_node("SpokenLine").size.y,"whole handwriting page fits: "+actor+str(i))
 			dialogue._advance();await create_timer(.25).timeout
 		check(not is_instance_valid(game.modal),"normal completion closes: "+actor)
 		check(JSON.stringify(game.core.state)==before,"chat does not fake delivery or change saves")
