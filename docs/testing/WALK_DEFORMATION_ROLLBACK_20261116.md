@@ -23,3 +23,9 @@ continuous-footplant change is rejected, irrespective of its numeric test pass.
 
 No supplied PNG or source video was edited. No new gait synthesis is introduced.
 Verification and installed-package details are recorded in the delivery receipt.
+
+Source checks pass 163/163 (render, turn continuity, controller). The final PCK
+passes those plus the recorder fixture: 207/207. Native packaged window was
+opened and a ground click visibly started the restored original-pose walk.
+These checks prove removal of the rejected path, not natural-motion acceptance.
+PCK SHA-256: `6EC73DCCFDD53FA46E2871C3556BB05B72AF57701159A86D07F87E59329A1803`.
