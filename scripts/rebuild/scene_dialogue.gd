@@ -8,6 +8,7 @@ const UI = preload("res://scripts/ui/paper_ui.gd")
 const Art = preload("res://scripts/rebuild/physical_art.gd")
 const Authored = preload("res://scripts/rebuild/authored_dialogue_art.gd")
 const ManagedSession=preload("res://scripts/rebuild/authored_dialogue_session.gd")
+const Cast=preload("res://scripts/rebuild/authored_cast.gd")
 const WORDS := Color("493c30")
 const ACCENT := Color("217b87")
 const CHOICES_PER_PAGE := 4
@@ -49,6 +50,7 @@ func _sync_scene_light()->void:
 	for portrait in [_left_portrait,_right_portrait]:
 		if is_instance_valid(portrait):portrait.modulate=light
 func set_line(speaker:String,_line:String)->void:
+	speaker=Cast.speaker_name(speaker)
 	# Keep the cast and paper alive; only the ink changes between sentences.
 	if _closing:return
 	_locked=true
@@ -85,7 +87,7 @@ func _advance_managed()->void:
 	set_meta("chef_page",int(line.index))
 	set_line(str(line.speaker),str(line.text))
 func _speaker_emphasis()->void:
-	var player_speaks:=_speaker in ["你","You","主角"]
+	var player_speaks:=_speaker in ["你","You","主角",Cast.PLAYER_NAME]
 	if not is_instance_valid(_left_portrait) and not is_instance_valid(_right_portrait):return
 	var t:=create_tween().set_parallel(true)
 	if is_instance_valid(_left_portrait):t.tween_property(_left_portrait,"self_modulate",Color.WHITE if player_speaks else Color(0.94,0.94,0.93),0.16)
@@ -112,6 +114,7 @@ func finish()->void:
 	_transition.tween_property(self,"modulate:a",0.0,0.18)
 	_transition.tween_callback(func():closed.emit())
 func configure(speaker: String, _line: String, choices: Array = [], left_art: String = "", right_art: String = "") -> void:
+	speaker=Cast.speaker_name(speaker)
 	_speaker=speaker;_choices=choices.duplicate(true)
 	_left_art=left_art;_right_art=right_art
 	# Keep the player on the left regardless of the current speaker.
