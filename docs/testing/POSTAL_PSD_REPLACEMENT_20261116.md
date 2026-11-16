@@ -34,4 +34,9 @@ the source hash. The old JPEG and provenance are preserved separately.
   inferred from Dummy mixer checks. No full-game acceptance claim is made.
 
 Export selection validates the new source/PNG hashes and retains its raw PNG and
-provenance. Pack/native/remote delivery evidence is recorded after verification.
+provenance. Final PCK: 1275 entries; the same 55 checks pass from an empty host
+project using the packaged runtime. SHA-256:
+`d56f98c3692ee8ddb6403120e906ace6c1825a8e4556cd5563e96cab0a38b0e9`.
+Native packaged window: inspected left counter, clicked the actual right arrow
+and observed the new workroom. The existing launcher's PCK was backed up and
+updated with matching hashes. Source PSD hash was rechecked unchanged.
