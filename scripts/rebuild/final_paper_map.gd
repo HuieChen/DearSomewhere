@@ -13,7 +13,7 @@ const SOURCE_HOTSPOTS=[
 	["bus_stop",Rect2(1636,756,272,158)] ]
 const DESTINATION_NAMES={
 	"post_office":["邮局","Post office"],"chess_stall":["树下棋摊","Chess corner"],
-	"bookstore":["书店","Bookshop"],"tarot_shop":["塔楼屋","Tower house"],
+	"bookstore":["书店","Bookshop"],"tarot_shop":["塔罗店","Tarot shop"],
 	"record_store":["唱片店","Record shop"],"statue":["喷泉广场","Fountain square"],
 	"community_center":["社区中心","Community center"],"residential":["海阶居民楼","Seaside residences"],
 	"grocery":["杂货店","Grocery"],"market":["集市","Market"],"food_truck":["餐车","Food truck"],

@@ -564,7 +564,7 @@ func _ui_text(value: String) -> String:
 	# Localize headings, never the verbatim source quotes or the player's writing.
 	var translations := {
 		"人物":"People", "见闻":"Sources", "信件":"Letters", "推断":"Draft", "随身记录":"Field notes",
-		"邮局":"Post office", "社区中心":"Community centre", "居民楼":"Sea Steps", "公交站":"Tram stop", "观景台":"Lookout", "棋摊":"Chess stall", "塔罗店":"Tower house", "地点未记录":"Place not recorded",
+		"邮局":"Post office", "社区中心":"Community centre", "居民楼":"Sea Steps", "公交站":"Tram stop", "观景台":"Lookout", "棋摊":"Chess stall", "塔罗店":"Tarot shop", "地点未记录":"Place not recorded",
 		"市政通知":"Town notice", "旧瓷牌":"Old ceramic sign", "住户公示":"Resident notice", "Mira 门口":"Mira's door", "器材借还簿":"Equipment register", "站点时刻表":"Tram timetable", "本地邮件服务规则":"Postal regulations", "修复后的转寄标签":"Recovered forwarding label", "现行住户表":"Resident register", "志愿者收信登记":"Volunteer mail register", "旧件背面":"Old envelope back", "历年活动照片":"Community photograph", "现行志愿者公告":"Volunteer notice", "旧值台账簿":"Old desk ledger", "旧值班表":"Old duty roster", "正式处置规则":"Handling regulations",
 		"从草稿抽出这条来源":"Remove source from draft", "把这条来源夹进推断页 →":"Attach source to draft", "夹入的来源":"Attached sources", "收工归档 · 已确认":"Filed · verified", "来源核对记录。\n邮件去向仍保留在原回执上。":"Source verification record.\nOriginal receipts retain each delivery.", "HV 的署名 / 经手者":"HV signature / handler", "值台 / 岗位（照记录填写）":"Desk / assignment", "HV 是否为正式处置码":"Is HV an official code?", "写入暂定记录":"Record provisional finding"
 	}
