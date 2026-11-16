@@ -18,6 +18,7 @@ def main():
     manifest = json.loads((DIRECTORY / "walk.json").read_text(encoding="utf-8"))
     entries = {}
     reference = None
+    previous = json.loads((DIRECTORY / "runtime_registration.json").read_text(encoding="utf-8")) if (DIRECTORY / "runtime_registration.json").exists() else {"frames": {}}
     for frame in manifest["frames"]:
         path = ROOT / frame["path"].removeprefix("res://")
         assert hashlib.sha256(path.read_bytes()).hexdigest() == frame["sha256"]
@@ -41,6 +42,11 @@ def main():
         score, translation = cv2.findTransformECC(reference, head, np.eye(2, 3, dtype="float32"), cv2.MOTION_TRANSLATION, (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 100, 1e-5))
         assert score > 0.75
         entries[path.name] = {"source_sha256": frame["sha256"], "clear_spans": spans, "removed_pixels": int(remove.sum()), "head_translation_px": [round(float(value * 4), 4) for value in translation[:, 2]], "registration_score": round(float(score), 5)}
+        if manifest.get("premultiplied_alpha", False):
+            entries[path.name]["native_premultiplied_alpha"] = True
+            # Changing the decoder must not change the approved animation.
+            if path.name in previous["frames"]:
+                entries[path.name]["head_translation_px"] = previous["frames"][path.name]["head_translation_px"]
         print(path.name, "removed", int(remove.sum()), "head", entries[path.name]["head_translation_px"])
     (DIRECTORY / "runtime_registration.json").write_text(json.dumps({"method": "connected alpha support plus rigid upper-body translation; no source rewrite", "frames": entries}, separators=(",", ":")) + "\n", encoding="utf-8")
 

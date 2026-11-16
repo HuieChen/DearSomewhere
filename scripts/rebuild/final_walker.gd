@@ -34,10 +34,14 @@ static func _prepared_texture(path:String) -> Texture2D:
 	# transparent black movie matte into the hair/skin outline.
 	if path.contains("/courier_walk_20261110/"):
 		var cleanup:Dictionary=_runtime_registration().get(path.get_file(),{})
-		if cleanup.get("source_sha256","")==FileAccess.get_sha256(path):
+		var verified:bool=cleanup.get("source_sha256","")==FileAccess.get_sha256(path)
+		if verified:
 			for span:Array in cleanup.get("clear_spans",[]):
 				pixels.fill_rect(Rect2i(int(span[0]),int(span[1]),int(span[2]),1),Color.TRANSPARENT)
-		pixels.premultiply_alpha()
+		# The HEVC auxiliary-alpha decoder already supplies premultiplied RGB.
+		# Multiplying it again creates the exact dark contour we are removing.
+		if not (verified and cleanup.get("native_premultiplied_alpha",false)):
+			pixels.premultiply_alpha()
 	pixels.generate_mipmaps()
 	var texture:=ImageTexture.create_from_image(pixels)
 	# A changed future manifest still renders normally beyond this fixed budget.
