@@ -531,6 +531,7 @@ func _world(arrival:String="") -> void:
 		UI.place(neighbour,road.world,Rect2(figure[3]-Vector2(dims.x*.5,dims.y),dims))
 		neighbour.modulate=walker.modulate
 		road.ambient_figures.append(neighbour)
+		_resident_nameplate(road,figure[1],figure[3],float(figure[4]))
 		var pigment:=ShaderMaterial.new();pigment.shader=preload("res://scripts/rebuild/character_palette.gdshader");neighbour.material=pigment
 	var cast:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").RESIDENTS
 	for character_id:String in cast:
@@ -546,6 +547,7 @@ func _world(arrival:String="") -> void:
 		actor.allowed=road.can_walk
 		actor.locale=func():return preferences.values.language
 		UI.place(actor,road.world,Rect2(Vector2.ZERO,road.world.size))
+		_resident_nameplate(road,character_id,resident.foot,resident.height)
 		actor.talk_requested.connect(func():
 			if character_id=="chef":_chef_conversation(0)
 			else:_resident_conversation(character_id,0))
@@ -562,6 +564,13 @@ func _look_at(text:String) -> void:
 	line.configure("我",text)
 	line.advanced.connect(_close)
 	line.closed.connect(_close)
+
+func _resident_nameplate(road:Control,id:String,foot:Vector2,height:float)->void:
+	var names:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").NAMES
+	if not names.has(id):return
+	var label:=preload("res://scripts/ui/resident_nameplate.gd").new()
+	label.name="Name_"+id;label.text=names[id];label.courier=walker;label.foot=foot
+	UI.place(label,road.world,Rect2(foot-Vector2(100,height+42),Vector2(200,36)))
 
 func _resident_conversation(character_id:String,index:int)->void:
 	if index>=2:
@@ -801,6 +810,7 @@ func _post_office_room(index:int=0) -> void:
 	room.navigation_allowed=func():return not busy and not is_instance_valid(modal)
 	room.name="PostOfficeInterior"
 	room.room_index=post_office_room_index
+	room.postcard_requested.connect(func(card:Dictionary,origin:Rect2):_inspect_postcard(card,origin,room))
 	UI.place(room,stage,Rect2(0,0,1600,900))
 	# The production host owns Escape and pause; the standalone review close
 	# button has no campaign action and is not part of this room.
@@ -833,6 +843,22 @@ func _post_office_room(index:int=0) -> void:
 		desk.visible=false)
 	_hud("post_office",false)
 	_footer()
+
+func _inspect_postcard(card:Dictionary,origin:Rect2,room:Control)->void:
+	if busy or is_instance_valid(modal) or not is_instance_valid(room) or room.room_index!=0:return
+	var paper:=preload("res://scripts/ui/postal_postcard_view.gd").new()
+	paper.card=card
+	var inverse:=get_global_transform().affine_inverse()
+	paper.origin=Rect2(inverse*origin.position,(inverse*origin.end)-(inverse*origin.position))
+	paper.locale=preferences.values.language
+	room.postcard_rack.set_held(str(card.id))
+	modal=paper
+	UI.place(paper,self,Rect2(0,0,1600,900))
+	paper.cue.connect(sound.play)
+	paper.closed.connect(func():_close())
+	paper.tree_exiting.connect(func():
+		if is_instance_valid(room) and is_instance_valid(room.postcard_rack):room.postcard_rack.set_held(""))
+	sound.play("paper")
 
 func _counter() -> void:
 	_new_stage("counter")
