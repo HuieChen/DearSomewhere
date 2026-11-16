@@ -810,6 +810,7 @@ func _post_office_room(index:int=0) -> void:
 	room.navigation_allowed=func():return not busy and not is_instance_valid(modal)
 	room.name="PostOfficeInterior"
 	room.room_index=post_office_room_index
+	room.postcard_requested.connect(func(card:Dictionary,origin:Rect2):_inspect_postcard(card,origin,room))
 	UI.place(room,stage,Rect2(0,0,1600,900))
 	# The production host owns Escape and pause; the standalone review close
 	# button has no campaign action and is not part of this room.
@@ -844,6 +845,22 @@ func _post_office_room(index:int=0) -> void:
 		desk.visible=false)
 	_hud("post_office",false)
 	_footer()
+
+func _inspect_postcard(card:Dictionary,origin:Rect2,room:Control)->void:
+	if busy or is_instance_valid(modal) or not is_instance_valid(room) or room.room_index!=0:return
+	var paper:=preload("res://scripts/ui/postal_postcard_view.gd").new()
+	paper.card=card
+	var inverse:=get_global_transform().affine_inverse()
+	paper.origin=Rect2(inverse*origin.position,(inverse*origin.end)-(inverse*origin.position))
+	paper.locale=preferences.values.language
+	room.postcard_rack.set_held(str(card.id))
+	modal=paper
+	UI.place(paper,self,Rect2(0,0,1600,900))
+	paper.cue.connect(sound.play)
+	paper.closed.connect(func():_close())
+	paper.tree_exiting.connect(func():
+		if is_instance_valid(room) and is_instance_valid(room.postcard_rack):room.postcard_rack.set_held(""))
+	sound.play("paper")
 
 func _counter() -> void:
 	_new_stage("counter")

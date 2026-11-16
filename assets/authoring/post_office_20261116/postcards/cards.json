@@ -1,0 +1,258 @@
+{
+  "source_sha256": "7c81c89043f54219d0852c74b7aa78fb0d7216760816c8190197510dd80961da",
+  "saved_composite_sha256": "b7ff790a70d11f9212c2b91781434ea9ca710f2d5fa8aa8004b1d82d3fe71e21",
+  "ai_generated": false,
+  "cards": [
+    {
+      "id": "postcard_05",
+      "layer_path": [
+        12,
+        5
+      ],
+      "layer_name": "图层 30",
+      "source_rect": [
+        2337,
+        516,
+        123,
+        177
+      ],
+      "visible_pixels": 7083,
+      "probe_source_point": [
+        2427,
+        544
+      ],
+      "face": "res://assets/authoring/post_office_20261116/postcards/postcard_05.png",
+      "hit_mask": "res://assets/authoring/post_office_20261116/postcards/postcard_05_hit.png",
+      "removed_patch": "res://assets/authoring/post_office_20261116/postcards/postcard_05_removed.png"
+    },
+    {
+      "id": "postcard_06",
+      "layer_path": [
+        12,
+        6
+      ],
+      "layer_name": "从选区",
+      "source_rect": [
+        1954,
+        529,
+        203,
+        191
+      ],
+      "visible_pixels": 8682,
+      "probe_source_point": [
+        2005,
+        569
+      ],
+      "face": "res://assets/authoring/post_office_20261116/postcards/postcard_06.png",
+      "hit_mask": "res://assets/authoring/post_office_20261116/postcards/postcard_06_hit.png",
+      "removed_patch": "res://assets/authoring/post_office_20261116/postcards/postcard_06_removed.png"
+    },
+    {
+      "id": "postcard_07",
+      "layer_path": [
+        12,
+        7
+      ],
+      "layer_name": "从选区",
+      "source_rect": [
+        2259,
+        555,
+        163,
+        164
+      ],
+      "visible_pixels": 14141,
+      "probe_source_point": [
+        2357,
+        598
+      ],
+      "face": "res://assets/authoring/post_office_20261116/postcards/postcard_07.png",
+      "hit_mask": "res://assets/authoring/post_office_20261116/postcards/postcard_07_hit.png",
+      "removed_patch": "res://assets/authoring/post_office_20261116/postcards/postcard_07_removed.png"
+    },
+    {
+      "id": "postcard_09",
+      "layer_path": [
+        12,
+        9
+      ],
+      "layer_name": "从选区",
+      "source_rect": [
+        2087,
+        538,
+        126,
+        175
+      ],
+      "visible_pixels": 6426,
+      "probe_source_point": [
+        2182,
+        573
+      ],
+      "face": "res://assets/authoring/post_office_20261116/postcards/postcard_09.png",
+      "hit_mask": "res://assets/authoring/post_office_20261116/postcards/postcard_09_hit.png",
+      "removed_patch": "res://assets/authoring/post_office_20261116/postcards/postcard_09_removed.png"
+    },
+    {
+      "id": "postcard_10",
+      "layer_path": [
+        12,
+        10
+      ],
+      "layer_name": "从选区",
+      "source_rect": [
+        2028,
+        563,
+        133,
+        154
+      ],
+      "visible_pixels": 339,
+      "probe_source_point": [
+        2034,
+        687
+      ],
+      "face": "res://assets/authoring/post_office_20261116/postcards/postcard_10.png",
+      "hit_mask": "res://assets/authoring/post_office_20261116/postcards/postcard_10_hit.png",
+      "removed_patch": "res://assets/authoring/post_office_20261116/postcards/postcard_10_removed.png"
+    },
+    {
+      "id": "postcard_11",
+      "layer_path": [
+        12,
+        11
+      ],
+      "layer_name": "图层 149",
+      "source_rect": [
+        2034,
+        545,
+        133,
+        173
+      ],
+      "visible_pixels": 15225,
+      "probe_source_point": [
+        2119,
+        595
+      ],
+      "face": "res://assets/authoring/post_office_20261116/postcards/postcard_11.png",
+      "hit_mask": "res://assets/authoring/post_office_20261116/postcards/postcard_11_hit.png",
+      "removed_patch": "res://assets/authoring/post_office_20261116/postcards/postcard_11_removed.png"
+    },
+    {
+      "id": "postcard_12",
+      "layer_path": [
+        12,
+        12
+      ],
+      "layer_name": "图层 26",
+      "source_rect": [
+        2329,
+        850,
+        148,
+        171
+      ],
+      "visible_pixels": 7520,
+      "probe_source_point": [
+        2421,
+        886
+      ],
+      "face": "res://assets/authoring/post_office_20261116/postcards/postcard_12.png",
+      "hit_mask": "res://assets/authoring/post_office_20261116/postcards/postcard_12_hit.png",
+      "removed_patch": "res://assets/authoring/post_office_20261116/postcards/postcard_12_removed.png"
+    },
+    {
+      "id": "postcard_13",
+      "layer_path": [
+        12,
+        13
+      ],
+      "layer_name": "图层 27",
+      "source_rect": [
+        1946,
+        813,
+        149,
+        182
+      ],
+      "visible_pixels": 7842,
+      "probe_source_point": [
+        1994,
+        865
+      ],
+      "face": "res://assets/authoring/post_office_20261116/postcards/postcard_13.png",
+      "hit_mask": "res://assets/authoring/post_office_20261116/postcards/postcard_13_hit.png",
+      "removed_patch": "res://assets/authoring/post_office_20261116/postcards/postcard_13_removed.png"
+    },
+    {
+      "id": "postcard_16",
+      "layer_path": [
+        12,
+        16
+      ],
+      "layer_name": "图层 36",
+      "source_rect": [
+        2016,
+        873,
+        156,
+        135
+      ],
+      "visible_pixels": 3959,
+      "probe_source_point": [
+        2038,
+        897
+      ],
+      "face": "res://assets/authoring/post_office_20261116/postcards/postcard_16.png",
+      "hit_mask": "res://assets/authoring/post_office_20261116/postcards/postcard_16_hit.png",
+      "removed_patch": "res://assets/authoring/post_office_20261116/postcards/postcard_16_removed.png"
+    }
+  ],
+  "fully_occluded_layers": [
+    {
+      "layer_path": [
+        12,
+        8
+      ],
+      "visible_pixels": 0
+    },
+    {
+      "layer_path": [
+        12,
+        14
+      ],
+      "visible_pixels": 0
+    },
+    {
+      "layer_path": [
+        12,
+        15
+      ],
+      "visible_pixels": 0
+    }
+  ],
+  "method": "original RGBA card layers with authored soft-light finish; masks subtract foreground alpha; local removal patches from PSD recomposition delta",
+  "files": {
+    "postcard_05.png": "853d136f921b571cc93f852855be902043d63685287726e9e78093eeb146256c",
+    "postcard_05_hit.png": "9a94457b204224f52a013cefc415d5ee8a08c7a52ad2d1c5d7cc9d1f017a74c3",
+    "postcard_05_removed.png": "86e71cf9160dd20909191623a6a0bcb57cf1ded3220effdf633c55f344070a56",
+    "postcard_06.png": "1b6c9025bf9a60b72588d9b7e361aacdfb4ceb53a57b3443700784a13a524615",
+    "postcard_06_hit.png": "bef0b2a7aebeb41718ffe629b33ca129ffd648eaedf13cb03e113c82b1bfb760",
+    "postcard_06_removed.png": "e1252b8dae30ceb7a01797960b10602c63da593b5fddeeff17bc005776ba1f58",
+    "postcard_07.png": "c5ef9d95f6e8e00fbc580ef9656384046d968dc69610727a361117a023ae40b8",
+    "postcard_07_hit.png": "0a164611cc6664f7b88121c367c97f0f68d8453785a9d429026c12477ca9bb26",
+    "postcard_07_removed.png": "93e6c11df2d20b49e14c5fc059193b503886d6dc253f927a18e11290a1305175",
+    "postcard_09.png": "4e87bcc109944befa3b7a5f1812132ca4bf5841e8209c5baeea3712a2b2b981d",
+    "postcard_09_hit.png": "85cab571adab2c79e832f722410ce8d211e6e27ba785e5caae6996d9313e6169",
+    "postcard_09_removed.png": "6897ef1d0c984ecb1df0909761d6c603d348f204c49c8ca0f68f1e0ab335f71e",
+    "postcard_10.png": "d2349955e728d6a93e651b73f6116b88bff941b871e28cd866bfa1b2c9305474",
+    "postcard_10_hit.png": "c0b4b2d7bb6fcda7b0bc843ae706682ef9e6f6d297ace2306882a156bfb6465e",
+    "postcard_10_removed.png": "2de67d2ad054c7aaf39f744d27d9eb0ece9213fd88ce6da210e86671be7bb02b",
+    "postcard_11.png": "7ad5ff284ed17217cf4c3284fa581e2b8793a1f3395e7e51434b6945d55e394d",
+    "postcard_11_hit.png": "9d99860ab5cafe5c970437815cccf585182ad306473c25a4e79e9e0ba56a2d12",
+    "postcard_11_removed.png": "bb7cb64aac6f785454c397b47a371b82db2a24894601b9a0488f56916f531fa3",
+    "postcard_12.png": "acb0e346e7d2b3c90db5d0318d3cfdb5eff8158881facbb847854b657cb95418",
+    "postcard_12_hit.png": "8c35b4828049f5709bc00d0a4e303cf3a40f607e71245dc87451a4b880f89403",
+    "postcard_12_removed.png": "6c8c0ec4c7a5dc495492489664a018f0428ba19a411c101b8adae7294f165ec9",
+    "postcard_13.png": "6cd1f790f600cf77dd34feb60bdeb784fe66163426aa61f74bf1ba6d137e4cf3",
+    "postcard_13_hit.png": "df8d1c78a7a38f3b8861b32a0bd62167567026e932d72b7f6bab2bd9c64b387d",
+    "postcard_13_removed.png": "d1e0e66985575022a1d2edc8bd72cdf3999f465800cc238186e0b6822c2eda2f",
+    "postcard_16.png": "a834747727bf0177f14ffb9b134fc8b71bd60ebecd45bba0df5ccfd22db3abaf",
+    "postcard_16_hit.png": "20c313a4138d9c3efc91630fb18d99cd49129c53e4604e78fd279044a90a93e2",
+    "postcard_16_removed.png": "1a86035ff64febff42a8a6b8a0d706d57d6168823bd54525a95215c046bcd35d"
+  }
+}

@@ -2,6 +2,7 @@ extends Control
 ## Authored postal rooms and standalone layout review; host owns campaign state.
 signal room_changed(index: int)
 signal close_requested
+signal postcard_requested(card:Dictionary, origin:Rect2)
 
 const DESIGN := Vector2(1920, 1080)
 const SOURCE := preload("res://assets/authoring/post_office_20261116/room_pair.png")
@@ -19,6 +20,7 @@ var previous_arrow: Button
 var close_button: Button
 var _transition: Tween
 var _textures: Array[Texture2D] = []
+var postcard_rack:Control
 
 class SceneArrow extends Button:
 	var direction := 1
@@ -90,6 +92,12 @@ func _ready() -> void:
 	image = _image_node("AuthoredRoom")
 	room_index = clampi(room_index, 0, 1)
 	image.texture = _textures[room_index]
+	postcard_rack=preload("res://scripts/rebuild/postal_postcard_rack.gd").new()
+	postcard_rack.allowed=func():return room_index==0 and not transitioning and (not navigation_allowed.is_valid() or navigation_allowed.call())
+	canvas.add_child(postcard_rack)
+	postcard_rack.size=DESIGN
+	postcard_rack.visible=room_index==0
+	postcard_rack.card_requested.connect(func(card:Dictionary,origin:Rect2):postcard_requested.emit(card,origin))
 	next_arrow = _arrow("ToWorkroom", Vector2(1810, 492), 1)
 	previous_arrow = _arrow("ToCounter", Vector2(34, 492), -1)
 	next_arrow.visible = room_index == 0
@@ -138,6 +146,7 @@ func show_room(index: int) -> void:
 	if transitioning or index == room_index or index < 0 or index > 1: return
 	if navigation_allowed.is_valid() and not navigation_allowed.call(): return
 	transitioning = true
+	postcard_rack.hide()
 	next_arrow.disabled = true
 	previous_arrow.disabled = true
 	previous_image.texture = image.texture
@@ -153,6 +162,7 @@ func show_room(index: int) -> void:
 		previous_arrow.disabled = false
 		next_arrow.visible = room_index == 0
 		previous_arrow.visible = room_index == 1
+		postcard_rack.visible = room_index == 0
 		room_changed.emit(room_index))
 
 func _request_close() -> void:
