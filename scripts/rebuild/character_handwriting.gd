@@ -11,7 +11,7 @@ const MARKER=preload("res://assets/fonts/handwriting/LXGWMarkerGothic-Regular.tt
 const LATIN=preload("res://assets/fonts/Caveat.ttf")
 const FALLBACK=preload("res://assets/fonts/NotoSansSC.ttf")
 const Effect=preload("res://scripts/rebuild/handwriting_effect.gd")
-const ALIASES={"主角":"Anne","你":"Anne","我":"Anne","You":"Anne","Cici":"cici","巫巫":"cici","石泳琪":"咸鱼","餐车摊主":"咸鱼","餐车老板":"咸鱼","Chef":"咸鱼","塔罗师":"夏透明","Monssner":"Mossner","黄毛乐队男":"guitarist","吉他手":"guitarist","Guitarist":"guitarist","老爷爷":"Arthur"}
+const ALIASES={"主角":"Anne","你":"Anne","我":"Anne","You":"Anne","Cici":"cici","巫巫":"cici","Chenyuan":"尘缘","石泳琪":"咸鱼","餐车摊主":"咸鱼","餐车老板":"咸鱼","Chef":"咸鱼","塔罗师":"夏透明","Monssner":"Mossner","黄毛乐队男":"guitarist","吉他手":"guitarist","Guitarist":"guitarist","老爷爷":"Arthur"}
 # font, size, ink, horizontal scale, pen slant, spacing, baseline variation,
 # pressure variation, embolden, line spacing. All distances use 1600x900 UI units.
 const PROFILES={

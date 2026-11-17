@@ -10,9 +10,15 @@ static func catalog() -> Dictionary:
 		if parsed is Dictionary and parsed.get("version") == 1: _data = parsed
 	return _data.duplicate(true)
 
-static func ambient_lines(actor: String) -> Array:
+static func ambient_lines(actor: String, locale:String="zh") -> Array:
 	var data := catalog()
-	return paginate(data.get("ambient", {}).get(actor, {}).get("lines", []))
+	var rows:Array=data.get("ambient", {}).get(actor, {}).get("lines", []).duplicate(true)
+	if locale=="en":
+		for row:Dictionary in rows:
+			if not row.has("text_en") or str(row.text_en).is_empty():return []
+			row.text=row.text_en
+			if row.has("speaker_en"):row.speaker=row.speaker_en
+	return paginate(rows)
 
 static func chapter_records(actor: String, chapter: int) -> Array:
 	# Staging API for future chapter event handlers, never the default NPC greeting.
@@ -20,6 +26,12 @@ static func chapter_records(actor: String, chapter: int) -> Array:
 	for row: Dictionary in catalog().get("records", []):
 		if row.get("actor") == actor and int(row.get("chapter", 0)) == chapter:
 			result.append(row.duplicate(true))
+	return result
+
+static func playable_scenes(actor: String) -> Array:
+	var result: Array = []
+	for scene:Dictionary in catalog().get("playable_scenes", []):
+		if actor in scene.get("actors", []): result.append(scene.duplicate(true))
 	return result
 
 static func paginate(lines: Array) -> Array:
@@ -31,7 +43,7 @@ static func paginate(lines: Array) -> Array:
 		while remaining.length() > MAX_PAGE_CHARACTERS:
 			var cut := MAX_PAGE_CHARACTERS
 			for i in range(MAX_PAGE_CHARACTERS-1, 23, -1):
-				if remaining[i] in ["。", "！", "？", "，", "；", "\n"]:
+				if remaining[i] in ["。", "！", "？", "，", "；", "\n", ".", "!", "?", ",", ";", " "]:
 					cut = i + 1
 					break
 			var page := line.duplicate(true)

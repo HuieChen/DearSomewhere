@@ -25,6 +25,7 @@ var _choices: Array = []
 var _showing_choices := false
 var _locked := false
 var _choice_page := 0
+var choice_navigation_words := false
 var _left_art := ""
 var _right_art := ""
 var locale := "zh"
@@ -180,10 +181,12 @@ func _render() -> void:
 			button.add_theme_font_override("font",Handwriting.font_for("Anne"))
 			button.pressed.connect(func():_choose(str(choice.get("id",index))))
 		if _choice_page>0:
-			var previous:=_text_button("‹",Rect2(389,831,84,45));previous.name="ChoicePagePrevious"
+			var previous:=_text_button("‹ 上一页" if choice_navigation_words else "‹",Rect2(389,831,130 if choice_navigation_words else 84,45));previous.name="ChoicePagePrevious"
+			if choice_navigation_words:previous.add_theme_font_size_override("font_size",20)
 			previous.pressed.connect(func():_choice_page-=1;cue.emit("flip");_render())
 		if first+CHOICES_PER_PAGE<_choices.size():
-			var next_page:=_text_button("›",Rect2(1178,831,84,45));next_page.name="ChoicePageNext"
+			var next_page:=_text_button("下一页 ›" if choice_navigation_words else "›",Rect2(1100 if choice_navigation_words else 1178,831,130 if choice_navigation_words else 84,45));next_page.name="ChoicePageNext"
+			if choice_navigation_words:next_page.add_theme_font_size_override("font_size",20)
 			next_page.pressed.connect(func():_choice_page+=1;cue.emit("flip");_render())
 	else:
 		_spoken=RichTextLabel.new();_spoken.name="SpokenLine";_spoken.text=_authored_text if authored_text_enabled else SPOKEN_TEXT;_spoken.scroll_active=true
@@ -231,7 +234,7 @@ func _process(delta:float) -> void:
 	_reveal+=delta*_text_rate
 	_spoken.visible_characters=mini(int(_reveal),_spoken.get_total_character_count())
 	if _spoken.visible_characters>=_spoken.get_total_character_count():_spoken.visible_characters=-1
-func _fit_spoken_line(spoken:RichTextLabel) -> void:
+func _fit_spoken_line(spoken) -> void:
 	await get_tree().process_frame
 	if not is_instance_valid(spoken) or _showing_choices:return
 	# Actual wrapped glyph bounds drive the paper height, not character-count guesses.

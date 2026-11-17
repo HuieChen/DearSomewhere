@@ -555,12 +555,14 @@ func _world(arrival:String="") -> void:
 		neighbour.modulate=walker.modulate
 		road.ambient_figures.append(neighbour)
 		if figure[1]=="FoodTruckGuest":
-			var talk:=Button.new();talk.name="Talk_Supplied_Chenyuan";talk.flat=true
+			var actor_id:String=figure[1]
+			var talk:=Button.new();talk.name="Talk_Supplied_Chenyuan" if actor_id=="FoodTruckGuest" else "Talk_Supplied_"+actor_id;talk.flat=true
 			talk.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
 			for button_state in ["normal","hover","pressed","focus"]:talk.add_theme_stylebox_override(button_state,StyleBoxEmpty.new())
 			UI.place(talk,road.world,Rect2(figure[3]-Vector2(dims.x*.5,dims.y),dims))
+			var destination:Vector2=figure[3]+Vector2(-160,0)
 			talk.pressed.connect(func():
-				if road.can_walk():walker.walk_to(Vector2(11570,850),func():_supplied_conversation("FoodTruckGuest")))
+				if road.can_walk():walker.walk_to(destination,func():_supplied_conversation(actor_id)))
 		var pigment:=ShaderMaterial.new();pigment.shader=preload("res://scripts/rebuild/character_palette.gdshader");neighbour.material=pigment
 	var cast:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").RESIDENTS
 	for character_id:String in cast:
@@ -1703,7 +1705,7 @@ func _chef_conversation(index:int)->void:
 # chapter data until a real postal event can request them.
 func _supplied_conversation(actor_id:String)->bool:
 	if campaign.intercept_actor(actor_id):return true
-	var lines:Array=preload("res://scripts/rebuild/supplied_dialogue.gd").ambient_lines(actor_id)
+	var lines:Array=preload("res://scripts/rebuild/supplied_dialogue.gd").ambient_lines(actor_id,preferences.values.language)
 	if lines.is_empty():return false
 	_close()
 	_hide_courier_for_closeup()
@@ -1728,3 +1730,4 @@ func _supplied_conversation(actor_id:String)->bool:
 		else:dialogue.set_line(str(lines[page].speaker),str(lines[page].text)))
 	sound.play("paper")
 	return true
+
