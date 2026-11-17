@@ -99,6 +99,7 @@ func _ready() -> void:
 	if preferences.loaded:_apply_display_preferences()
 	_title()
 	add_child(preload("res://scripts/ui/modal_focus.gd").new())
+	add_child(preload("res://scripts/ui/background_frame_budget.gd").new())
 
 func _tr(zh:String,en:String) -> String:
 	return en if is_instance_valid(preferences) and preferences.values.language=="en" else zh
