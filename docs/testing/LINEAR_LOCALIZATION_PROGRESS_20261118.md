@@ -1,0 +1,9 @@
+# Linear dialogue and localization — partial progress
+
+The user rejected the selectable manuscript fragment menu and requested story-ordered dialogue, character movement during story scenes, light Chinese editing, and natural literary English translations with occasional fitting references. Removed the fragment menu and its exploration-click routes. The previous 36 fragments remain staged data, not directly selectable gameplay. Only the existing Xanni and 尘缘 optional chats remain directly playable; neither claims to advance a letter or the campaign.
+
+The 11 lines in these two currently available chats were lightly revised in Chinese and translated to English. English speaker display uses Chenyuan while retaining 尘缘's handwriting style. Pagination respects English spaces and punctuation. Original manuscript records and user documents remain unmodified; the authored localized variants are separate ambient text fields.
+
+The supplied October flow document matches the previous flow document by SHA-256 `18acd0e0c74481cee5a00553e5b0f001fd1d208b0e26382a86e8c902afbfde50`; reviewed the newly supplied NPC design. The five-case legacy engine and exploration world do not yet implement the supplied 29-chapter state machine, chapter-specific positions, ensemble entrances/exits, or the required postal and puzzle triggers. These features and the remainder of Chinese editing and English translation remain unfinished. Do not describe this build as a completed linear campaign or complete English localization.
+
+Final PCK `91bedf345470b62b63c934e9160adbe18a111ceae3024e12a77cae4cb0cfabca` passes 130 linear/localized checks, 72 handwriting checks, 533 catalog/dialogue checks and 70 names checks; offscreen OpenGL3, dummy audio, isolated saves. The original user-facing scene menu test was retired with that interaction. Native player acceptance and full campaign testing remain pending. Logs: `D:/Codex-build-cache/linear-dialogue-qa/packed` and `regression`.

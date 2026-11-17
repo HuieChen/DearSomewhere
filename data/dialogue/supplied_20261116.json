@@ -294,37 +294,43 @@
           "speaker": "Anne",
           "text": "你和她很熟吗？",
           "source_id": "c05_0121",
-          "direction": ""
+          "direction": "",
+          "text_en": "Were you two close?"
         },
         {
           "speaker": "Xanni",
-          "text": "熟到会吵架，也熟到吵完还能一起听歌。\n这在小镇上算很熟了。",
+          "text": "熟到会吵架，也熟到吵完还能一起听歌。\n在小镇上，这就算很熟了。",
           "source_id": "c05_0122",
-          "direction": ""
+          "direction": "",
+          "text_en": "Close enough to fight, and close enough to put on a record together afterward. Around here, that's pretty close."
         },
         {
           "speaker": "Anne",
           "text": "她吵完会道歉吗？",
           "source_id": "c05_0123",
-          "direction": ""
+          "direction": "",
+          "text_en": "Did she apologize afterward?"
         },
         {
           "speaker": "Xanni",
-          "text": "看情况。她有时候道歉，有时候带一张唱片来，放完就当道歉了。",
+          "text": "看情况。有时候她会道歉，有时候带张唱片来，放完就当道过歉了。",
           "source_id": "c05_0124",
-          "direction": ""
+          "direction": "",
+          "text_en": "Depends. Sometimes she'd say sorry. Other times she'd bring a record, play it through, and call that an apology."
         },
         {
           "speaker": "Anne",
-          "text": "……真是方便。",
+          "text": "……真方便。",
           "source_id": "c05_0125",
-          "direction": ""
+          "direction": "",
+          "text_en": "...Convenient."
         },
         {
           "speaker": "Xanni",
           "text": "是啊。所以我才留了这么多唱片。",
           "source_id": "c05_0126",
-          "direction": ""
+          "direction": "",
+          "text_en": "Mm-hm. That's why I kept so many records."
         }
       ]
     },
@@ -336,31 +342,39 @@
           "speaker": "Anne",
           "text": "这个约定是怎么来的？",
           "source_id": "c17_0524",
-          "direction": ""
+          "direction": "",
+          "text_en": "How did that promise start?"
         },
         {
           "speaker": "尘缘",
-          "text": "说来就有些话长了……以前手机联系还不像现在这样方便，我和她也不在同一座城市，所以每次月假后也许又要等上一两个星期才能再度联系上，期间便是靠着这信互诉肺腑",
+          "text": "说来就有些话长了……以前手机联系还不像现在这么方便，我和她又不在同一座城市。每次月假结束后，也许要等上一两个星期才能再联系上，期间就靠写信互诉心事。",
           "source_id": "c17_0525",
-          "direction": "(笑了笑，眼睛望向了远方)"
+          "direction": "(笑了笑，眼睛望向了远方)",
+          "text_en": "That's a bit of a story... It wasn't so easy to reach someone by phone back then, and we lived in different cities. After our monthly break, it might be a week or two before we could talk again. So we wrote letters and told each other everything.",
+          "speaker_en": "Chenyuan"
         },
         {
           "speaker": "尘缘",
-          "text": "刚开始，两个人都有说不完的话，信的内容还是肉麻的长文，慢慢地越写越短，最后也都不知道该写些什么了……有一次，她寄来了一张空白的纸，我看了半天，笑了。她后来打电话说，写不出来的时候，至少寄张纸，别断咯",
+          "text": "刚开始，我们总有说不完的话，信里都是肉麻的长篇大论。后来越写越短，最后也不知道该写什么了……有一次，她寄来一张空白纸。我看了半天，笑了。后来她打电话说，写不出来的时候，至少寄张纸，别断了联系。",
           "source_id": "c17_0527",
-          "direction": ""
+          "direction": "",
+          "text_en": "At first, we had so much to say. Our letters went on for pages, all hopelessly sentimental. Then they got shorter and shorter, until neither of us knew what to write... One day she sent me a blank sheet of paper. I stared at it for a long time, then laughed. Later she called and said, 'When you can't find the words, send a page anyway. Don't let the line go quiet.'",
+          "speaker_en": "Chenyuan"
         },
         {
           "speaker": "Anne",
-          "text": "所以，空白也是一种内容",
+          "text": "所以，空白也是一种内容。",
           "source_id": "c17_0528",
-          "direction": ""
+          "direction": "",
+          "text_en": "So even a blank page has something to say."
         },
         {
           "speaker": "尘缘",
-          "text": "嗯，空白是“我还在”，不用解释，不用汇报，不用把信写成流水账",
+          "text": "嗯，空白就是“我还在”。不用解释，不用汇报，也不用把信写成流水账。",
           "source_id": "c17_0529",
-          "direction": ""
+          "direction": "",
+          "text_en": "Yeah. A blank page says, 'I'm still here.' No explaining, no checking in like it's a duty, no turning a letter into a list of everything you've done.",
+          "speaker_en": "Chenyuan"
         }
       ]
     }
