@@ -1,0 +1,7 @@
+# Comfortable dialogue text — 2026-11-17
+
+The user found the earlier handwriting uncomfortable to read. Replaced the more expressive brush and cursive faces with the existing clear WenKai regular handwriting for most speakers and a gentler marker face for Anne and cici. Reduced slant, weight and baseline/ink irregularity substantially, retaining small differences in color, spacing and pen tilt. Dialogue text, actor bindings, pagination and original assets are unchanged. This is a readability-oriented interpretation; the user's visual acceptance remains open.
+
+The source rendered three font sheets and six actual notebook variants; inspected the first sheet, the Maya notebook and the 1280×720 supplied-dialogue render. Source GPU tests pass 636 checks (72 handwriting, 524 supplied dialogue, 40 actor names), including source text, literal brackets, line fitting, speaker switching and three resolutions. The build executes the default headless suite. The current render tests use an offscreen GPU and dummy audio; a native interactive session and listening were not done for this revision. Prior user-facing sheets describe the superseded design.
+
+The exported PCK passed the same 636 scoped checks, see `D:/Codex-build-cache/comfort-qa/packed/`. PCK SHA-256 `8a02530b40d104fb7aa8b1ab42f31174e2dd02e766c1755e944b856f29df319a`. Source default check logs: `test-results/check-20261117-142957/`; export audit: `test-results/package-20261117-143129/export-audit.json`.
