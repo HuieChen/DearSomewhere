@@ -52,6 +52,7 @@
       "day": 1,
       "supplied": true,
       "sources": [
+        "3.4.28.xlsx",
         "示例.xlsx"
       ]
     },
@@ -59,8 +60,10 @@
       "chapter": 4,
       "title": "W1 帮周晓六整理求职材料",
       "day": 1,
-      "supplied": false,
-      "sources": []
+      "supplied": true,
+      "sources": [
+        "3.4.28.xlsx"
+      ]
     },
     {
       "chapter": 5,
@@ -267,8 +270,10 @@
       "chapter": 28,
       "title": "周晓六的求职信",
       "day": 5,
-      "supplied": false,
-      "sources": []
+      "supplied": true,
+      "sources": [
+        "3.4.28.xlsx"
+      ]
     },
     {
       "chapter": 29,
@@ -6093,6 +6098,175 @@
       "position": "p64",
       "actor": "grocer",
       "status": "已绑定·待章节触发"
+    },
+    {
+      "id": "supp_4_3_1",
+      "chapter": 4,
+      "scene": "周晓六来到邮局",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "早啊晓六，你这一大箱是......发财了？",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "4!E3 第1行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_4_3_3",
+      "chapter": 4,
+      "scene": "周晓六来到邮局",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "我将鼎力支持你！呐！给你腾了块空地，你就在这里收拾吧。",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "4!E3 第3行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_4_7_1",
+      "chapter": 4,
+      "scene": "整理完毕，周晓六离开邮局",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "这么快就整理完啦？",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "4!E7 第1行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_4_7_3",
+      "chapter": 4,
+      "scene": "整理完毕，周晓六离开邮局",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "好！要是有offer寄来我一定第一时间飞过来给你！",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "4!E7 第3行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_28_3_1",
+      "chapter": 28,
+      "scene": "周晓六来到邮局",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "早上好啊晓六，实在抱歉最近暂时还没有你的offer......",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "28!E3 第1行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_28_3_3",
+      "chapter": 28,
+      "scene": "周晓六来到邮局",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "别着急，让我来想想办法。",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "28!E3 第3行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_28_4_1",
+      "chapter": 28,
+      "scene": "浏览原来的求职信",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "你想投递什么岗位，自我介绍、求职理由、作品简介有吗？",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "28!E4 第1行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_28_5_1",
+      "chapter": 28,
+      "scene": "指出问题",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "“相信公司，绝不犹豫，忠于公司，绝不敷衍。”天啊，你这是从哪里抄来的pua话术？！",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "28!E5 第1行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_28_5_3",
+      "chapter": 28,
+      "scene": "指出问题",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "亲爱的，不要让你的大脑成为别人的跑马场，比起千篇一律的套话，你的个人价值、优势才更重要。来吧，我们重新写一封求职信。",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "28!E5 第3行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_28_7_2",
+      "chapter": 28,
+      "scene": "修改过程中的质疑",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "我将用最直白、最直接、最不绕弯子、最客观、最正确、最系统、最真实、最简略、最容易理解、最不卖关子的方式告诉你：没有。",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "28!E7 第2行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_28_7_3",
+      "chapter": 28,
+      "scene": "修改过程中的质疑",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "你那天整理作品集的时候，我就在旁边，你的作品真的很好，只是缺一段好好介绍它的文字而已，我一定会如实地用文字展现你的优势，相信我，晓六。",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "28!E7 第3行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_28_8_1",
+      "chapter": 28,
+      "scene": "最终确认",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "晓六，你看这样可以吗？",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "28!E8 第1行",
+      "actor": "courier",
+      "status": "待剧情触发"
+    },
+    {
+      "id": "supp_28_8_3",
+      "chapter": 28,
+      "scene": "最终确认",
+      "kind": "dialogue",
+      "speaker": "Anne",
+      "text": "等你好消息呀！",
+      "direction": "",
+      "source": "3.4.28.xlsx",
+      "position": "28!E8 第3行",
+      "actor": "courier",
+      "status": "待剧情触发"
     }
   ],
   "playable_scenes": [

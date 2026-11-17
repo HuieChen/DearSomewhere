@@ -15,6 +15,10 @@ func run():
 	DirAccess.make_dir_recursive_absolute(out)
 	var lib=preload("res://scripts/rebuild/supplied_dialogue.gd")
 	var catalog:Dictionary=lib.catalog()
+	for chapter:int in [4,28]:
+		check(catalog.chapters[chapter-1].supplied,"supplement chapter indexed: "+str(chapter))
+		check(not lib.chapter_records("courier",chapter).is_empty(),"supplement protagonist lines retained: "+str(chapter))
+	check(lib.playable_scenes("周晓六").is_empty(),"unmapped 周晓六 is not assigned an actor")
 	var covered:Dictionary={}
 	for scene:Dictionary in catalog.playable_scenes:
 		for line:Dictionary in scene.lines:covered[str(line.source_id)]=true
