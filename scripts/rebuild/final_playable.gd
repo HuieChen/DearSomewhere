@@ -25,6 +25,7 @@ const PERSON_ART = {"mira_vale":"CHAR_mira","june_arlen":"CHAR_june","chenyuan":
 const DISPOSITION = {"deliver":"当面交付","delegate":"委托顺路交付","forward":"转至批准收信格","repair_and_reenter":"修复后重新入邮路","return_to_sender":"退回寄件人","hold_for_verification":"留待核实","unresolved_with_note":"记录未送原因","archive_review":"送交档案复核","file_officially":"归入正式档案","keep_at_desk":"留在 Desk B","supervisor_next_shift":"交下一班主管"}
 
 var core: Node
+var campaign:Node
 var sound: Node
 var stage: Control
 var layer: Control
@@ -97,6 +98,8 @@ func _ready() -> void:
 	preferences.changed.connect(_apply_preference)
 	_apply_audio_preferences()
 	if preferences.loaded:_apply_display_preferences()
+	campaign=preload("res://scripts/campaign/five_day_campaign.gd").new()
+	add_child(campaign);campaign.setup(self)
 	_title()
 	add_child(preload("res://scripts/ui/modal_focus.gd").new())
 	add_child(preload("res://scripts/ui/background_frame_budget.gd").new())
@@ -199,6 +202,10 @@ func _prepare_quit() -> bool:
 			return false
 	elif not core.state.active_operation.is_empty():
 		_show_save_problem(_tr("请先收好正在操作的纸件，再关闭游戏。","Please put away the paper you are handling before closing."))
+		return false
+	if campaign.active():
+		if campaign.persist():return true
+		_show_save_problem(campaign.journey.last_error)
 		return false
 	if not _save_resolution_drafts():return false
 	if not core.save_game():
@@ -323,9 +330,10 @@ func _say(message:String) -> void:
 	if is_instance_valid(_footer_timer):_footer_timer.stop()
 
 func _save() -> void:
-	if core.save_game():
+	if (campaign.persist() if campaign.active() else core.save_game()):
 		var stale_notice:=get_node_or_null("SaveFailureNotice")
 		if is_instance_valid(stale_notice):remove_child(stale_notice);stale_notice.queue_free()
+	elif campaign.active():_show_save_problem(campaign.journey.last_error)
 	if is_instance_valid(sound):sound.set_time_of_day(int(core.state.minute))
 	if is_instance_valid(_street_road):_street_road.transition_time_of_day(float(core.state.minute))
 
@@ -367,7 +375,7 @@ func _title() -> void:
 	UI.place(logo,stage,Rect2(0,0,1600,430.0/1.28))
 	_title_action_pending=false
 	var start:=_cover_button(ink,source_scale,"NewShift",Rect2(70,430,600,155),_tr("开始新旅程","Start"),_start)
-	var resume:=_cover_button(ink,source_scale,"ContinueShift",Rect2(70,589,600,145),_tr("继续旅程","Continue"),_resume,not core.has_save())
+	var resume:=_cover_button(ink,source_scale,"ContinueShift",Rect2(70,589,600,145),_tr("继续旅程","Continue"),_resume,not core.has_save() and not campaign.journey.has_save())
 	var options:=_cover_button(ink,source_scale,"OpenSettings",Rect2(70,734,600,152),_tr("设置","Settings"),_settings_page)
 	if resume.disabled:resume.tooltip_text=_tr("还没有旅程记录","No saved journey yet")
 	# A quiet secondary action below the three original painted paper strips.
@@ -422,20 +430,30 @@ func _stage_plan(id:String) -> Dictionary:
 
 func _start() -> void:
 	if busy:return
+	if campaign.journey.has_save():
+		_sheet(_tr("开始新旅程？","Start a new journey?"),_tr("当前五日旅程会另存为备份，然后从第一天开始。","The current five-day journey will be backed up before starting again."),[["开始新旅程",func():await _fresh()]])
+		return
 	await _fresh()
 
 func _fresh() -> void:
+	# A separate campaign save leaves the old exploration/case save untouched.
+	if campaign.journey.has_save():
+		var old_path:String=ProjectSettings.globalize_path(campaign.journey.path)
+		if not FileAccess.file_exists(old_path):old_path+=".bak"
+		var backup_error:=DirAccess.copy_absolute(old_path,old_path+".before-new-"+str(Time.get_unix_time_from_system()))
+		if backup_error!=OK:_show_save_problem("旧旅程未能备份，暂未开始新旅程。");return
 	core.new_game()
+	if not campaign.journey.new_journey():_show_save_problem(campaign.journey.last_error);return
 	carried=""
 	_tray_opened=false
 	_briefing_pending=true
 	_resolution_drafts.clear()
-	if not core.save_game():
+	if not campaign.persist():
 		_briefing_pending=false
 		set_meta("last_save_diagnostic",core.last_save_error)
 		_sheet(_tr("暂时无法保存新旅程","Unable to save a new journey"),_tr("原有记录会保留。请检查存储空间或写入权限，再试一次。","Your previous record is preserved. Please check storage space or write access, then try again."),[])
 		return
-	var draft_error:String=DraftStore.reset(core.save_path+".drafts-v1.json")
+	var draft_error:String=""
 	if not draft_error.is_empty():
 		_briefing_pending=false
 		_show_save_problem(_tr("暂时无法准备新旅程，请稍后重试。","The new journey could not be prepared. Please try again."),draft_error)
@@ -451,7 +469,7 @@ func _fresh() -> void:
 	UI.place(fade,self,Rect2(0,0,1600,900))
 	await fade.cover(true)
 	if not is_inside_tree():return
-	_post_office_room()
+	campaign.begin_arrival()
 	fade.set_progress(0.82)
 	await get_tree().create_timer(1.15).timeout
 	await fade.uncover(true)
@@ -485,6 +503,9 @@ func _finish_briefing() -> void:
 	if _window_close_deferred:_close_window_after_save.call_deferred()
 
 func _resume() -> void:
+	if campaign.journey.has_save():
+		campaign.resume()
+		return
 	if not core.load_game():
 		set_meta("last_save_diagnostic",core.last_save_error)
 		_sheet(_tr("旅程记录","Journey record"),_tr("暂时无法读取这段旅程，原有文件已保留。请稍后重试。","This journey could not be opened. Your original file is preserved; please try again."),[])
@@ -497,6 +518,7 @@ func _resume() -> void:
 	else: _world(str(core.state.location))
 
 func _world(arrival:String="") -> void:
+	campaign.sync_time()
 	_new_stage("world")
 	var road=load("res://scripts/rebuild/coastal_road.gd").new()
 	_street_road=road
@@ -561,6 +583,7 @@ func _world(arrival:String="") -> void:
 	var old_map:Node=road.get_node_or_null("RoadMapReturn")
 	if old_map!=null:old_map.hide()
 	_hud(str(core.state.location),false)
+	campaign.mount()
 func _look_at(text:String) -> void:
 	_close()
 	if is_instance_valid(walker):walker.cancel();walker.manual_enabled=false
@@ -572,6 +595,7 @@ func _look_at(text:String) -> void:
 	line.closed.connect(_close)
 
 func _resident_conversation(character_id:String,index:int)->void:
+	if index==0 and campaign.intercept_actor(character_id):return
 	if index==0 and _supplied_conversation(character_id):return
 	if index>=2:
 		if is_instance_valid(modal) and modal is SceneDialogue:modal.finish()
@@ -834,15 +858,16 @@ func _post_office_room(index:int=0) -> void:
 		if busy or is_instance_valid(modal) or room.transitioning:return
 		_counter())
 	exit.visible=post_office_room_index==0
-	reference.visible=false
-	desk.visible=false
+	reference.visible=campaign.active() and post_office_room_index==0
+	desk.visible=campaign.active() and post_office_room_index==1
 	room.room_changed.connect(func(next_index:int):
 		post_office_room_index=next_index
 		exit.visible=next_index==0
-		reference.visible=false
-		desk.visible=false)
+		reference.visible=campaign.active() and next_index==0
+		desk.visible=campaign.active() and next_index==1)
 	_hud("post_office",false)
 	_footer()
+	campaign.mount()
 
 func _inspect_postcard(card:Dictionary,origin:Rect2,room:Control)->void:
 	if busy or is_instance_valid(modal) or not is_instance_valid(room) or room.room_index!=0:return
@@ -861,6 +886,7 @@ func _inspect_postcard(card:Dictionary,origin:Rect2,room:Control)->void:
 	sound.play("paper")
 
 func _counter() -> void:
+	if campaign.active():campaign.open_current();return
 	_new_stage("counter")
 	sound.play("door")
 	sound.set_location("post_office",int(core.state.minute),true)
@@ -947,6 +973,7 @@ func _observe(id:String) -> void:
 	sound.play("paper")
 
 func _book() -> void:
+	if campaign.active():campaign.journal();return
 	if busy:return
 	_close()
 	var script=load("res://scripts/rebuild/field_book.gd")
@@ -1057,6 +1084,7 @@ func _sheet(title:String, copy:String, actions:Array,rounded_actions:bool=false)
 
 func _bag(focus_letter:String="",feedback:bool=true) -> void:
 	if busy:return
+	if campaign.active() and not _bag_photos_visible:campaign.satchel();return
 	if not focus_letter.is_empty():_bag_photos_visible=false
 	var rebuilding_bag:=is_instance_valid(modal) and modal.name=="MailBag"
 	var root:=_overlay(not rebuilding_bag)
@@ -1652,6 +1680,7 @@ func _failure() -> void:
 # The authored food-truck encounter is a complete, re-enterable conversation.
 # It does not award invented case evidence or overwrite campaign progress.
 func _chef_conversation(index:int)->void:
+	if index==0 and campaign.intercept_actor("chef"):return
 	if index>=6:
 		if is_instance_valid(modal) and modal is SceneDialogue:modal.finish()
 		return
@@ -1673,6 +1702,7 @@ func _chef_conversation(index:int)->void:
 # Optional authored chats work in the exploration demo. Delivery reactions remain
 # chapter data until a real postal event can request them.
 func _supplied_conversation(actor_id:String)->bool:
+	if campaign.intercept_actor(actor_id):return true
 	var lines:Array=preload("res://scripts/rebuild/supplied_dialogue.gd").ambient_lines(actor_id)
 	if lines.is_empty():return false
 	_close()

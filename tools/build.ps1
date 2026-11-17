@@ -162,10 +162,14 @@ try {
     Get-ChildItem (Join-Path $taskRepo "assets/fonts/handwriting") -File | Where-Object { $_.Extension -in @(".txt", ".json") } | Copy-Item -Destination (Join-Path $taskLicenses "Handwriting") -Force
     $taskPlayerReadme = @(
         'Dear Somewhere',
-        '双击 DearSomewhere.exe。当前为已开放功能的探索试玩版。',
+        '双击 DearSomewhere.exe。当前为五日流程可玩版，使用现有与占位美术。',
         'WASD / 方向键 / 点地面行走；可使用地图、相机、照片包和已开放的居民互动。',
         'Esc 返回或暂停，F11 切换全屏；设置页可调整音量与显示。',
-        'R 打开录音机；录下场景声音，停止后保存，可从背包回听。完整邮件剧情、部分居民对白仍未开放。',
+        '新旅程从第一封信开始；B 查看当前信件，J 查看已获得的记录，M 展开地图。',
+        '每天的工作完成后，从邮局右侧上二楼，整理遗物并点击床休息。天色按剧情推进，无倒计时。',
+        'R 打开录音机；录下场景声音，停止后保存，可从背包回听。',
+        '五日主线包含送信、核对、封装、装箱、做饭、写信；棋摊有可随时离开的五子棋。',
+        '过渡台词、物件插图、二楼插图与演出录音仍可替换，不代表最终叙事与美术验收。',
         '沿用 Godot 用户目录下 一百信 · Solmere Post 的存档位置。',
         '字体、声音、引擎与新生成美术的许可及来源说明见 Licenses。',
         '本地构建不等于参考验收、真人试玩或商业发行审核已经完成。'

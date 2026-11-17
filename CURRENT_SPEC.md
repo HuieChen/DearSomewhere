@@ -1,5 +1,7 @@
 # Current specification — reviewed 2026-10-03
 
+2026-11-18 direct scope override: implement the complete five-day route from `Dear Somewhere流程设计(3).docx`, source SHA-256 `18acd0e0c74481cee5a00553e5b0f001fd1d208b0e26382a86e8c902afbfde50`. User will replace artwork later. This supersedes the old exploration-only/story-hidden limitation and old single-letter queue for this specific campaign. Preserve all older saves and current art. Daylight follows narrative milestones without a real-time deadline; the attic is the post office's second floor. Opening uses existing town/courier/envelope art, gentle transitions and an explicit skip. See `docs/testing/FIVE_DAY_FLOW_20261118.md` for implemented scope, evidence and remaining author/art acceptance. Do not treat this change as completing historical CORE-BOOK/CORE-WALK studio reviews.
+
 2026-11-11 direct correction: user prefers the original photo-ejection design. Restore its centered bottom slot, original paper sizes and gradual slide/develop timing for both landscape and instant photos. The unobstructed recorder requirement must not remove the camera paper ritual. Preserve the current photography data and recording features.
 
 2026-11-14 direct correction: global UI should feel authored and comfortable rather than a collection of generic floating labels. Unify the paper, ink, teal and coral language across camera, recorder and map; use well-reviewed camera and field-recorder patterns as interaction references while preserving Dear Somewhere's paper-instrument identity.

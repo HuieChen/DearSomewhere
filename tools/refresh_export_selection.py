@@ -44,7 +44,8 @@ def selection(retained_paths=()):
     for name, expected in card_data['files'].items():
         if Path(name).name != name or not name.endswith('.png') or hashlib.sha256((card_dir/name).read_bytes()).hexdigest() != expected:
             raise ValueError('Postcard layer export differs from its source receipt.')
-    paths = {'res://scenes/final_slice.tscn',
+    paths = {'res://data/campaign/five_days.json',
+             'res://scenes/final_slice.tscn',
              'res://assets/authoring/neighbours_20261109/naonao.png',
              'res://assets/authoring/neighbours_20261109/food_truck_guest.png',
              'res://assets/ui/confirmation_20261109/rounded_paper.png',
@@ -138,6 +139,7 @@ def refreshed_source(source):
     patterns.extend(['addons/phantom_camera/LICENSE', 'addons/dialogue_manager/LICENSE', 'data/dialogue/chef_zh.dialogue', 'data/dialogue/chef_en.dialogue'])
     patterns.extend(path[6:] for path in paths if path.endswith('.gdshaderinc'))
     patterns.append('data/dialogue/supplied_20261116.json')
+    patterns.extend(['data/campaign/five_days.json', 'data/campaign/presentation.json', 'assets/authoring/letter01_20261004/envelope_back.png'])
     patterns.extend(['assets/fonts/handwriting/*.txt', 'assets/fonts/handwriting/provenance.json'])
     patterns.append('assets/authoring/courier_walk_20261110/walk.json')
     patterns.append('assets/authoring/courier_walk_20261110/runtime_registration.json')

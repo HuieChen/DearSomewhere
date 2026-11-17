@@ -95,3 +95,7 @@ The latest direct request authorizes a new continuous three-letter session (esti
 2026-10-03: The user says Claude Code Game Studios has not been used sufficiently and asks subsequent structure to follow it. Implement real project-local production coordination, ordered stories, named responsibilities, dependencies, ownership, review evidence and handoffs. This does not replace accepted art or lower product acceptance. Sequential responsibility passes must be reported honestly; no implication of 49 concurrent agents.
 2026-10-17 latest: "点击后应该有波纹". A visible outward click-wave is still required. R5's mechanical source/packaged checks do not close this human feedback; the next isolated water-visibility pass must preserve the repaired source-art edges, controls and layout.
 
+# 2026-11-18 · Current five-day campaign request
+
+“你先帮我把游戏流程跑通 后续我会替换美术素材”; “你先做”; “以及要按流程做出天色变化”; “游戏性和体验感要很强”; “阁楼是在邮局的二楼”; opening should reference The Granny Detective Society and other gentle/emotional games, reuse existing artwork and transition naturally. Implement and verify the five-day route before further art replacement. Continue the standing requirement to preserve concurrent work, push validated changes to GitHub main and synchronize both Latest playable entries.
+
