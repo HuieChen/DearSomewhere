@@ -105,6 +105,10 @@ func run():
 	for control:Control in [recorder.record_button,recorder.play_button,recorder.clock_label,recorder.status,recorder.visual_hint,recorder.library_button]:
 		var at:Vector2=recorder._page.get_global_transform().affine_inverse()*control.global_position
 		print("RECORDER_RECT ",control.name," ",at," ",control.size)
+		if control==recorder.record_button:
+			var dock:Rect2=recorder._page.get_node("RecorderDock").get_rect()
+			check(at.x>dock.end.x and at.y>dock.end.y and at.y+control.size.y<260,"Record button sits below-right of meter, above walking scene")
+			continue
 		check(not control.is_visible_in_tree() or not clear.intersects(Rect2(at,control.size)),"Recorder controls leave central scene clear: "+str(control.name))
 	await create_timer(.15).timeout;await RenderingServer.frame_post_draw;root.get_texture().get_image().save_png(out+"recorder_zh.png")
 	recorder.library.get_parent().show();await process_frame;await RenderingServer.frame_post_draw;root.get_texture().get_image().save_png(out+"recorder_library.png")
