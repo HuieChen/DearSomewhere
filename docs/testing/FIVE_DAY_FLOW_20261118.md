@@ -49,4 +49,16 @@ Evidence root: `D:/Codex-build-cache/dear-flow-20261117/`. All test saves use un
 
 `studio.py status/ready/dispatch` was run before implementation. Historical STORY-LETTER01 readiness remains blocked by CORE-WALK / single-active-story review. The user's new full-flow request explicitly supersedes that earlier implementation queue; no historical acceptance evidence or board completion was fabricated. No parallel agents were spawned. Original supplied image/video/document files and legacy progress remain preserved.
 
-Native-window checks, final merged-package checks and verified publication are recorded in the delivery receipt when complete. English campaign translation, full manuscript integration, final artwork/audio, measured 3–4-hour pacing and novice comfort acceptance are not inferred from automated passes.
+English campaign translation, full manuscript integration, final artwork/audio, measured 3–4-hour pacing and novice comfort acceptance are not inferred from automated passes.
+
+## Final candidate verification
+
+Runtime source: `70bdcaeff9ba4cb14c56334ddd19fce66673d535`, merging upstream `24fd6013e424183932ac41863c0fe6422c7de532`. The upstream localized ambient dialogue and recorder layout are retained. The candidate PCK SHA-256 is `d17e2293ca9dba93f2a23ffe18c607de2e170be39f53a670559bf4920e195deb`; executable SHA-256 is `d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562`.
+
+- Default `tools/check.ps1` completed successfully (`default-checks.log`). It explicitly does not claim the entire optional GPU suite.
+- Export integrity checked 1,426 entries and 293 raw files (`build.log`).
+- The actual exported PCK passed the full five-day routed-input regression: 615 checks / 0 failures (`packed-route.log`).
+- The same PCK passed upstream localized dialogue regression: 130 checks / 0 failures (`merged-dialogue/receipt.json`) and recorder regression: 44 checks / 0 failures (`merged-recorder/receipt.json`). Recorder tests use Dummy audio; injected write failures are intentional. They do not establish human listening acceptance.
+- Native Windows input against the release executable verified title → loading → all three opening beats → actual postal interior/Mossner → first-envelope inspection → incorrect inference and retry → correct recipient/read. Esc put the letter away; save-to-title and Continue restored the current first-letter task. The isolated QA window was then closed normally. `native.log` contains no engine warnings/errors. This is a native opening/save subset, not a claimed five-day human playthrough.
+
+Publication and the two Latest-directory backups/hash checks are recorded externally in `publication.json`, `sync-five-day.json` and each package's `SOURCE_VERSION.json`, so the verified Git commit need not contain a self-referential hash. Existing user progress and the separately running dialogue package are not overwritten.
