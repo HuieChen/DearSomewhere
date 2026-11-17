@@ -22,6 +22,12 @@ static func chapter_records(actor: String, chapter: int) -> Array:
 			result.append(row.duplicate(true))
 	return result
 
+static func playable_scenes(actor: String) -> Array:
+	var result: Array = []
+	for scene:Dictionary in catalog().get("playable_scenes", []):
+		if actor in scene.get("actors", []): result.append(scene.duplicate(true))
+	return result
+
 static func paginate(lines: Array) -> Array:
 	var result: Array = []
 	for line: Dictionary in lines:

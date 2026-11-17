@@ -531,13 +531,15 @@ func _world(arrival:String="") -> void:
 		UI.place(neighbour,road.world,Rect2(figure[3]-Vector2(dims.x*.5,dims.y),dims))
 		neighbour.modulate=walker.modulate
 		road.ambient_figures.append(neighbour)
-		if figure[1]=="FoodTruckGuest":
-			var talk:=Button.new();talk.name="Talk_Supplied_Chenyuan";talk.flat=true
-			talk.tooltip_text="尘缘";talk.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
+		if figure[1] in ["FoodTruckGuest","TarotGuest","Naonao"]:
+			var actor_id:String=figure[1]
+			var talk:=Button.new();talk.name="Talk_Supplied_Chenyuan" if actor_id=="FoodTruckGuest" else "Talk_Supplied_"+actor_id;talk.flat=true
+			talk.tooltip_text=str(preload("res://scripts/rebuild/authored_cast.gd").NAMES.get(actor_id,""));talk.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
 			for button_state in ["normal","hover","pressed","focus"]:talk.add_theme_stylebox_override(button_state,StyleBoxEmpty.new())
 			UI.place(talk,road.world,Rect2(figure[3]-Vector2(dims.x*.5,dims.y),dims))
+			var destination:Vector2=figure[3]+Vector2(-160,0)
 			talk.pressed.connect(func():
-				if road.can_walk():walker.walk_to(Vector2(11570,850),func():_supplied_conversation("FoodTruckGuest")))
+				if road.can_walk():walker.walk_to(destination,func():_supplied_scene_menu(actor_id)))
 		_resident_nameplate(road,figure[1],figure[3],float(figure[4]))
 		var pigment:=ShaderMaterial.new();pigment.shader=preload("res://scripts/rebuild/character_palette.gdshader");neighbour.material=pigment
 	var cast:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").RESIDENTS
@@ -556,7 +558,8 @@ func _world(arrival:String="") -> void:
 		UI.place(actor,road.world,Rect2(Vector2.ZERO,road.world.size))
 		_resident_nameplate(road,character_id,resident.foot,resident.height)
 		actor.talk_requested.connect(func():
-			if character_id=="chef":_chef_conversation(0)
+			if not preload("res://scripts/rebuild/supplied_dialogue.gd").playable_scenes(character_id).is_empty():_supplied_scene_menu(character_id)
+			elif character_id=="chef":_chef_conversation(0)
 			else:_resident_conversation(character_id,0))
 	sound.set_location(str(core.state.location),int(core.state.minute),false)
 	var old_map:Node=road.get_node_or_null("RoadMapReturn")
@@ -1706,3 +1709,39 @@ func _supplied_conversation(actor_id:String)->bool:
 		else:dialogue.set_line(str(lines[page].speaker),str(lines[page].text)))
 	sound.play("paper")
 	return true
+
+# The current exploration build has no 29-chapter delivery state machine.
+# Explicitly labelled scene selection makes the authored dialogue accessible
+# without silently pretending that deliveries or branching outcomes occurred.
+func _supplied_scene_menu(actor_id:String)->bool:
+	var scenes:Array=preload("res://scripts/rebuild/supplied_dialogue.gd").playable_scenes(actor_id)
+	if scenes.is_empty():return false
+	_close();_hide_courier_for_closeup()
+	var dialogue:=SceneDialogue.new();modal=dialogue
+	dialogue.authored_text_enabled=true;dialogue.choice_navigation_words=true;dialogue.light_source=walker
+	UI.place(dialogue,self,Rect2(0,0,1600,900))
+	var choices:Array=[]
+	for scene:Dictionary in scenes:choices.append({"id":str(scene.id),"text":str(scene.label)})
+	dialogue.configure("原稿片段","选择原稿片段",choices)
+	dialogue._showing_choices=true;dialogue._render()
+	dialogue.closed.connect(_close);dialogue.cue.connect(sound.play)
+	dialogue.chosen.connect(func(id:String):
+		for scene:Dictionary in scenes:
+			if str(scene.id)==id:_play_supplied_scene(actor_id,scene);return)
+	return true
+
+func _play_supplied_scene(actor_id:String,scene:Dictionary)->void:
+	var lines:Array=preload("res://scripts/rebuild/supplied_dialogue.gd").paginate(scene.get("lines",[]))
+	if lines.is_empty():_close();return
+	_close();_hide_courier_for_closeup()
+	var dialogue:=SceneDialogue.new();dialogue.authored_text_enabled=true;dialogue.light_source=walker;modal=dialogue
+	UI.place(dialogue,self,Rect2(0,0,1600,900))
+	var cast:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").RESIDENTS
+	var portrait:String="cast/"+actor_id+"_portrait.png" if cast.has(actor_id) and scene.get("actors",[]).size()==1 else ""
+	dialogue.configure(str(lines[0].speaker),str(lines[0].text),[],"courier_source.jpg",portrait)
+	dialogue.set_meta("supplied_page",0);dialogue.set_meta("supplied_scene",str(scene.id))
+	dialogue.set_text_rate(preferences.text_rate());dialogue.cue.connect(sound.play);dialogue.closed.connect(_close)
+	dialogue.advanced.connect(func():
+		var page:=int(dialogue.get_meta("supplied_page"))+1;dialogue.set_meta("supplied_page",page)
+		if page>=lines.size():dialogue.finish()
+		else:dialogue.set_line(str(lines[page].speaker),str(lines[page].text)))
