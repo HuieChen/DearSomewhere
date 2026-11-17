@@ -8,6 +8,8 @@ const Metadata=preload("res://scripts/ui/media_metadata.gd")
 const FONT=preload("res://assets/fonts/DearRounded.tres")
 const BUS:="SolmereAmbience"
 const MAX_SECONDS:=120.0
+const RECORD_TRIGGER:=Rect2(1060,128,88,88)
+const RECORD_HINT:=Rect2(1059,227,90,26)
 const MOVEMENT_KEYS:=[KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D]
 var locale:="zh"
 var location_caption:=""
@@ -69,7 +71,7 @@ func _ready()->void:
 	clock_label=label("00:00",Rect2(770,69,72,30),20)
 	mode_label=label(t("监听","MONITOR"),Rect2(665,69,99,30),18)
 	status=ToolUI.label(_page,"",Rect2(1030,794,450,38),18);status.clip_text=true;status.tooltip_text=""
-	record_button=button("",ToolUI.TRIGGER,toggle_recording);record_button.name="RecordToggle";record_button.tooltip_text=t("R · 开始 / 停止录音","R · Start / stop recording");record_button.accessibility_name=t("录音 / 停止","Record / stop")
+	record_button=button("",RECORD_TRIGGER,toggle_recording);record_button.name="RecordToggle";record_button.tooltip_text=t("R · 开始 / 停止录音","R · Start / stop recording");record_button.accessibility_name=t("录音 / 停止","Record / stop")
 	for state:String in ["normal","hover","pressed","hover_pressed","disabled"]:
 		var circle:=StyleBoxFlat.new();circle.bg_color=Color("b86050") if state=="normal" else (Color("a34c40") if state in ["pressed","hover_pressed"] else Color("c77260"));circle.set_corner_radius_all(44)
 		record_button.add_theme_stylebox_override(state,circle)
@@ -78,7 +80,7 @@ func _ready()->void:
 		if recording:
 			var stop:=StyleBoxFlat.new();stop.bg_color=UI.ACTION_PAPER;stop.set_corner_radius_all(4);record_button.draw_style_box(stop,Rect2(31,31,26,26))
 		else:record_button.draw_circle(Vector2(44,44),16,UI.ACTION_PAPER))
-	ToolUI.label(_page,"R",ToolUI.TRIGGER_HINT,18,HORIZONTAL_ALIGNMENT_CENTER)
+	ToolUI.label(_page,"R",RECORD_HINT,18,HORIZONTAL_ALIGNMENT_CENTER)
 	play_button=button(t("P  回听","P  Play"),ToolUI.FIRST_ACTION,toggle_playback);play_button.name="PlaybackToggle"
 	library_button=button(t("录音列表","Recordings"),ToolUI.SECOND_ACTION,_toggle_library);library_button.name="RecordingLibrary"
 	var close:=button("×",ToolUI.CLOSE,request_close);close.name="CloseRecorder";close.add_theme_font_size_override("font_size",30);close.tooltip_text=t("关闭录音机","Close recorder")
