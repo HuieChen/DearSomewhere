@@ -533,12 +533,11 @@ func _world(arrival:String="") -> void:
 		road.ambient_figures.append(neighbour)
 		if figure[1]=="FoodTruckGuest":
 			var talk:=Button.new();talk.name="Talk_Supplied_Chenyuan";talk.flat=true
-			talk.tooltip_text="尘缘";talk.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
+			talk.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
 			for button_state in ["normal","hover","pressed","focus"]:talk.add_theme_stylebox_override(button_state,StyleBoxEmpty.new())
 			UI.place(talk,road.world,Rect2(figure[3]-Vector2(dims.x*.5,dims.y),dims))
 			talk.pressed.connect(func():
 				if road.can_walk():walker.walk_to(Vector2(11570,850),func():_supplied_conversation("FoodTruckGuest")))
-		_resident_nameplate(road,figure[1],figure[3],float(figure[4]))
 		var pigment:=ShaderMaterial.new();pigment.shader=preload("res://scripts/rebuild/character_palette.gdshader");neighbour.material=pigment
 	var cast:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").RESIDENTS
 	for character_id:String in cast:
@@ -554,7 +553,6 @@ func _world(arrival:String="") -> void:
 		actor.allowed=road.can_walk
 		actor.locale=func():return preferences.values.language
 		UI.place(actor,road.world,Rect2(Vector2.ZERO,road.world.size))
-		_resident_nameplate(road,character_id,resident.foot,resident.height)
 		actor.talk_requested.connect(func():
 			if character_id=="chef":_chef_conversation(0)
 			else:_resident_conversation(character_id,0))
@@ -571,13 +569,6 @@ func _look_at(text:String) -> void:
 	line.configure("我",text)
 	line.advanced.connect(_close)
 	line.closed.connect(_close)
-
-func _resident_nameplate(road:Control,id:String,foot:Vector2,height:float)->void:
-	var names:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").NAMES
-	if not names.has(id):return
-	var label:=preload("res://scripts/ui/resident_nameplate.gd").new()
-	label.name="Name_"+id;label.text=names[id];label.courier=walker;label.foot=foot
-	UI.place(label,road.world,Rect2(foot-Vector2(100,height+42),Vector2(200,36)))
 
 func _resident_conversation(character_id:String,index:int)->void:
 	if index==0 and _supplied_conversation(character_id):return

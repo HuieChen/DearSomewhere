@@ -19,15 +19,15 @@ func run():
 	var seen:Array[String]=[]
 	for location:String in ["post_office","community_center","residential","tarot_shop"]:
 		game.core.state.location=location;game._world();await process_frame
-		for label:Node in game._street_road.world.get_children():
-			if not str(label.name).begins_with("Name_"):continue
-			var id:=str(label.name).trim_prefix("Name_");seen.append(id)
-			check(label.text==expected[id],"source actor name: "+id)
-			game.walker.cancel();game.walker.foot=label.foot;game.walker.target=label.foot
-			await create_timer(.25).timeout
-			check(label.modulate.a>.9 and label.mouse_filter==Control.MOUSE_FILTER_IGNORE,"nearby name readable and click-through: "+id)
-			game.walker.hide();await create_timer(.25).timeout
-			check(label.modulate.a<.1,"close-up hides world name: "+id);game.walker.show()
+		for actor:Node in game._street_road.world.get_children():
+			check(not str(actor.name).begins_with("Name_"),"world has no character nameplate: "+str(actor.name))
+			var id:=str(actor.name).trim_prefix("Resident_")
+			if not expected.has(id):continue
+			seen.append(id)
+			check(preload("res://scripts/rebuild/authored_cast.gd").NAMES[id]==expected[id],"dialogue identity retained: "+id)
+			if actor is Control:check(actor.tooltip_text.is_empty(),"no hover name: "+id)
+		var guest_talk=game._street_road.world.get_node_or_null("Talk_Supplied_Chenyuan")
+		if guest_talk!=null:check(guest_talk.tooltip_text.is_empty(),"no guest hover name")
 	check(seen.size()==10,"all ten supplied characters wired")
 	game.core.state.location="community_center";game._world("market");await create_timer(.5).timeout
 	var siri:TextureRect=game._street_road.world.get_node("Siri")
