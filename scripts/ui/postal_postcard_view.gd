@@ -9,6 +9,7 @@ var origin:=Rect2()
 var locale:="zh"
 var leaving:=false
 var opening:=true
+var _outside_press:=false
 var face:Texture2D
 var card_image:TextureRect
 var put_back:Button
@@ -65,9 +66,18 @@ func request_close(feedback:bool=true):
 	_motion.chain().tween_callback(func():closed.emit())
 
 func _gui_input(event:InputEvent):
-	if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed and not opening:
-		if not presented_rect.has_point(event.position):request_close()
+	if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_outside_press=not opening and not leaving and not presented_rect.has_point(event.position)
+		else:
+			var return_card:=_outside_press and not presented_rect.has_point(event.position)
+			_outside_press=false
+			if return_card:request_close()
 		accept_event()
+
+func _notification(what:int):
+	if what==NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_outside_press=false
 
 func _exit_tree():
 	if _motion!=null and _motion.is_valid():_motion.kill()

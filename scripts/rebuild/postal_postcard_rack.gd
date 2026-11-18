@@ -39,7 +39,9 @@ class CardHotspot extends Button:
 		return coverage.get_pixelv(at).a>.35
 	func _process(delta:float):
 		var wanted:=1.0 if not disabled and (is_hovered() or has_focus()) else 0.0
-		warmth=move_toward(warmth,wanted,delta*9.0);queue_redraw()
+		if warmth!=wanted:
+			warmth=move_toward(warmth,wanted,delta*9.0)
+			queue_redraw()
 	func _draw():
 		if warmth>0.001 and ink!=null:draw_texture_rect(ink,Rect2(Vector2.ZERO,size),false,Color(1,0.97,0.84,.16*warmth))
 
