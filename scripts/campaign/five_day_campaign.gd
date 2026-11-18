@@ -142,15 +142,21 @@ func _talk(current:Dictionary)->void:
     if not variant.is_empty() and journey.state.flags.get(variant.flag)==variant.value:lines=variant.lines.duplicate()
     # Use the retained authored notebook renderer and the correct available portrait.
     var pages:Array=[]
-    for text:String in lines:
-        for offset:int in range(0,text.length(),48):pages.append(text.substr(offset,48))
+    var turns:Array=current.get("turns",[])
+    if turns.is_empty():
+        for text:String in lines:turns.append({"speaker":str(current.speaker),"zh":text})
+    for turn:Dictionary in turns:
+        var text:String=str(turn.get("en",turn.zh)) if host.preferences.values.language=="en" else str(turn.zh)
+        var person:String=str(turn.get("speaker_en",turn.speaker)) if host.preferences.values.language=="en" else str(turn.speaker)
+        var divided:Array=preload("res://scripts/rebuild/supplied_dialogue.gd").paginate([{"speaker":person,"text":text}])
+        pages.append_array(divided)
     var dialogue:=Dialogue.new();dialogue.name="CampaignConversation"
     dialogue.authored_text_enabled=true;dialogue.locale=host.preferences.values.language
     dialogue.light_source=host.walker;host.modal=dialogue
     UI.place(dialogue,host,Rect2(0,0,1600,900))
     var portraits:Dictionary=preload("res://scripts/campaign/campaign_art.gd").get_binding("portraits",{})
     var portrait:String=str(portraits.get(current.speaker,""))
-    dialogue.configure(str(current.speaker),pages[0],[],"courier_source.jpg",portrait)
+    dialogue.configure(str(pages[0].speaker),str(pages[0].text),[],"courier_source.jpg",portrait)
     dialogue.set_text_rate(host.preferences.text_rate());dialogue.cue.connect(host.sound.play)
     dialogue.set_meta("campaign_page",0)
     var expected:String=journey.token()
@@ -161,7 +167,7 @@ func _talk(current:Dictionary)->void:
             if current.get("ambient",false):host._close(true);return
             var error:String=complete(expected,{"heard":true},str(current.place))
             if not error.is_empty():host._show_save_problem(error)
-        else:dialogue.set_meta("campaign_page",index);dialogue.set_line(str(current.speaker),str(pages[index])))
+        else:dialogue.set_meta("campaign_page",index);dialogue.set_line(str(pages[index].speaker),str(pages[index].text)))
     host.sound.play("paper")
 
 func complete(expected:String,answer:Dictionary,place:String)->String:
