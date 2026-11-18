@@ -36,7 +36,9 @@ func release_keys()->void:
 	for code:Key in DIRECTIONS:key(code,false)
 	key(KEY_SHIFT,false)
 
-func advance(seconds:float=.25)->void:
+# Allow the authored 0.24-second standing turn, then acceleration and travel.
+# Keep displacement thresholds: merely accepting a key is not a successful walk.
+func advance(seconds:float=.50)->void:
 	for index:int in ceili(seconds*120.0):walker._process(1.0/120.0)
 
 func fresh()->void:
@@ -74,21 +76,25 @@ func _run()->void:
 
 func _test_keys_and_resume()->void:
 	fresh();var start:Vector2=walker.foot
-	key(KEY_D,true);advance()
+	key(KEY_D,true);advance(.12)
+	check(walker._manual_active and walker.foot==start,"fresh input starts the standing turn without sliding")
+	advance(.38)
 	check(walker.foot.x>start.x+10 and walker.velocity.x>0,"fresh D moves with normal acceleration")
-	key(KEY_D,false);advance(.4);start=walker.foot;advance(.2)
+	key(KEY_D,false);advance(.4);start=walker.foot;advance(.50)
 	check(walker.foot==start and walker.velocity==Vector2.ZERO,"released movement brakes and stays still")
 	for code:Key in DIRECTIONS:
 		fresh();walker.manual_enabled=false;key(code,true);advance(.1);start=walker.foot
-		walker.manual_enabled=true;advance(.25)
+		walker.manual_enabled=true;advance(.50)
 		check(walker.foot==start and walker.velocity==Vector2.ZERO,"held modal key stays stopped after resume: "+OS.get_keycode_string(code))
 		key(code,true,true);advance(.1)
 		check(walker.foot==start,"repeat event does not unlock held key: "+OS.get_keycode_string(code))
 		# Deliberately no frame between release and repress.
-		key(code,false);key(code,true);advance(.2)
+		key(code,false);key(code,true);advance(.50)
 		check((walker.foot-start).dot(DIRECTIONS[code])>5,"same-frame release/repress restores direction: "+OS.get_keycode_string(code))
 	fresh();walker.manual_enabled=false;key(KEY_A,true);key(KEY_S,true);walker.manual_enabled=true
-	start=walker.foot;key(KEY_D,true);advance()
+	start=walker.foot;key(KEY_D,true);advance(.12)
+	check(walker._manual_active and walker.foot==start,"fresh input starts the standing turn without sliding")
+	advance(.38)
 	check(walker.foot.x>start.x+10 and walker.foot.y==start.y,"fresh D works while held A and S remain individually blocked")
 	key(KEY_D,false);walker.cancel();start=walker.foot;key(KEY_A,false);key(KEY_A,true);advance()
 	check(walker.foot.x<start.x-10 and walker.foot.y==start.y,"releasing A unlocks only A, not the still-held S")
@@ -117,16 +123,16 @@ func _test_click_and_shift()->void:
 	check(is_equal_approx(walker.velocity.x,normal_speed),"releasing Shift returns to normal walking speed")
 
 func _test_focus_and_cycles()->void:
-	fresh();key(KEY_D,true);advance(.2)
+	fresh();key(KEY_D,true);advance(.50)
 	walker._notification(Control.NOTIFICATION_WM_WINDOW_FOCUS_OUT)
-	var stopped:Vector2=walker.foot;advance(.2)
+	var stopped:Vector2=walker.foot;advance(.50)
 	check(walker.foot==stopped and walker.velocity==Vector2.ZERO,"focus-out cancels active keyboard movement")
-	walker._notification(Control.NOTIFICATION_WM_WINDOW_FOCUS_IN);advance(.2)
+	walker._notification(Control.NOTIFICATION_WM_WINDOW_FOCUS_IN);advance(.50)
 	check(walker.foot==stopped,"focus return does not revive an old held D")
-	key(KEY_W,true);advance(.2)
+	key(KEY_W,true);advance(.50)
 	check(walker.foot.y<stopped.y-5 and walker.foot.x==stopped.x,"fresh W moves while the focus-return D remains blocked")
 	key(KEY_W,false);key(KEY_D,false);advance(.3);stopped=walker.foot
-	key(KEY_D,true);advance(.2)
+	key(KEY_D,true);advance(.50)
 	check(walker.foot.x>stopped.x+5,"released D is reusable after focus return")
 	fresh();walker.walk_to(walker.foot+Vector2(200,0),func():callbacks+=1);advance(.1)
 	walker._notification(Control.NOTIFICATION_WM_WINDOW_FOCUS_OUT);stopped=walker.foot
@@ -136,7 +142,7 @@ func _test_focus_and_cycles()->void:
 		fresh();walker.manual_enabled=false;key(KEY_RIGHT,true);walker.manual_enabled=true;stopped=walker.foot;advance(.1)
 		walker.manual_enabled=false;walker.manual_enabled=true;advance(.1)
 		check(walker.foot==stopped,"repeated modal toggles keep the old key blocked: "+str(cycle))
-		walker.manual_enabled=false;key(KEY_RIGHT,false);walker.manual_enabled=true;key(KEY_RIGHT,true);advance(.2)
+		walker.manual_enabled=false;key(KEY_RIGHT,false);walker.manual_enabled=true;key(KEY_RIGHT,true);advance(.50)
 		check(walker.foot.x>stopped.x+5,"release inside a later modal permits fresh movement: "+str(cycle))
 
 func _test_host_modals()->void:
@@ -151,7 +157,11 @@ func _test_host_modals()->void:
 		tap(KEY_ESCAPE);await settle(.25)
 		check(not is_instance_valid(game.modal) and walker.foot==stopped,"actual modal Escape resumes without its held arrow: "+OS.get_keycode_string(opener))
 		check(absf(game._street_road.camera_director.scroll-scroll)<.05,"resuming a stationary courier keeps the settled camera: "+OS.get_keycode_string(opener))
-		key(KEY_RIGHT,false);key(KEY_RIGHT,true);await settle(.2)
+		key(KEY_RIGHT,false);key(KEY_RIGHT,true)
+		# Bound the real-frame wait: a loaded GPU may deliver fewer simulation steps.
+		var deadline:=Time.get_ticks_msec()+2000
+		while walker.foot.x<=stopped.x+5 and Time.get_ticks_msec()<deadline:await process_frame
+		print("RESUME_DIAGNOSTIC ",OS.get_keycode_string(opener)," delta=",walker.foot.x-stopped.x," turn=",walker._turn_position," enabled=",walker.manual_enabled," focused=",walker._window_focused," held=",Input.is_key_pressed(KEY_RIGHT)," blocked=",walker._blocked_movement_keys," velocity=",walker.velocity)
 		check(walker.foot.x>stopped.x+5,"fresh arrow moves after actual modal closes: "+OS.get_keycode_string(opener))
 		key(KEY_RIGHT,false);await settle(.8)
 	await RenderingServer.frame_post_draw
