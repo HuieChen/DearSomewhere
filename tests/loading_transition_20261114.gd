@@ -50,7 +50,9 @@ func run() -> void:
     check(overlay._art.size.y >= 500.0, "approved large figure composition")
     overlay.coverage = 1.0
     overlay.set_progress(0.65)
-    check(is_equal_approx(overlay.progress, 0.65) and overlay._caption.text=="Loading 65%", "caption reflects supplied progress")
+    check(is_equal_approx(overlay.progress, 0.65) and overlay._caption.text!="Loading 65%", "reported progress does not jump the visible caption")
+    await create_timer(0.8).timeout
+    check(overlay._caption.text=="Loading 65%", "caption catches up continuously to reported progress")
     check(overlay.find_child("SuppliedWaveLoadingBar",true,false)==null, "no wave distortion or progress strip remains")
     check(overlay._paper.texture != null, "approved paper background restored")
     if DisplayServer.get_name() != "headless":
@@ -116,6 +118,11 @@ func run() -> void:
     await overlay.cover(false)
     check(not overlay._art.visible and not overlay._caption.visible, "short transition skips loading composition")
     check(not overlay._paper.visible, "short transition never exposes loading cover")
+    var short_overlay=load("res://scripts/ui/scene_passage.gd").new()
+    short_overlay.set_loading_enabled(false)
+    viewport.add_child(short_overlay)
+    check(short_overlay._frames.is_empty(), "doorway overlay allocates no loading frame textures")
+    short_overlay.queue_free()
     if DisplayServer.get_name() != "headless":
         check(overlay._snapshot.texture != null, "short transition retains previous framebuffer")
         background.color=Color("375b76")

@@ -100,6 +100,7 @@ func _ready() -> void:
 	if preferences.loaded:_apply_display_preferences()
 	campaign=preload("res://scripts/campaign/five_day_campaign.gd").new()
 	add_child(campaign);campaign.setup(self)
+	preload("res://scripts/ui/scene_passage.gd").warm_cache()
 	_title()
 	add_child(preload("res://scripts/ui/modal_focus.gd").new())
 	add_child(preload("res://scripts/ui/background_frame_budget.gd").new())
@@ -471,7 +472,6 @@ func _fresh() -> void:
 	if not is_inside_tree():return
 	campaign.begin_arrival()
 	fade.set_progress(0.82)
-	await get_tree().create_timer(1.15).timeout
 	await fade.uncover(true)
 	if is_instance_valid(fade):remove_child(fade);fade.queue_free()
 	busy=false

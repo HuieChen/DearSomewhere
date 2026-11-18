@@ -4,6 +4,7 @@ const Paper=preload("res://scripts/campaign/campaign_paper.gd")
 const UI=preload("res://scripts/ui/paper_ui.gd")
 const Dialogue=preload("res://scripts/rebuild/scene_dialogue.gd")
 const Arrival=preload("res://scripts/rebuild/street_arrival.gd")
+const SuppliedCast=preload("res://scripts/rebuild/supplied_character_art.gd")
 const NAMES={"post_office":"邮局工作桌","community_center":"社区中心","residential":"海阶居民楼","food_truck":"餐车","record_store":"唱片店","market":"菜摊","chess_stall":"树下棋摊","tarot_shop":"塔罗店","bookstore":"书店","lookout":"观景台"}
 const FAMILIES={"community_center":"community","food_truck":"community","market":"community","residential":"residential","lookout":"residential","chess_stall":"postal","bookstore":"postal","tarot_shop":"coastal","record_store":"coastal"}
 const ACTORS={"community":"cici","chef":"咸鱼","record_clerk":"Xanni","bookseller":"Maya","lookout":"Rae","FoodTruckGuest":"尘缘","TarotGuest":"夏透明","Siri":"Siri","Naonao":"闹闹"}
@@ -14,6 +15,7 @@ var music:AudioStreamPlayer
 var tune_clock:=0.0
 var tune_note:=0
 var opening:=false
+var supplied_actor:TextureRect
 
 func sync_time()->void:
     if not active():return
@@ -78,6 +80,10 @@ func mount()->void:
     if not active():return
     if is_instance_valid(target):target.get_parent().remove_child(target);target.queue_free()
     target=null
+    if is_instance_valid(supplied_actor):
+        supplied_actor.get_parent().remove_child(supplied_actor);supplied_actor.queue_free()
+    supplied_actor=null
+    if host.view=="world":_mount_supplied_actor()
     if host.view=="world" and host._street_road.family=="postal" and int(journey.state.day)>=2:
         if host._street_road.world.get_node_or_null("ArthurChess")==null:
             var board:=UI.button(host._street_road.world,"对弈",Rect2(570,598,140,55),func():
@@ -104,6 +110,31 @@ func mount()->void:
         if host.busy or is_instance_valid(host.modal):return
         host.walker.walk_to(Vector2(_anchor(place),872),open_current))
     target.name="CampaignInteract";target.z_index=3
+    if is_instance_valid(supplied_actor) and SuppliedCast.CHIBIS.has(str(current.get("speaker",""))):
+        target.position=supplied_actor.position+Vector2(supplied_actor.size.x*.5-70,-65)
+
+func _mount_supplied_actor()->void:
+    var current:Dictionary=journey.current_step()
+    if current.is_empty():return
+    var speaker:String=str(current.get("speaker",""))
+    var key:String=str(SuppliedCast.CHIBIS.get(speaker,""))
+    var place:String=str(current.place)
+    if host._street_road.family=="community":
+        place="community_center"
+        key="nanxing_happy" if journey.current_id()=="dog_gift" else ("nanxing_neutral" if journey.current_id()=="returned_mayor" else "nanxing_smile")
+    if key.is_empty() or host._street_road.family!=FAMILIES.get(place,""):return
+    supplied_actor=TextureRect.new();supplied_actor.name="SuppliedCampaignActor"
+    supplied_actor.texture=SuppliedCast.texture(key)
+    supplied_actor.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+    supplied_actor.mouse_filter=Control.MOUSE_FILTER_IGNORE
+    supplied_actor.texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+    var height:=240.0 if key.begins_with("nanxing") else 310.0
+    var dims:Vector2=supplied_actor.texture.get_size()*height/supplied_actor.texture.get_height()
+    var offset:=210.0 if key.begins_with("nanxing") else -240.0
+    UI.place(supplied_actor,host._street_road.world,Rect2(Vector2(_anchor(place)+offset-dims.x*.5,850-height),dims))
+    supplied_actor.modulate=host.walker.modulate
+    supplied_actor.z_index=1
+    host._street_road.ambient_figures.append(supplied_actor)
 
 func _unhandled_key_input(event:InputEvent)->void:
     if not active() or host.busy or is_instance_valid(host.modal):return
