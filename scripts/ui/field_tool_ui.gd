@@ -16,6 +16,10 @@ static func button(parent:Node,text:String,rect:Rect2,font_size:int=20)->Button:
 	Paper.apply_button_style(value)
 	value.add_theme_font_size_override("font_size",font_size)
 	Paper.place(value,parent,rect)
+	value.pivot_offset=rect.size*.5
+	value.add_child(preload("res://scripts/ui/button_press_feedback.gd").new())
+	value.mouse_entered.connect(func():Paper._play_sound(value,"title_hover"))
+	value.pressed.connect(func():Paper._play_sound(value,"paper"))
 	return value
 
 static func label(parent:Node,text:String,rect:Rect2,font_size:int,align:HorizontalAlignment=HORIZONTAL_ALIGNMENT_LEFT)->Label:

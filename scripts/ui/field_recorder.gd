@@ -13,6 +13,7 @@ const RECORD_HINT:=Rect2(1059,227,90,26)
 const MOVEMENT_KEYS:=[KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_W,KEY_A,KEY_S,KEY_D]
 var locale:="zh"
 var location_caption:=""
+var location_label:Label
 var location_provider:Callable
 var visited_locations:Array[String]=[]
 var mode_label:Label
@@ -67,7 +68,8 @@ func _ready()->void:
 		instrument.draw_style_box(paper,Rect2(Vector2.ZERO,instrument.size)))
 	var style:=StyleBoxFlat.new();style.bg_color=UI.ACTION_PAPER;style.set_corner_radius_all(18)
 	ToolUI.label(_page,t("录音机","Recorder"),ToolUI.TITLE,30).name="RecorderHeading"
-	ToolUI.label(_page,location_caption,ToolUI.LOCATION,22)
+	location_label=ToolUI.label(_page,location_caption,ToolUI.LOCATION,22)
+	location_label.name="RecordingLocation"
 	clock_label=label("00:00",Rect2(770,69,72,30),20)
 	mode_label=label(t("监听","MONITOR"),Rect2(665,69,99,30),18)
 	status=ToolUI.label(_page,"",Rect2(1030,794,450,38),18);status.clip_text=true;status.tooltip_text=""
@@ -114,9 +116,6 @@ func label(text:String,rect:Rect2,px:int)->Label:
 	var value:=UI.label(_page,text,rect,px,UI.ACTION_INK);value.autowrap_mode=TextServer.AUTOWRAP_OFF;value.clip_text=true;value.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS;value.size=rect.size;value.mouse_filter=Control.MOUSE_FILTER_IGNORE;return value
 func button(text:String,rect:Rect2,callback:Callable)->Button:
 	var value:=ToolUI.button(_page,text,rect);value.pressed.connect(callback)
-	value.add_child(preload("res://scripts/ui/button_press_feedback.gd").new());value.pivot_offset=rect.size*.5
-	value.mouse_entered.connect(func():UI._play_sound(value,"title_hover"))
-	value.button_down.connect(func():UI._play_sound(value,"title_click"))
 	return value
 func allows_world_walk()->bool:
 	return not _closing and is_instance_valid(road) and not library.get_parent().visible
@@ -159,6 +158,7 @@ func _unhandled_key_input(event:InputEvent)->void:
 func _process(delta:float)->void:
 	if _closing:return
 	if location_provider.is_valid():location_caption=location_provider.call()
+	if is_instance_valid(location_label) and location_label.text!=location_caption:location_label.text=location_caption
 	if recording and location_caption not in visited_locations:visited_locations.append(location_caption)
 	if is_instance_valid(road):road.field_sound.set_focus(true,_world_aim())
 	var peak:=Vector2.ZERO

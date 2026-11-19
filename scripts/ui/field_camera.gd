@@ -517,6 +517,9 @@ func request_close()->void:
 	# Host Escape follows the same nested review/back path as local Escape.
 	if gallery_only:_request_close()
 	elif is_instance_valid(_review) and _review.visible:_leave_review()
+	elif lab!=null and lab.panel.visible:
+		lab._toggle_panel()
+		lab.toggle.grab_focus()
 	else:_request_close()
 func _request_close()->void:
 	_stop_pan()
