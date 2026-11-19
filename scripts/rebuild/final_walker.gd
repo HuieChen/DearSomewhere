@@ -246,7 +246,9 @@ func configure(texture: Texture2D, bounds: Rect2, initial_foot: Vector2) -> void
 func walk_to(destination: Vector2, action: Callable = Callable()) -> void:
 	if is_queued_for_deletion():
 		return
-	if not walking and not _manual_active:
+	# A click during the settling pose continues the same stride. Reset only
+	# after returning to the authored idle, just like keyboard restart.
+	if not walking and not _manual_active and _pose_mix < 0.01:
 		_walk_time=_idle_time
 		_step_distance=0.0
 	_command += 1
