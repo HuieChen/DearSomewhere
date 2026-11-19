@@ -104,7 +104,7 @@ func run()->void:
         match kind:
             "talk":
                 var attempts:=0
-                while journey.token()==token and attempts<14:
+                while journey.token()==token and attempts<80:
                     attempts+=1;await click("AdvanceDialogue");await settle(.3)
             "read","inspect":
                 for page in current.pages.size()-1:await click("PageNext")

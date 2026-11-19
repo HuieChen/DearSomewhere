@@ -1,0 +1,14 @@
+{
+  "checks": 69,
+  "failures": [],
+  "method": "Hidden GPU; routed synthetic engine keys, simulated native focus notifications; isolated save and preferences.",
+  "source_hashes": {
+    "res://assets/authoring/cast_20261105/courier_idle.png": "d2548b8f51181693d77a01cbf1fa5f7b2f0157a81ab8175402fe2a11bc31d28d",
+    "res://assets/authoring/courier_20261030/clean_edges/walk_0.png": "2439b1d49e98fda6d0eb913ca9f288891cb0b2e2448c7e9b319030031daf3626",
+    "res://assets/authoring/courier_20261030/clean_edges/walk_1.png": "a6d2777d6c88e21f1dc9800c58987ab0efa20edfd2cb7019aad792c8c5c9a0ec",
+    "res://assets/authoring/courier_20261030/clean_edges/walk_2.png": "8a76b9dc396af8179ef873e026249eb330369c547bf04747d200be7f15dc48dc",
+    "res://assets/authoring/courier_20261030/clean_edges/walk_3.png": "b9132c0c849b10ac6a76e760adad03ced8ce7c5eadc9a971ec910a33af1a6a5b",
+    "res://assets/authoring/courier_20261030/clean_edges/walk_4.png": "3109844e0987c29bc2c5f0c20fb5a0bbdbd9c33fa0456f9c644d726f503bcb3d",
+    "res://assets/faefever_v2/characters/courier_walk_regions.json": "955927e66b689aebda7747036b6525689c00b9c3a98e70568eba6e9620cc837b"
+  }
+}

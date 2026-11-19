@@ -10,6 +10,7 @@ var letter:TextureRect
 var motion:Tween
 var closing:=false
 var seconds:=0.0
+var save_notice:Label
 func configure(value:Control)->void:
     host=value;name="ArrivalPrologue";z_index=30
     var top:=ColorRect.new();top.color=Color(.12,.17,.19,.08);top.mouse_filter=MOUSE_FILTER_IGNORE;UI.place(top,self,Rect2(0,0,1600,100))
@@ -19,10 +20,19 @@ func configure(value:Control)->void:
     next=UI.button(self,"继续 →",Rect2(1305,765,220,62),advance);next.name="PrologueNext"
     letter=UI.texture(self,"",Rect2(560,310,480,300));letter.texture=preload("res://scripts/campaign/campaign_art.gd").texture("envelope")
     letter.modulate.a=0.0;letter.pivot_offset=letter.size*.5
+    turn=clampi(int(host.campaign.journey.state.get("intro_turn",0)),0,2)
+    if turn>=1:
+        letter.modulate.a=1.0
+        caption.text="她留下的邮局，还在每天开门。"
+    if turn==2:
+        caption.text="Anne 还不知道会在这里待多久。"
+        next.text="走进邮局 →"
+    save_notice=UI.label(self,"",Rect2(350,840,900,38),20,Color("435b57"))
     host.sound.set_location("post_office",540,false)
     if is_instance_valid(host.walker):host.walker.manual_enabled=false
     _fade_caption()
 func _fade_caption()->void:
+    if motion and motion.is_valid():motion.kill()
     caption.modulate.a=0.0
     motion=create_tween();motion.tween_property(caption,"modulate:a",1.0,.7)
     next.disabled=true;seconds=0.0
@@ -30,7 +40,7 @@ func _process(delta:float)->void:
     seconds+=delta
     if is_instance_valid(next):next.disabled=seconds<.8
 func advance()->void:
-    if closing:return
+    if closing or seconds<.8:return
     turn+=1;host.sound.play("flip")
     match turn:
         1:
@@ -44,7 +54,17 @@ func advance()->void:
             next.text="走进邮局 →";_fade_caption()
         _:finish()
 func request_close()->void:finish()
-func checkpoint_for_quit()->bool:return host.campaign.persist()
+func checkpoint_for_quit()->bool:
+    host.campaign.journey.state["intro_turn"]=mini(turn,2)
+    return host.campaign.persist()
 func finish()->void:
     if closing:return
-    closing=true;finished.emit()
+    closing=true
+    host.campaign.journey.state["intro_turn"]=mini(turn,2)
+    host.campaign.journey.state["intro_seen"]=true
+    if not host.campaign.persist():
+        host.campaign.journey.state["intro_seen"]=false
+        turn=mini(turn,2);closing=false
+        save_notice.text="暂时没能保存，画面会留在这里。准备好后可以再试一次。"
+        return
+    finished.emit()
