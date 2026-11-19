@@ -15,3 +15,11 @@ The current five-day route remains on main. This focused pass keeps the latest r
 Result: **26 checks, 0 failures** in `D:/Codex-build-cache/field-tools-followup-20261118/fixed-final/`.
 
 This is engine/GPU fixture evidence. Native OS recording input, listening quality and novice acceptance remain separate gates.
+
+The actual release PCK was rebuilt from the current five-day main line and rerun with the related suites: camera composition 21, camera lab 35, photo flow 28, recorder 44, exploration state 63, direct-door postal scene 24, loading 32, linear dialogue 130, and this follow-up 26. The five-day state suite passed 3504 and the experience suite passed 173. All reported failures were zero. Default headless build checks also passed before export; no GPU result was inferred from the default headless stage.
+
+Release candidate source: `2a037f0` on top of collaborator main `fecb823`.
+
+Release PCK SHA256: `85e49f2d153ea9c7e32e3d6ccb26960fcbdad35dfd874426cfc2d1b721430614`.
+
+Release EXE SHA256: `d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562`.
