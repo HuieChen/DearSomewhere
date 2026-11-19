@@ -123,6 +123,12 @@ func _mount_supplied_actor()->void:
         place="community_center"
         key="nanxing_happy" if journey.current_id()=="dog_gift" else ("nanxing_neutral" if journey.current_id()=="returned_mayor" else "nanxing_smile")
     if key.is_empty() or host._street_road.family!=FAMILIES.get(place,""):return
+    if key.begins_with("nanxing"):
+        var existing:=host._street_road.world.get_node_or_null("NanxingWorld") as TextureRect
+        if is_instance_valid(existing):
+            existing.texture=SuppliedCast.texture(key)
+            supplied_actor=existing
+            return
     supplied_actor=TextureRect.new();supplied_actor.name="SuppliedCampaignActor"
     supplied_actor.texture=SuppliedCast.texture(key)
     supplied_actor.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
