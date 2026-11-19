@@ -473,3 +473,7 @@ Nine visible source layers now lift, enlarge and return; foreground masks preven
 
 
 Final dialogue-integrated clarity package fb8db2d: 838 checks passed, including the 242 scoped checks and 596 preserved dialogue/handwriting checks; all 12 alpha frames / 25,778 samples pass. Native final card return verified again. Same report records earlier runtime and final evidence boundaries.
+
+## 2026-11-19 — Walk restart continuity
+
+Fixed a second-click jump during the stop-settle window by preserving the current source pose phase and footstep distance until authored idle is reached. Candidate evidence: 101 final walker checks, 60 turn checks, 13 render checks and 78 postcard checks passed; restart probe preserved pose 9 and phase 1.56393195382452. The supplied 12-frame walk and five turn frames remain unchanged.

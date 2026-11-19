@@ -183,6 +183,20 @@ func _finish_walk() -> void:
 
 
 func _test_cadence_and_arrival() -> void:
+	for pause in [0.0, 0.04, 0.08]:
+		walker.configure(null,Rect2(0,0,2000,1000),Vector2(100,850))
+		walker.walk_to(Vector2(615,850))
+		_finish_walk()
+		walker._process(pause)
+		var phase:float=walker._walk_time
+		var distance:float=walker._step_distance
+		walker.walk_to(Vector2(1000,850))
+		_check(is_equal_approx(phase,walker._walk_time),"click restart during settle retains visible pose at "+str(pause))
+		_check(is_equal_approx(distance,walker._step_distance),"click restart preserves footstep distance at "+str(pause))
+	walker.configure(null,Rect2(0,0,2000,1000),Vector2(100,850))
+	walker._walk_time=1.0;walker._step_distance=15.0
+	walker.walk_to(Vector2(615,850))
+	_check(is_equal_approx(walker._walk_time,walker._idle_time) and walker._step_distance==0.0,"fully idle click still begins at the authored turn bridge")
 	var trajectories:Array[Vector2]=[]
 	for rate:float in [30.0,60.0,144.0]:
 		walker.configure(null,Rect2(40,170,900,230),Vector2(120,300))
