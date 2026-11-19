@@ -1,0 +1,115 @@
+{
+  "source_kind": "user_supplied_exact_png_bytes",
+  "ai_generated": false,
+  "crop_policy": "Non-destructive atlas sampling; aligned expressions; only distant isolated marks outside the subject omitted.",
+  "assets": {
+    "mossner_portrait": {
+      "character": "Mossner",
+      "source_filename": "515b0e5b35dec5cfc495848ab8e57.png",
+      "path": "res://assets/authoring/cast_20261119/mossner_portrait.png",
+      "region": [
+        270,
+        20,
+        540,
+        1740
+      ],
+      "sha256": "5d456f57310ad58e7b352815754e7aaab2dc3bdb8357491d125995b9ee543f8f"
+    },
+    "zhou_portrait": {
+      "character": "周晓六",
+      "source_filename": "鸭子.png",
+      "path": "res://assets/authoring/cast_20261119/zhou_portrait.png",
+      "region": [
+        738,
+        0,
+        361,
+        1054
+      ],
+      "sha256": "7fa7d2221f53c60b6075f3537d7a6a61c08b5fbfc986ee0f18cfdf8266405b61"
+    },
+    "zhou_chibi": {
+      "character": "周晓六",
+      "source_filename": "24745.png",
+      "path": "res://assets/authoring/cast_20261119/zhou_chibi.png",
+      "region": [
+        219,
+        158,
+        446,
+        910
+      ],
+      "sha256": "c601a306ee6a79112ca982d76c2825cef874e73ca9a3a9a1ac2a69234e7b162e"
+    },
+    "yu_chibi": {
+      "character": "宇星晴",
+      "source_filename": "8d915651a3eb31296fa73c683a9bb1e6 4.png",
+      "path": "res://assets/authoring/cast_20261119/yu_chibi.png",
+      "region": [
+        739,
+        296,
+        619,
+        1127
+      ],
+      "sha256": "7e95cb543928e314803b08df995b8f952f4cd2125190662431339d1d194010e8"
+    },
+    "yu_portrait": {
+      "character": "宇星晴",
+      "source_filename": "8d915651a3eb31296fa73c683a9bb1e6 3.png",
+      "path": "res://assets/authoring/cast_20261119/yu_portrait.png",
+      "region": [
+        143,
+        115,
+        528,
+        1624
+      ],
+      "sha256": "51689fd04f68f7dbdee014dcde0d7548b4eb4882b38766e8d20157b6b1133d62"
+    },
+    "beetman_portrait": {
+      "character": "BEETMAN",
+      "source_filename": "25028.png",
+      "path": "res://assets/authoring/cast_20261119/beetman_portrait.png",
+      "region": [
+        1456,
+        401,
+        1551,
+        4103
+      ],
+      "sha256": "5b3fd792be1ab61f9bc42eb63e44fde1c71ef07e2cd11b45cef28dfb2dda59ba"
+    },
+    "nanxing_smile": {
+      "character": "南星",
+      "source_filename": "未命名作品 13(1).png",
+      "path": "res://assets/authoring/cast_20261119/nanxing_smile.png",
+      "region": [
+        200,
+        450,
+        1860,
+        2220
+      ],
+      "sha256": "9b23feea5e6519820ee66d7169ec4395126b1dbf227176da60d0db62272c9732"
+    },
+    "nanxing_neutral": {
+      "character": "南星",
+      "source_filename": "未命名作品 12(1).png",
+      "path": "res://assets/authoring/cast_20261119/nanxing_neutral.png",
+      "region": [
+        200,
+        450,
+        1860,
+        2220
+      ],
+      "sha256": "4846f91a4b18f92ddcf4499ff6fb6f28a81ae8e7fbd979a1634cc7e01010ddd8"
+    },
+    "nanxing_happy": {
+      "character": "南星",
+      "source_filename": "未命名作品 14(1).png",
+      "path": "res://assets/authoring/cast_20261119/nanxing_happy.png",
+      "region": [
+        200,
+        450,
+        1860,
+        2220
+      ],
+      "sha256": "ccdbe1e6e97ea16ae7a738115de36fb78f94228c6247e46fdff1c6d0992a2434"
+    }
+  }
+}

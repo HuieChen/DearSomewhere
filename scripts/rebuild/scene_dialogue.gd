@@ -10,6 +10,7 @@ const Authored = preload("res://scripts/rebuild/authored_dialogue_art.gd")
 const ManagedSession=preload("res://scripts/rebuild/authored_dialogue_session.gd")
 const Cast=preload("res://scripts/rebuild/authored_cast.gd")
 const Handwriting=preload("res://scripts/rebuild/character_handwriting.gd")
+const SuppliedCast=preload("res://scripts/rebuild/supplied_character_art.gd")
 const WORDS := Color("493c30")
 const ACCENT := Color("217b87")
 const CHOICES_PER_PAGE := 4
@@ -63,6 +64,7 @@ func set_line(speaker:String,_line:String)->void:
 	_line_transition.tween_property(_spoken,"modulate:a",0.0,0.06)
 	_line_transition.tween_callback(func():
 		_speaker=speaker;_speaker_label.text=speaker;_authored_text=_line
+		_sync_supplied_portrait()
 		Handwriting.apply(_spoken,_speaker_label,_speaker,_line if authored_text_enabled else SPOKEN_TEXT)
 		_reveal=0.0;_spoken.visible_characters=0 if _text_rate>0.0 else -1
 		_fit_spoken_line.call_deferred(_spoken)
@@ -122,6 +124,8 @@ func configure(speaker: String, _line: String, choices: Array = [], left_art: St
 	speaker=Cast.speaker_name(speaker)
 	_speaker=speaker;_authored_text=_line;_choices=choices.duplicate(true)
 	_left_art=left_art;_right_art=right_art
+	var supplied_key:=SuppliedCast.portrait_key(speaker)
+	if not supplied_key.is_empty():_right_art=supplied_key
 	# Keep the player on the left regardless of the current speaker.
 	if _right_art in ["courier_source.jpg", "CHAR_courier"]:
 		_left_art=right_art;_right_art=left_art
@@ -130,6 +134,20 @@ func configure(speaker: String, _line: String, choices: Array = [], left_art: St
 	if not _presented:
 		_presented=true;_entering=true;modulate.a=0.0
 		_enter_dialogue.call_deferred()
+func _sync_supplied_portrait()->void:
+	var key:=SuppliedCast.portrait_key(_speaker)
+	if key.is_empty() or key==_right_art:return
+	_right_art=key
+	if is_instance_valid(_right_portrait):
+		_right_portrait.texture=SuppliedCast.texture(key)
+		_right_portrait.material=null
+		_right_portrait.name=key
+	else:
+		_right_portrait=_image(key,Rect2(1005,230,560,1040),true)
+		move_child(_right_portrait,1)
+	if _speaker=="南星":
+		_right_portrait.position=Vector2(1110,160);_right_portrait.size=Vector2(450,720)
+	_sync_scene_light()
 func _image(key:String,rect:Rect2,keep:bool=false) -> TextureRect:
 	if Authored.is_character(key):
 		var portrait:=Authored.portrait(key)
@@ -152,6 +170,8 @@ func _render() -> void:
 	UI.place(shade,self,Rect2(0,0,1600,900))
 	if not _left_art.is_empty():_left_portrait=_image(_left_art,Rect2(60,238,420,1040) if Authored.is_character(_left_art) else Rect2(35,140,450,720),true)
 	if not _right_art.is_empty():_right_portrait=_image(_right_art,Rect2(1005,230,560,1040) if Authored.is_character(_right_art) else Rect2(1160,140,420,720),true)
+	if _right_art.begins_with("supplied/nanxing"):
+		_right_portrait.position=Vector2(1110,160);_right_portrait.size=Vector2(450,720)
 	if is_instance_valid(_right_portrait) and "community" in _right_art:
 		_right_portrait.position=Vector2(1061,270)
 		_right_portrait.size=Vector2(448,832)
