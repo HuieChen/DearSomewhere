@@ -28,8 +28,6 @@ func begin_arrival()->void:
     var intro:=preload("res://scripts/campaign/arrival_prologue.gd").new()
     host.modal=intro;UI.place(intro,host,Rect2(0,0,1600,900));intro.configure(host)
     intro.finished.connect(func():
-        journey.state["intro_seen"]=true
-        if not persist():host._show_save_problem(journey.last_error);return
         await host._change_scene(func():host._post_office_room())
         open_current())
 
@@ -53,6 +51,8 @@ func resume()->bool:
     host.core.new_game()
     if journey.state.get("exploration") is Dictionary:host.core.state=journey.state.exploration.duplicate(true)
     sync_time()
+    if not journey.state.get("intro_seen",false):
+        begin_arrival();return true
     if journey.state.get("view")=="postal_loft":_build_loft()
     elif journey.state.get("view","post_office_room")=="world":
         var destination:String=journey.state.location
