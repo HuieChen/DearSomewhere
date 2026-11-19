@@ -18,10 +18,10 @@ This is engine/GPU fixture evidence. Native OS recording input, listening qualit
 
 The actual release PCK was rebuilt from the current five-day main line and rerun with the related suites: camera composition 21, camera lab 35, photo flow 28, recorder 44, exploration state 63, direct-door postal scene 24, loading 32, linear dialogue 130, and this follow-up 26. The five-day state suite passed 3504 and the experience suite passed 173. All reported failures were zero. Default headless build checks also passed before export; no GPU result was inferred from the default headless stage.
 
-The final release candidate was rebuilt after merging collaborator main through `0b03c6a`; the resulting merge commit is `44a50656dbf8c2dffd86dea567a0cb734da52f14`. It retains the five-day dialogue, latest character portraits/transitions, loading lifecycle and this field-tool pass.
+The final release candidate was rebuilt after merging collaborator main through `3d2e83c`; the resulting local merge commit is `efa266d374b067eb2183b6405ee196e5592e7b94`. It retains the five-day dialogue, latest character portraits/transitions, loading lifecycle, walker restart continuity and this field-tool pass.
 
-Release PCK SHA256: `01c9bc599835829a05460d07c686bedf88090d7bda28c1f1bcc4a780ee2393d6`.
+Release PCK SHA256: `cfd62dd61489806f795692668445c829d8fd3e4bc87bfd3281582cffb58b3e42`.
 
 Release EXE SHA256: `d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562`.
 
-The merged PCK rerun also passed authored campaign turns 175, supplied cast 51 and linear dialogue 130, with zero failures. The five-day state/experience suites remained green at 3504/0 and 175/0.
+The merged PCK rerun also passed field tools 26, camera composition 21, recorder 44, walker smoke 101, walker resume 69, postal scene 24, loading 34, authored campaign turns 175, supplied cast 54, five-day state 3504 and five-day experience 175, all with zero failures.
