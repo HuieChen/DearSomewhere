@@ -16,6 +16,7 @@ const ResolutionSlip = preload("res://scripts/rebuild/resolution_slip.gd")
 const SceneDialogue = preload("res://scripts/rebuild/scene_dialogue.gd")
 const Preferences = preload("res://scripts/ui/game_preferences.gd")
 const SettingsPage = preload("res://scripts/ui/coastal_settings.gd")
+const SuppliedCast = preload("res://scripts/rebuild/supplied_character_art.gd")
 const FieldCamera = preload("res://scripts/ui/field_camera.gd")
 const CoverPaperButton = preload("res://scripts/ui/cover_paper_button.gd")
 const LOCATIONS = ["post_office","community_center","bus_stop","lookout","residential","chess_stall","tarot_shop"]
@@ -526,7 +527,7 @@ func _world(arrival:String="") -> void:
 	road.minute=int(core.state.minute)
 	road.locale=preferences.values.language
 	road.postal=str(core.state.location) in ["post_office","chess_stall"]
-	if str(core.state.location)=="community_center":road.district="community"
+	if str(core.state.location) in ["community_center","food_truck","market","grocery"]:road.district="community"
 	elif str(core.state.location) in ["residential","lookout","bus_stop"]:road.district="residential"
 	road.can_walk=func():return not busy and (not is_instance_valid(modal) or (modal.has_method("allows_world_walk") and modal.allows_world_walk()))
 	road.can_interact=func():return not busy and not is_instance_valid(modal)
@@ -542,7 +543,7 @@ func _world(arrival:String="") -> void:
 	road.courier.z_index=2
 	# Supplied street figures retain their original transparent pixels. They are
 	# ambient neighbours; no invented dialogue or false interaction affordance.
-	for figure:Array in [["postal","Naonao","naonao.png",Vector2(1060,850),300.0,Rect2i(112,91,306,799)],["community","FoodTruckGuest","hoodie_guest.png",Vector2(11730,850),305.0,Rect2i(1514,155,380,771)],["coastal","TarotGuest","tarot_guest.png",Vector2(1220,850),305.0,Rect2i(2151,165,309,750)],["community","Siri","siri.png",Vector2(9850,850),250.0,Rect2i(308,367,1386,2033)]]:
+	for figure:Array in [["postal","Naonao","naonao.png",Vector2(1060,850),300.0,Rect2i(112,91,306,799)],["community","FoodTruckGuest","hoodie_guest.png",Vector2(11730,850),305.0,Rect2i(1514,155,380,771)],["coastal","TarotGuest","tarot_guest.png",Vector2(1220,850),305.0,Rect2i(2151,165,309,750)],["community","Siri","siri.png",Vector2(11920,850),250.0,Rect2i(308,367,1386,2033)]]:
 		if road.family!=figure[0]:continue
 		var pixels:=Image.load_from_file("res://assets/authoring/neighbours_20261109/"+figure[2])
 		pixels.generate_mipmaps()
@@ -564,6 +565,10 @@ func _world(arrival:String="") -> void:
 			talk.pressed.connect(func():
 				if road.can_walk():walker.walk_to(destination,func():_supplied_conversation(actor_id)))
 		var pigment:=ShaderMaterial.new();pigment.shader=preload("res://scripts/rebuild/character_palette.gdshader");neighbour.material=pigment
+	if str(core.state.location)=="food_truck":
+		_add_supplied_world_actor(road,"beetman_portrait","BEETMAN",Vector2(12580,850),350.0)
+	if str(core.state.location)=="community_center":
+		_add_supplied_world_actor(road,"nanxing_smile","NanxingWorld",Vector2(2360,850),255.0)
 	var cast:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").RESIDENTS
 	for character_id:String in cast:
 		var resident:Dictionary=cast[character_id]
@@ -586,6 +591,21 @@ func _world(arrival:String="") -> void:
 	if old_map!=null:old_map.hide()
 	_hud(str(core.state.location),false)
 	campaign.mount()
+
+func _add_supplied_world_actor(road:Control,key:String,actor_name:String,foot:Vector2,height:float)->TextureRect:
+	var actor:=TextureRect.new()
+	actor.name=actor_name
+	actor.texture=SuppliedCast.texture(key)
+	actor.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+	actor.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	actor.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	actor.texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	var dims:=actor.texture.get_size()*height/actor.texture.get_height()
+	UI.place(actor,road.world,Rect2(foot-Vector2(dims.x*0.5,height),dims))
+	actor.modulate=walker.modulate
+	actor.z_index=1
+	road.ambient_figures.append(actor)
+	return actor
 func _look_at(text:String) -> void:
 	_close()
 	if is_instance_valid(walker):walker.cancel();walker.manual_enabled=false
@@ -867,6 +887,18 @@ func _post_office_room(index:int=0) -> void:
 		exit.visible=next_index==0
 		reference.visible=campaign.active() and next_index==0
 		desk.visible=campaign.active() and next_index==1)
+	var mossner:=TextureRect.new()
+	mossner.name="MossnerPostalActor"
+	mossner.texture=SuppliedCast.texture("mossner_portrait")
+	mossner.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+	mossner.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	mossner.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	mossner.texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	var mossner_height:=470.0
+	var mossner_dims:=mossner.texture.get_size()*mossner_height/mossner.texture.get_height()
+	UI.place(mossner,room.canvas,Rect2(Vector2(1450,1080-mossner_height-90)-Vector2(mossner_dims.x*0.5,0),mossner_dims))
+	mossner.z_index=2
+	mossner.modulate=Color.WHITE
 	_hud("post_office",false)
 	_footer()
 	campaign.mount()
