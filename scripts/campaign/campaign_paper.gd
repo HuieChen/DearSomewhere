@@ -72,7 +72,15 @@ func _pages()->void:
     var seen:Array=answer.get("seen",[])
     if page not in seen:seen.append(page)
     answer.seen=seen;answer.page=page
-    UI.body(area,str(pages[page]),Rect2(36,22,964,360),28).name="CampaignDocument"
+    var text_rect:=Rect2(36,22,964,360)
+    if step.get("gives",{}).has("mayor_identity") and page==0:
+        var portrait:=TextureRect.new();portrait.name="MayorPhotograph"
+        portrait.texture=preload("res://scripts/rebuild/supplied_character_art.gd").texture("nanxing_smile")
+        portrait.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;portrait.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        portrait.mouse_filter=Control.MOUSE_FILTER_IGNORE
+        UI.place(portrait,area,Rect2(45,0,330,395))
+        text_rect=Rect2(420,95,570,260)
+    UI.body(area,str(pages[page]),text_rect,28).name="CampaignDocument"
     var prev:=UI.button(area,"←",Rect2(294,411,100,50),func():_page(-1));prev.name="PagePrevious";prev.disabled=page==0
     UI.label(area,"%d / %d"%[page+1,pages.size()],Rect2(455,410,140,48),22)
     var next:=UI.button(area,"→",Rect2(640,411,100,50),func():_page(1));next.name="PageNext";next.disabled=page==pages.size()-1

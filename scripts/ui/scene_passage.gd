@@ -15,6 +15,15 @@ const FRAME_PATHS := [
 ]
 const PAPER_TEXTURE_PATH := "res://assets/authoring/loading_20261114/paper_texture.png"
 const FONT := preload("res://assets/fonts/Caveat.ttf")
+static var frame_cache:Array[Texture2D] = []
+static func warm_cache()->void:
+    if not frame_cache.is_empty():return
+    for path in FRAME_PATHS:
+        var pixels:=Image.load_from_file(path)
+        if pixels!=null and not pixels.is_empty():
+            pixels.convert(Image.FORMAT_RGBA8)
+            pixels.generate_mipmaps()
+            frame_cache.append(ImageTexture.create_from_image(pixels))
 var locale := "zh"
 
 var loading_enabled := true:
@@ -29,8 +38,8 @@ var coverage := 0.0:
 var progress := 0.0:
     set(value):
         progress = clampf(float(value), 0.0, 1.0)
-        _refresh_caption()
-        queue_redraw()
+var _display_progress := 0.0
+var _covered_at := 0
 var sound: Node
 var _frames: Array[Texture2D] = []
 var _frame_time := 0.0
@@ -43,15 +52,11 @@ func _ready() -> void:
     name = "SceneTransition"
     z_index = 200
     mouse_filter = Control.MOUSE_FILTER_STOP
-    for path in FRAME_PATHS:
-        # HEVC decoder retained associated (premultiplied) RGB. Multiplying it
-        # again darkens every antialiased stroke. Read original PNG pixels so
-        # the texture importer's straight-alpha border repair cannot bleed RGB.
-        var pixels := Image.load_from_file(path)
-        if pixels != null and not pixels.is_empty():
-            pixels.convert(Image.FORMAT_RGBA8)
-            pixels.generate_mipmaps()
-            _frames.append(ImageTexture.create_from_image(pixels))
+    # Short doorway transitions never decode the loading animation. Long ones
+    # share native associated-alpha textures warmed before the title appears.
+    if loading_enabled:
+        warm_cache()
+        _frames=frame_cache
 
     _snapshot = TextureRect.new()
     _snapshot.name = "PreviousScene"
@@ -96,12 +101,12 @@ func _ready() -> void:
     queue_redraw()
 
 func _process(delta: float) -> void:
+    if coverage<=0.002 or not loading_enabled:return
     _frame_time = fposmod(_frame_time + delta, 1.2)
     if not _frames.is_empty() and is_instance_valid(_art):
         _art.texture = _frames[mini(_frames.size() - 1, int(_frame_time / 0.2))]
-    _sync_visibility()
-    _layout()
-    queue_redraw()
+    _display_progress=move_toward(_display_progress,progress,delta*0.9)
+    _refresh_caption()
 
 func _notification(what: int) -> void:
     if what == NOTIFICATION_RESIZED:
@@ -123,7 +128,7 @@ func _layout() -> void:
 
 func _refresh_caption() -> void:
     if is_instance_valid(_caption):
-        _caption.text = "Loading %d%%" % roundi(progress*100.0)
+        _caption.text = "Loading %d%%" % roundi(_display_progress*100.0)
 
 func _sync_visibility() -> void:
     var shown := coverage > 0.002
@@ -137,6 +142,8 @@ func _sync_visibility() -> void:
 
 func set_loading_enabled(enabled: bool) -> void:
     loading_enabled = enabled
+    if enabled and is_node_ready() and _frames.is_empty():
+        warm_cache();_frames=frame_cache
     _sync_visibility()
 
 func set_progress(value: float) -> void:
@@ -157,6 +164,8 @@ func cover(show_loading: bool = true) -> void:
         coverage = 1.0
         return
     _frame_time = 0.0
+    _covered_at=Time.get_ticks_msec()
+    _display_progress=0.0
     progress = 0.12
     if is_instance_valid(sound):
         sound.play("flip")
@@ -167,9 +176,18 @@ func cover(show_loading: bool = true) -> void:
 func uncover(show_loading: bool = true) -> void:
     set_loading_enabled(show_loading)
     progress = 1.0
+    if show_loading:
+        # Finish the visible progress continuously before revealing gameplay.
+        # Do not jump from a low percentage to 100 on the first fade-out frame.
+        while _display_progress<0.999:
+            await get_tree().process_frame
+        _display_progress=1.0;_refresh_caption()
+        var settle:=maxf(0.10,1.0-float(Time.get_ticks_msec()-_covered_at)/1000.0)
+        await get_tree().create_timer(settle).timeout
     await get_tree().process_frame
     if DisplayServer.get_name() != "headless":
         await RenderingServer.frame_post_draw
     var motion := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
     motion.tween_property(self, "coverage", 0.0, 0.50 if show_loading else 0.38)
     await motion.finished
+    _snapshot.texture=null

@@ -139,6 +139,7 @@ def refreshed_source(source):
     patterns.extend(['addons/phantom_camera/LICENSE', 'addons/dialogue_manager/LICENSE', 'data/dialogue/chef_zh.dialogue', 'data/dialogue/chef_en.dialogue'])
     patterns.extend(path[6:] for path in paths if path.endswith('.gdshaderinc'))
     patterns.append('data/dialogue/supplied_20261116.json')
+    patterns.extend(['assets/authoring/cast_20261119/*.png', 'assets/authoring/cast_20261119/provenance.json'])
     patterns.extend(['data/campaign/five_days.json', 'data/campaign/presentation.json', 'assets/authoring/letter01_20261004/envelope_back.png'])
     patterns.extend(['assets/fonts/handwriting/*.txt', 'assets/fonts/handwriting/provenance.json'])
     patterns.append('assets/authoring/courier_walk_20261110/walk.json')
