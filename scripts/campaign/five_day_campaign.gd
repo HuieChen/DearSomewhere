@@ -30,8 +30,6 @@ func begin_arrival()->void:
     var intro:=preload("res://scripts/campaign/arrival_prologue.gd").new()
     host.modal=intro;UI.place(intro,host,Rect2(0,0,1600,900));intro.configure(host)
     intro.finished.connect(func():
-        journey.state["intro_seen"]=true
-        if not persist():host._show_save_problem(journey.last_error);return
         await host._change_scene(func():host._post_office_room())
         open_current())
 
@@ -55,6 +53,8 @@ func resume()->bool:
     host.core.new_game()
     if journey.state.get("exploration") is Dictionary:host.core.state=journey.state.exploration.duplicate(true)
     sync_time()
+    if not journey.state.get("intro_seen",false):
+        begin_arrival();return true
     if journey.state.get("view")=="postal_loft":_build_loft()
     elif journey.state.get("view","post_office_room")=="world":
         var destination:String=journey.state.location
@@ -123,6 +123,12 @@ func _mount_supplied_actor()->void:
         place="community_center"
         key="nanxing_happy" if journey.current_id()=="dog_gift" else ("nanxing_neutral" if journey.current_id()=="returned_mayor" else "nanxing_smile")
     if key.is_empty() or host._street_road.family!=FAMILIES.get(place,""):return
+    if key.begins_with("nanxing"):
+        var existing:=host._street_road.world.get_node_or_null("NanxingWorld") as TextureRect
+        if is_instance_valid(existing):
+            existing.texture=SuppliedCast.texture(key)
+            supplied_actor=existing
+            return
     supplied_actor=TextureRect.new();supplied_actor.name="SuppliedCampaignActor"
     supplied_actor.texture=SuppliedCast.texture(key)
     supplied_actor.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
