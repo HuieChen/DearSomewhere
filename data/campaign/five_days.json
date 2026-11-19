@@ -16,6 +16,28 @@
           "lines": [
             "柜台右边是工作桌。今天先从写给你的这封信开始。",
             "遇到地址不清的信，先看信封，再去问人。拿不准就带回来，不必急着作决定。"
+          ],
+          "turns": [
+            {
+              "speaker": "Mossner",
+              "zh": "你来了？这是你外婆写给你的信。放心，我没有私拆过。现在，我按当时的约定把它交给你。",
+              "en": "You're here. This letter is from your grandmother. Don't worry; I haven't opened it. I'm giving it to you, just as we agreed."
+            },
+            {
+              "speaker": "Anne",
+              "zh": "看起来尘封已久啊。外婆只给我写了这一封信吗？",
+              "en": "It looks like it's been tucked away for ages. Is this the only letter she left me?"
+            },
+            {
+              "speaker": "Mossner",
+              "zh": "时候还没到。先拆开眼前的这一封吧。",
+              "en": "The time hasn't come yet. For now, why don't you open this one?"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "收件人是我，没错。让我看看……",
+              "en": "It's addressed to me, all right. Let's see..."
+            }
           ]
         },
         {
@@ -168,6 +190,89 @@
           "lines": [
             "是我的，谢谢。……哦，是软件打折。",
             "先垫在桌脚下吧。作品集还差最后一页。你明天经过时也可以来看看。"
+          ],
+          "turns": [
+            {
+              "speaker": "周晓六",
+              "zh": "哇——这个标题……Congratulations！不会是我投的那家回复了吧！",
+              "en": "Whoa—that subject line... Congratulations! Could it be the studio I applied to?",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "我等这个消息快半个月了，简历石沉大海，作品集改得我头都秃了！谢谢你帮我拿过来，我赶紧看看！",
+              "en": "I've been waiting nearly two weeks! My résumé vanished into the void, and I've revised my portfolio so much I'm going bald. Thanks for bringing it—let me see!",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "……Exclusive Offer？哦，Exclusive……专属折扣？",
+              "en": "...Exclusive Offer? Oh. Exclusive... discount?",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "不是入职 Offer，是软件订阅打折啊，我的天。",
+              "en": "It's not a job offer. It's a discount on a software subscription. Oh my god.",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "连我的名字、住址都印得一字不差，这营销也太会唬人了。",
+              "en": "They even got my name and address exactly right. Marketing really knows how to get your hopes up.",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "求职就是这样，路漫漫其修远兮，十个邮件九个广，剩下一封不合适。",
+              "en": "That's job hunting for you. Nine emails out of ten are ads, and the last one's a rejection.",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "慢慢投，总会有真的 Offer 砸过来的！",
+              "en": "Keep at it. A real offer's bound to land sooner or later!"
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "好了好了，这场空欢喜到此为止。接着打磨作品集！说到底作品集才是硬底气！",
+              "en": "All right, enough excitement for one day. Back to the portfolio! That's what really counts.",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "加油，你的画那么棒，肯定能遇到赏识你的人！",
+              "en": "You've got this. Your art's wonderful—someone's going to see that."
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "刚才心跳都快停了，幻想我下周入职，带薪画画，再也不用啃泡面了。",
+              "en": "My heart nearly stopped. I was already imagining starting next week, getting paid to draw, and finally saying goodbye to instant noodles.",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "结果是软件广告，资本家太懂求职人的痛点了，专挑我们这种等着 Offer 的美术狗下手。",
+              "en": "And it's a software ad. They know exactly how to get us art students waiting for an offer.",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "不过算了，至少它没骗我钱，就当是一场短暂的美梦。",
+              "en": "Oh well. At least it didn't cost me anything. A nice little dream while it lasted.",
+              "speaker_en": "Xiaoliu"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "就当提前预热一下，真 Offer 不远了。",
+              "en": "Call it a dress rehearsal. The real offer can't be far behind."
+            },
+            {
+              "speaker": "周晓六",
+              "zh": "这桌子一直晃，这张广告纸拿去垫桌脚刚刚好，也算物尽其用。",
+              "en": "This table's been wobbling forever. The ad's just right for the leg—at least it's good for something.",
+              "speaker_en": "Xiaoliu"
+            }
           ]
         }
       ],

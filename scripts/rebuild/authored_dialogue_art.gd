@@ -4,8 +4,9 @@ const CAST_BASE="res://assets/authoring/cast_20261105/"
 const REPLACEMENTS={"chef_source.jpg":"chef_portrait.png","chef_chibi_source.jpg":"chef_chibi.png","courier_source.jpg":"courier_portrait.png","cast/record_clerk_chibi.png":"record_clerk_source_20261105.png"}
 static var cache:Dictionary={}
 static func is_character(file:String)->bool:
-	return REPLACEMENTS.has(file) or file.begins_with("cast/")
+	return REPLACEMENTS.has(file) or file.begins_with("cast/") or file.begins_with("supplied/")
 static func texture(file:String, crop:bool=true)->Texture2D:
+	if file.begins_with("supplied/"):return preload("res://scripts/rebuild/supplied_character_art.gd").texture(file)
 	var key:=file+str(crop)
 	if cache.has(key):return cache[key]
 	var path:String=CAST_BASE+REPLACEMENTS[file] if REPLACEMENTS.has(file) else (CAST_BASE+file.trim_prefix("cast/") if file.begins_with("cast/") else BASE+file)
@@ -33,6 +34,7 @@ static func portrait(file:String)->TextureRect:
 	node.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;node.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	node.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	node.texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	if file.begins_with("supplied/"):return node
 	if is_character(file):
 		var pigment:=ShaderMaterial.new();pigment.shader=preload("res://scripts/rebuild/character_palette.gdshader")
 		node.material=pigment
