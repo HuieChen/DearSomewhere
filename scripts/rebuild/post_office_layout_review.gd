@@ -5,8 +5,10 @@ signal close_requested
 signal postcard_requested(card:Dictionary, origin:Rect2)
 
 const DESIGN := Vector2(1920, 1080)
-const SOURCE := preload("res://assets/authoring/post_office_20261116/room_pair.png")
-# The new supplied composite has two full 16:9 rooms and no guide seam.
+const SOURCE := preload("res://assets/authoring/post_office_20261120/post_office_mossner_room.png")
+# The supplied replacement is a two-panel 16:9 composite with Mossner painted
+# into the postal interior. Keep the character in the authored scene instead of
+# mounting a separate actor over the counter or desk.
 const REGIONS := [Rect2(0, 0, 2560, 1440), Rect2(2560, 0, 2560, 1440)]
 const DOOR_RECT := Rect2(78, 195, 444, 516)
 var room_index := 0
