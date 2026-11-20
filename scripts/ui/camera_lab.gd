@@ -74,8 +74,13 @@ func build(canvas:Control):
  panel.hide();toggle.pressed.connect(_toggle_panel)
  apply()
 func _toggle_panel():
+ var was_visible:bool=panel.visible
  panel.visible=not panel.visible;owner._stop_pan()
  if panel.visible:refresh_previews()
+ elif was_visible:
+  # Hiding a focused panel clears the viewport focus owner on some Godot
+  # versions; return focus to the control that opened the panel.
+  toggle.call_deferred("grab_focus")
 func refresh_previews():
  if preview_busy or owner.capture_busy:return
  preview_busy=true
