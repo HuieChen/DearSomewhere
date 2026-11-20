@@ -8,6 +8,7 @@ const SuppliedCast=preload("res://scripts/rebuild/supplied_character_art.gd")
 const NAMES={"post_office":"邮局工作桌","community_center":"社区中心","residential":"海阶居民楼","food_truck":"餐车","record_store":"唱片店","market":"菜摊","chess_stall":"树下棋摊","tarot_shop":"塔罗店","bookstore":"书店","lookout":"观景台"}
 const FAMILIES={"community_center":"community","food_truck":"community","market":"community","residential":"residential","lookout":"residential","chess_stall":"postal","bookstore":"postal","tarot_shop":"coastal","record_store":"coastal"}
 const ACTORS={"community":"cici","chef":"咸鱼","record_clerk":"Xanni","bookseller":"Maya","lookout":"Rae","FoodTruckGuest":"尘缘","TarotGuest":"夏透明","Siri":"Siri","Naonao":"闹闹"}
+const EN_SPEAKERS={"周晓六":"Xiaoliu","咸鱼":"Xianyu","尘缘":"Chenyuan","夏透明":"Xia Touming","宇星晴":"Yu Xingqing","冥冥":"Mingming","闹闹":"Naonao","巫巫":"cici","邻居":"Neighbor","小孩":"Child","Arthur":"Arthur","Mossner":"Mossner","Maya":"Maya","Rae":"Rae","Xanni":"Xanni","Theo":"Theo","BEETMAN":"BEETMAN","Anne":"Anne","cici":"cici"}
 var host:Control
 var journey:RefCounted=State.new()
 var target:Button
@@ -181,7 +182,10 @@ func _talk(current:Dictionary)->void:
     var pages:Array=[]
     var turns:Array=current.get("turns",[])
     if turns.is_empty():
-        for text:String in lines:turns.append({"speaker":str(current.speaker),"zh":text})
+        if host.preferences.values.language=="en":
+            turns.append({"speaker":str(current.speaker),"speaker_en":str(EN_SPEAKERS.get(str(current.speaker),current.speaker)),"zh":"","en":"This part of the conversation is still being translated."})
+        else:
+            for text:String in lines:turns.append({"speaker":str(current.speaker),"zh":text})
     for turn:Dictionary in turns:
         var text:String=str(turn.get("en",turn.zh)) if host.preferences.values.language=="en" else str(turn.zh)
         var person:String=str(turn.get("speaker_en",turn.speaker)) if host.preferences.values.language=="en" else str(turn.speaker)
