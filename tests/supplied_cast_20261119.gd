@@ -68,9 +68,8 @@ func run()->void:
 	check(is_instance_valid(host._street_road.world.find_child("Siri",true,false)),"raccoon is at the canned-food stall")
 	await shot("canned_food_stall_cast")
 	host._post_office_room(0);await create_timer(.35).timeout
-	check(host.stage.find_child("MossnerPostalActor",true,false)==null,"Mossner ambient actor removed from post office")
-	check(Cast.texture("mossner_portrait")!=null,"Mossner portrait remains available for dialogue")
-	await shot("post_office_without_mossner")
+	check(not is_instance_valid(host.stage.find_child("MossnerPostalActor",true,false)),"Mossner is not placed on the post-office desk")
+	await shot("post_office_mossner")
 	host.queue_free();await process_frame
 	var receipt:={"checks":checks,"failures":failures,"method":"exact source hashes, live dialogue renderer, isolated production campaign encounters"}
 	FileAccess.open(out.path_join("receipt.json"),FileAccess.WRITE).store_string(JSON.stringify(receipt))

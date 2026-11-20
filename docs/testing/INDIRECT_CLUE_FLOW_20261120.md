@@ -14,9 +14,9 @@
 
 ## Export
 
-- Source commit: `2278b6eaf3157fa49cce2654e25960fd0c52dfa4`。
-- PCK SHA-256: `ecb5b143ab68a284cc1002a5fc996d66676757d789b319ad78adbdbd619e0317`。
-- Matching playable package: `DearSomewhere-IndirectClues-20261120`。
+- Source commit: `ea88712cb443a2d507c33b41961e0bbdfe0e3fb6`。
+- PCK SHA-256: `03db51ff07dee4f7cae741a673203168446c3aa491367fad86ddfd6b130ea44c`。
+- Matching playable package: `DearSomewhere-IndirectClues-20261120-r2`。
 
 ## Acceptance boundary
 

@@ -271,7 +271,7 @@ func complete(expected:String,answer:Dictionary,place:String)->String:
         open_current.call_deferred()
     elif journey.state.finished:
         host._sheet("Dear Somewhere","自己的信已经寄出。可以继续在小镇散步、拍照，或回看本子里的记录。",[])
-    elif journey.day_complete():host._say("今天的信都收好了。回邮局右侧，上二楼休息。")
+    elif journey.day_complete():host._say("桌面已经空出一块。楼上还留着一盏灯，去看看吧。")
     else:host._say(_ambient_arrival(next))
     return ""
 
@@ -299,7 +299,7 @@ func satchel()->void:
     paper.add_theme_stylebox_override("panel",preload("res://scripts/ui/paper_presentation.gd").backing(Color("faf3e5")))
     UI.label(paper,"第 %d 日 · 邮袋"%int(journey.state.day),Rect2(45,30,700,54),30)
     UI.button(paper,"×",Rect2(800,20,60,58),host._dismiss_modal.bind(true))
-    var copy:="今天的信都已收好。可以自由走走，或从邮局右侧上二楼休息。" if not journey.state.finished else "这段旅程已经写进本子。小镇仍然可以探索。"
+    var copy:="桌面已经空出一块。楼上那扇门还没有关上。" if not journey.state.finished else "这段旅程已经写进本子。小镇仍然可以探索。"
     if not current.is_empty():
         var item:Dictionary=journey.event(journey.current_id())
         copy="留在纸角上的一句话\n\n"+_lead_for(item,current)+"\n\n这不是答案。把它带在身上，遇见合适的人或物件时再回来看。"
