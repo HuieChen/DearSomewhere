@@ -887,18 +887,9 @@ func _post_office_room(index:int=0) -> void:
 		exit.visible=next_index==0
 		reference.visible=campaign.active() and next_index==0
 		desk.visible=campaign.active() and next_index==1)
-	var mossner:=TextureRect.new()
-	mossner.name="MossnerPostalActor"
-	mossner.texture=SuppliedCast.texture("mossner_portrait")
-	mossner.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
-	mossner.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	mossner.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	mossner.texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	var mossner_height:=470.0
-	var mossner_dims:=mossner.texture.get_size()*mossner_height/mossner.texture.get_height()
-	UI.place(mossner,room.canvas,Rect2(Vector2(1450,1080-mossner_height-90)-Vector2(mossner_dims.x*0.5,0),mossner_dims))
-	mossner.z_index=2
-	mossner.modulate=Color.WHITE
+	# Mossner's supplied portrait remains available for dialogue and the field book,
+	# but is no longer mounted as a large decorative actor in the post office.
+	# Keeping the portrait data avoids invalidating existing campaign saves.
 	_hud("post_office",false)
 	_footer()
 	campaign.mount()
