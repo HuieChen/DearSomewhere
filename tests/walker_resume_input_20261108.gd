@@ -161,7 +161,6 @@ func _test_host_modals()->void:
 		# Bound the real-frame wait: a loaded GPU may deliver fewer simulation steps.
 		var deadline:=Time.get_ticks_msec()+2000
 		while walker.foot.x<=stopped.x+5 and Time.get_ticks_msec()<deadline:await process_frame
-		print("RESUME_DIAGNOSTIC ",OS.get_keycode_string(opener)," delta=",walker.foot.x-stopped.x," turn=",walker._turn_position," enabled=",walker.manual_enabled," focused=",walker._window_focused," held=",Input.is_key_pressed(KEY_RIGHT)," blocked=",walker._blocked_movement_keys," velocity=",walker.velocity)
 		check(walker.foot.x>stopped.x+5,"fresh arrow moves after actual modal closes: "+OS.get_keycode_string(opener))
 		key(KEY_RIGHT,false);await settle(.8)
 	await RenderingServer.frame_post_draw

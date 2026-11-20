@@ -11,18 +11,17 @@ uniform float grain = 0.0;
 uniform float vignette = 0.0;
 uniform float aperture = 8.0;
 uniform vec2 focus_point = vec2(.5,.5);
-vec3 sample_image(sampler2D source_image, vec2 uv){
- return live ? texture(screen_image,clamp(uv,vec2(0.0),vec2(1.0))).rgb : texture(source_image,clamp(uv,vec2(0.0),vec2(1.0))).rgb;
-}
 void fragment(){
  vec2 uv=live?SCREEN_UV:UV;
  vec2 pixel=live?SCREEN_PIXEL_SIZE:TEXTURE_PIXEL_SIZE;
  float depth=smoothstep(.12,.62,distance(uv,focus_point));
  float radius=max(0.0,(8.0-aperture)/6.6)*depth*7.0;
- vec3 col=sample_image(TEXTURE,uv)*.28;
+ vec2 sample_uv=clamp(uv,vec2(0.0),vec2(1.0));
+ vec3 col=live?texture(screen_image,sample_uv).rgb*.28:texture(TEXTURE,sample_uv).rgb*.28;
  for(int i=0;i<8;i++){
   float angle=float(i)*.785398;
-  col+=sample_image(TEXTURE,uv+vec2(cos(angle),sin(angle))*pixel*radius)*.09;
+  sample_uv=clamp(uv+vec2(cos(angle),sin(angle))*pixel*radius,vec2(0.0),vec2(1.0));
+  col+=live?texture(screen_image,sample_uv).rgb*.09:texture(TEXTURE,sample_uv).rgb*.09;
  }
  col*=exp2(exposure);
  col*=vec3(1.0+warmth*.16+tint*.07,1.0-tint*.10,1.0-warmth*.16+tint*.07);
