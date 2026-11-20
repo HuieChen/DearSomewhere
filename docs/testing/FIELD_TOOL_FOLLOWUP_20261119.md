@@ -24,4 +24,4 @@ Release PCK SHA256: `cfd62dd61489806f795692668445c829d8fd3e4bc87bfd3281582cffb58
 
 Release EXE SHA256: `d34d36f3be1a6c49c56525ae86469b92e4f417ddf0b43cf00dd80c385c4b0562`.
 
-The merged PCK rerun also passed field tools 26, camera composition 21, recorder 44, walker smoke 101, walker resume 69, postal scene 24, loading 34, authored campaign turns 175, supplied cast 54, five-day state 3504 and five-day experience 175, all with zero failures.
+The merged PCK rerun covered **4227 checks with zero failures**: field tools 26, camera composition 21, recorder 44, walker smoke 101, walker resume 69, postal scene 24, loading 34, authored campaign turns 175, supplied cast 54, five-day state 3504 and five-day experience 175.

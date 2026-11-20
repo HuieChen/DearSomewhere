@@ -103,6 +103,58 @@
           "lines": [
             "事务一般由我处理。不过这封的收件人是南星。",
             "他在院子里。对，就是那只金毛。照片和回执上的爪印都是他的。"
+          ],
+          "turns": [
+            {
+              "speaker": "cici",
+              "zh": "事务一般由我处理。不过这封的收件人是南星。",
+              "en": "I handle most of the day-to-day work. But this letter is for Nanxing.",
+              "speaker_en": "cici"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "南星……是人名？",
+              "en": "Nanxing... that's a person's name?"
+            },
+            {
+              "speaker": "cici",
+              "zh": "算是。它在院子里。对，就是那只金毛。照片和回执上的爪印都是它的。",
+              "en": "Sort of. He's in the yard. Yes, the golden retriever. The portrait and the paw print on the receipt are both his.",
+              "speaker_en": "cici"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "真正的镇长是一只狗？",
+              "en": "The actual mayor is a dog?"
+            },
+            {
+              "speaker": "cici",
+              "zh": "正式负责人是一只狗。文件照样要签收，章盖得比我稳。",
+              "en": "The official person in charge is a dog. He still has to sign for things. His stamp is steadier than mine.",
+              "speaker_en": "cici"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "那我现在能让他签吗？",
+              "en": "Can I get him to sign now?"
+            },
+            {
+              "speaker": "cici",
+              "zh": "它问你是不是没带骨头。它不会说话，但这个表情通常就是这个意思。",
+              "en": "He's asking whether you brought a bone. He can't talk, but that face usually means exactly that.",
+              "speaker_en": "cici"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "……我没带。",
+              "en": "...I didn't."
+            },
+            {
+              "speaker": "cici",
+              "zh": "那他不太想签。不是不能签，是不太想。餐车那边有骨头。小块的就行。",
+              "en": "Then he may not feel like signing. It's not that he can't. He just doesn't feel like it. The food truck has bones. A small one will do.",
+              "speaker_en": "cici"
+            }
           ]
         },
         {
@@ -354,6 +406,73 @@
           "lines": [
             "你是 Anne 吧。你外婆以前常来这里。",
             "这张照片你拿着。她挑唱片时很有主意，跟别人吵起音乐来可不客气。"
+          ],
+          "turns": [
+            {
+              "speaker": "Xanni",
+              "zh": "你是 Anne 吧。你外婆以前常来这里。",
+              "en": "You must be Anne. Your grandmother used to come in here."
+            },
+            {
+              "speaker": "Anne",
+              "zh": "她常来唱片店吗？",
+              "en": "She came here often?"
+            },
+            {
+              "speaker": "Xanni",
+              "zh": "常来。她挑唱片很快，听歌很慢。",
+              "en": "All the time. She picked records quickly and listened slowly."
+            },
+            {
+              "speaker": "Xanni",
+              "zh": "有时候一张听完才翻下一张。我催她，她就说：“急什么，歌又不会跑。”",
+              "en": "Sometimes she'd finish a whole side before turning to the next one. I'd hurry her along, and she'd say, 'What's the rush? The song isn't going anywhere.'"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "……我完全不知道她这样听歌。",
+              "en": "...I had no idea she listened like that."
+            },
+            {
+              "speaker": "Xanni",
+              "zh": "她没跟你说过？她不太爱把自己放在需要被担心的位置上。",
+              "en": "She never told you? She wasn't fond of putting herself in a position where anyone might worry about her."
+            },
+            {
+              "speaker": "Anne",
+              "zh": "手记里写她每周会来镇上听演出。我以为她只是路过。",
+              "en": "Her notebook says she came into town for shows every week. I thought she was just passing through."
+            },
+            {
+              "speaker": "Xanni",
+              "zh": "路过可不会每次都坐最后一排。她说前面太显眼，最后一排能看见所有人，又不用被所有人看见。",
+              "en": "You don't take the back row every week just by passing through. She said the front was too conspicuous. From the back, you can see everyone without everyone seeing you."
+            },
+            {
+              "speaker": "Anne",
+              "zh": "她听什么？",
+              "en": "What did she listen to?"
+            },
+            {
+              "speaker": "Xanni",
+              "zh": "什么都听。鼓多一点的，歌词少一点的。有时候听到一半皱眉，我还以为她不喜欢。结果结束以后她第一个鼓掌。",
+              "en": "A bit of everything. More drums, fewer lyrics. Sometimes she'd frown halfway through and I'd think she hated it. Then she'd be the first person clapping at the end."
+            },
+            {
+              "speaker": "Anne",
+              "zh": "她这么喜欢音乐，为什么家里从来没人提？",
+              "en": "If she loved music that much, why did no one at home ever mention it?"
+            },
+            {
+              "speaker": "Xanni",
+              "zh": "可能家里人不觉得那算“正事”。也可能她回去以后，就把它留在镇上了。",
+              "en": "Maybe nobody at home thought it counted as 'real work.' Or maybe she left that part of herself here when she went home."
+            },
+            {
+              "speaker": "Xanni",
+              "zh": "这张照片你拿着。她挑唱片时很有主意，跟别人吵起音乐来可不客气。",
+              "en": "Keep this photo. She had very definite opinions when she chose a record, and she did not pull her punches in an argument about music."
+            }
           ]
         },
         {
@@ -441,6 +560,25 @@
           "lines": [
             "他签了，又把信带回来了。里面是配对评估的要求。",
             "南星，你是不想参加这个，还是不想再收到这种安排？"
+          ],
+          "turns": [
+            {
+              "speaker": "cici",
+              "zh": "他签了，又把信带回来了。里面是配对评估的要求。",
+              "en": "He signed it, then brought it straight back. It's an evaluation asking the town to pair people up.",
+              "speaker_en": "cici"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "他是不想参加，还是不想再收到这种安排？",
+              "en": "Does he not want to take part, or does he just not want to be assigned a life?"
+            },
+            {
+              "speaker": "cici",
+              "zh": "南星，你是不想参加这个，还是不想再收到这种安排？",
+              "en": "Nanxing, is it the event you dislike, or being told what your life ought to look like?",
+              "speaker_en": "cici"
+            }
           ]
         },
         {
@@ -866,6 +1004,25 @@
           "speaker": "cici",
           "lines": [
             "这一张才是现在用的地址。旧标签留作记录，别再让它盖住新地址。"
+          ],
+          "turns": [
+            {
+              "speaker": "cici",
+              "zh": "这一张才是现在用的地址。旧标签留作记录，别再让它盖住新地址。",
+              "en": "This is the address we use now. Keep the old label for the record, but don't let it cover the new one.",
+              "speaker_en": "cici"
+            },
+            {
+              "speaker": "Anne",
+              "zh": "好，我会把退件标签按时间排好。",
+              "en": "All right. I'll put the return labels in chronological order."
+            },
+            {
+              "speaker": "cici",
+              "zh": "谢谢。地址会变，事情也会变，但记录最好别乱。",
+              "en": "Thanks. Addresses change, and circumstances change, but the record should stay clear.",
+              "speaker_en": "cici"
+            }
           ]
         }
       ],
