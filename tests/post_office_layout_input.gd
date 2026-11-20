@@ -20,9 +20,9 @@ func _run() -> void:
 	root.add_child(room)
 	room.close_requested.connect(func(): closes += 1)
 	DirAccess.make_dir_recursive_absolute(PROOF)
-	_check(Review.SOURCE.get_size() == Vector2(5120,1440), "new PSD native source resolution retained")
-	_check(Review.SOURCE.resource_path.ends_with("post_office_mossner_room.png"), "replacement scene source includes Mossner")
-	_check(room.image.material==null,"old illustration motion masks are not applied to new objects")
+	_check(Review.SOURCE.get_size() == Vector2(5120,1440), "postal room source resolution retained")
+	_check(Review.SOURCE.resource_path.ends_with("post_office_20261116/room_pair.png"), "postal room uses the character-free background")
+	_check(room.image.material==null,"postal room background remains unshaded")
 	for dimensions: Vector2i in [Vector2i(1280,720),Vector2i(1920,1080),Vector2i(2560,1440)]:
 		root.size = dimensions
 		room.size = Vector2(dimensions)
