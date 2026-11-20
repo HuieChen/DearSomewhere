@@ -493,7 +493,7 @@ func _begin_briefing() -> void:
 	briefing.advance_name="FinishBriefing"
 	modal=briefing
 	UI.place(briefing,self,Rect2(0,0,1600,900))
-	briefing.configure("主管 · 柜台另一端","早。右边工作桌上的手提箱里，有封一直没送到的信。先取出来看看。信上是旧街名——社区中心窗边有改名公告。地址对得上，也得问清是谁家的信。")
+	briefing.configure("主管 · 柜台另一端","早。柜台右边那只手提箱，昨晚有人把它留在这里。先看看封面，别急着替它找答案。等你看见它和哪一处相像，再回来告诉我你看见了什么。")
 	briefing.cue.connect(sound.play)
 	briefing.set_text_rate(preferences.text_rate())
 	briefing.advanced.connect(_finish_briefing)
