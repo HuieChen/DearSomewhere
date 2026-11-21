@@ -241,8 +241,12 @@ func _talk(current:Dictionary)->void:
         else:
             for text:String in lines:turns.append({"speaker":str(current.speaker),"zh":text})
     for turn:Dictionary in turns:
-        var text:String=str(turn.get("en",turn.zh)) if host.preferences.values.language=="en" else str(turn.zh)
-        var person:String=str(turn.get("speaker_en",turn.speaker)) if host.preferences.values.language=="en" else str(turn.speaker)
+        var english:bool=host.preferences.values.language=="en"
+        var text:String=str(turn.get("en","")) if english else str(turn.get("zh",turn.get("text","")))
+        var person:String=str(turn.get("speaker_en",EN_SPEAKERS.get(str(turn.speaker),turn.speaker))) if english else str(turn.speaker)
+        if english and (_contains_cjk(text) or text.strip_edges().is_empty()):
+            text="This part of the conversation is still being translated."
+        if english and _contains_cjk(person):person="Narrator"
         var divided:Array=preload("res://scripts/rebuild/supplied_dialogue.gd").paginate([{"speaker":person,"text":text}])
         pages.append_array(divided)
     var dialogue:=Dialogue.new();dialogue.name="CampaignConversation"
@@ -264,6 +268,12 @@ func _talk(current:Dictionary)->void:
             if not error.is_empty():host._show_save_problem(error)
         else:dialogue.set_meta("campaign_page",index);dialogue.set_line(str(pages[index].speaker),str(pages[index].text)))
     host.sound.play("paper")
+
+func _contains_cjk(value:String)->bool:
+    for character:String in value:
+        var code:=character.unicode_at(0)
+        if code>=0x3400 and code<=0x9fff:return true
+    return false
 
 func complete(expected:String,answer:Dictionary,place:String)->String:
     if not at(place):return "请回到这封信所对应的地点。"
