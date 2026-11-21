@@ -1,7 +1,7 @@
 {
-  "source_kind": "user_supplied_exact_png_bytes",
-  "source_filename": "未命名作品 17.png",
-  "source_path": "D:\\电脑管家迁移文件\\xwechat_files\\wxid_iltlqlf3igrv22_6ce4\\msg\\file\\2026-11\\未命名作品 17.png",
+  "source_kind": "user_supplied_psd_composite_with_clock_layers_hidden",
+  "source_filename": "未命名作品(3).psd",
+  "source_path": "D:\\电脑管家迁移文件\\xwechat_files\\wxid_iltlqlf3igrv22_6ce4\\msg\\file\\2026-11\\未命名作品(3).psd",
   "scene_base": "post_office_base_no_clock.png",
   "derived_assets": {
     "post_office_base_no_clock": {
@@ -12,7 +12,7 @@
         5120,
         1440
       ],
-      "sha256": "f29de1bb26749abd12cf37e06f7c4c26dcc24688466ab305b5d5ee65092af69e"
+      "sha256": "7841f5c738118d513c2ea978fdd32aaf120e59bad906e0b0499e632e99834a8f"
     },
     "post_office_counter_foreground": {
       "path": "res://assets/authoring/post_office_20261120/post_office_counter_foreground.png",
@@ -35,5 +35,11 @@
       "removed_components_below_pixels": 12,
       "sha256": "ae122494cf133fd3b73c55f55811a94f10b4de7e181fdd3f20042666666ed440"
     }
-  }
+  },
+  "hidden_psd_layers": [
+    89,
+    90,
+    91
+  ],
+  "hidden_psd_layer_note": "Clock components in the supplied PSD were hidden before compositing."
 }
