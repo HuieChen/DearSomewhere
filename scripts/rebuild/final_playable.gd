@@ -598,7 +598,7 @@ func _world(arrival:String="") -> void:
 	if str(core.state.location)=="food_truck":
 		_add_supplied_world_actor(road,"beetman_portrait","BEETMAN",Vector2(12580,850),350.0)
 	if str(core.state.location)=="community_center":
-		_add_supplied_world_actor(road,"nanxing_smile","NanxingWorld",Vector2(2360,850),255.0)
+		_add_supplied_world_actor(road,"nanxing_world","NanxingWorld",Vector2(2360,850),255.0)
 	var cast:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").RESIDENTS
 	for character_id:String in cast:
 		var resident:Dictionary=cast[character_id]
@@ -625,7 +625,13 @@ func _world(arrival:String="") -> void:
 func _add_supplied_world_actor(road:Control,key:String,actor_name:String,foot:Vector2,height:float)->TextureRect:
 	var actor:=TextureRect.new()
 	actor.name=actor_name
-	actor.texture=SuppliedCast.texture(key)
+	if key=="nanxing_world":
+		# Keep this non-dialogue world cutout independent from dialogue atlas bounds.
+		var pixels:=Image.load_from_file("res://assets/authoring/cast_20261119/nanxing_world.png")
+		pixels.generate_mipmaps()
+		actor.texture=ImageTexture.create_from_image(pixels)
+	else:
+		actor.texture=SuppliedCast.texture(key)
 	actor.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
 	actor.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	actor.mouse_filter=Control.MOUSE_FILTER_IGNORE

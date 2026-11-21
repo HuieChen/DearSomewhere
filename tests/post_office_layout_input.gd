@@ -1,5 +1,8 @@
 extends SceneTree
 const Review = preload("res://scripts/rebuild/post_office_layout_review.gd")
+const BASE_SOURCE = preload("res://assets/authoring/post_office_20261120/post_office_base_no_clock.png")
+const MOSSNER_SOURCE = preload("res://assets/authoring/cast_20261119/mossner_postal_world.png")
+const COUNTER_SOURCE = preload("res://assets/authoring/post_office_20261120/post_office_counter_foreground.png")
 var PROOF := "user://qa/post-office-layout-20261116/"
 var room: Control
 var checks := 0
@@ -20,9 +23,12 @@ func _run() -> void:
 	root.add_child(room)
 	room.close_requested.connect(func(): closes += 1)
 	DirAccess.make_dir_recursive_absolute(PROOF)
-	_check(Review.SOURCE.get_size() == Vector2(5120,1440), "postal room source resolution retained")
-	_check(Review.SOURCE.resource_path.ends_with("post_office_20261116/room_pair.png"), "postal room uses the character-free background")
-	_check(room.image.material==null,"postal room background remains unshaded")
+	_check(BASE_SOURCE.get_size() == Vector2(5120,1440), "new PSD native source resolution retained")
+	_check(room.image.texture.atlas.resource_path.ends_with("post_office_base_no_clock.png"), "replacement scene source is the clock-free base")
+	_check(MOSSNER_SOURCE.resource_path.ends_with("mossner_postal_world.png"), "Mossner uses the clean supplied cutout")
+	_check(COUNTER_SOURCE.resource_path.ends_with("post_office_counter_foreground.png"), "counter occlusion uses a separate foreground layer")
+	_check(room.mossner_image.visible and room.counter_foreground.visible, "counter room shows layered Mossner and foreground")
+	_check(room.image.material==null,"old illustration motion masks are not applied to new objects")
 	for dimensions: Vector2i in [Vector2i(1280,720),Vector2i(1920,1080),Vector2i(2560,1440)]:
 		root.size = dimensions
 		room.size = Vector2(dimensions)
@@ -36,12 +42,14 @@ func _run() -> void:
 		for i: int in 6: await _click(room.next_arrow)
 		await create_timer(0.23).timeout
 		_check(room.room_index == 1 and not room.transitioning, "rapid pointer clicks settle in right workroom")
+		_check(not room.mossner_image.visible and not room.counter_foreground.visible, "workroom hides counter-room layers")
 		_check(room.previous_arrow.visible and not room.next_arrow.visible, "right room has visible return")
 		_check(room.image.texture.region == Review.REGIONS[1], "right view samples only right source half")
 		await _shot("workroom_" + str(dimensions.x))
 		await _click(room.previous_arrow)
 		await create_timer(0.23).timeout
 		_check(room.room_index == 0 and room.image.texture.region == Review.REGIONS[0], "return restores left half")
+		_check(room.mossner_image.visible and room.counter_foreground.visible, "return restores layered counter-room actors")
 		room.show_room(-1)
 		room.show_room(2)
 		_check(room.room_index == 0, "invalid destinations preserve room")
