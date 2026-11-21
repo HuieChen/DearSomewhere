@@ -381,6 +381,9 @@ func _draw_walk_cycle(seconds:float,opacity:float)->void:
 	# rather than an arbitrary multiplier or the configured maximum speed.
 	var index:=_frame_for_time(seconds)
 	var shift:=Vector2.ZERO
+	var next_shift:=Vector2.ZERO
+	var pose_blend:=0.0
+	var next_key:=_walk_keys[index] if not _walk_keys.is_empty() else ""
 	if _head_offsets.size()==_walk_keys.size() and _cycle_seconds>0.0:
 		var start:=0.0 if index==0 else _frame_ends[index-1]
 		var weight:=clampf((fposmod(seconds,_cycle_seconds)-start)/maxf(_frame_ends[index]-start,.001),0.0,1.0)
@@ -395,14 +398,27 @@ func _draw_walk_cycle(seconds:float,opacity:float)->void:
 		# Cancel each pose's height offset; only horizontal registration moves.
 		continuous.y=_head_offsets[_frame_for_time(_idle_time)].y
 		shift=continuous-current
-	_draw_pose(_walk_keys[index],opacity,shift)
+		next_key=_walk_keys[(index+1)%count]
+		var next_current:=_head_offsets[(index+1)%count]
+		var next_next:=_head_offsets[(index+2)%count]
+		var next_after:=_head_offsets[(index+3)%count]
+		var next_continuous:=next_current.cubic_interpolate(next_next,current,next_after,weight)
+		next_continuous.y=_head_offsets[_frame_for_time(_idle_time)].y
+		next_shift=next_continuous-next_current
+		pose_blend=smoothstep(0.0,1.0,weight)
+	_draw_pose(_walk_keys[index],opacity,shift,next_key,pose_blend,next_shift)
 
-func _draw_pose(key:String,opacity:float,upper_shift:Vector2=Vector2.ZERO)->void:
+func _draw_pose(key:String,opacity:float,upper_shift:Vector2=Vector2.ZERO,next_key:String="",pose_blend:float=0.0,next_upper_shift:Vector2=Vector2.ZERO)->void:
 	var art:Texture2D=_poses.get(key)
 	if art==null:return
 	var supplied:=key.begins_with("supplied_walk_")
 	material=_walk_material if supplied else _portrait_material
-	if supplied:_walk_material.set_shader_parameter("upper_shift",upper_shift/art.get_size())
+	if supplied:
+		_walk_material.set_shader_parameter("upper_shift",upper_shift/art.get_size())
+		var next_art:Texture2D=_poses.get(next_key,art)
+		_walk_material.set_shader_parameter("next_frame",next_art)
+		_walk_material.set_shader_parameter("next_upper_shift",next_upper_shift/next_art.get_size())
+		_walk_material.set_shader_parameter("pose_blend",pose_blend)
 	var eye: Rect2 = EYE_RECTS.get(key, Rect2())
 	if not supplied and material is ShaderMaterial:
 		material.set_shader_parameter("eye_rect",Vector4(eye.position.x,eye.position.y,eye.size.x,eye.size.y))

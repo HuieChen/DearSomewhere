@@ -110,6 +110,26 @@
         2220
       ],
       "sha256": "ccdbe1e6e97ea16ae7a738115de36fb78f94228c6247e46fdff1c6d0992a2434"
+    },
+    "nanxing_world": {
+      "character": "南星",
+      "source_filename": "大头(1).png",
+      "source_path": "D:\\电脑管家迁移文件\\xwechat_files\\wxid_iltlqlf3igrv22_6ce4\\msg\\file\\2026-11\\大头(1).png",
+      "path": "res://assets/authoring/cast_20261119/nanxing_world.png",
+      "region": [
+        0,
+        0,
+        2135,
+        2670
+      ],
+      "usage": "non_dialogue_world_actor",
+      "sha256": "7dd65319341e38c6f45259d489790a5fddd99cf5feb53e6fe4d55f815728e46c",
+      "source_region": [
+        550,
+        308,
+        2685,
+        2978
+      ]
     }
   }
 }

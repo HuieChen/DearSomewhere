@@ -17,6 +17,7 @@ const SceneDialogue = preload("res://scripts/rebuild/scene_dialogue.gd")
 const Preferences = preload("res://scripts/ui/game_preferences.gd")
 const SettingsPage = preload("res://scripts/ui/coastal_settings.gd")
 const SuppliedCast = preload("res://scripts/rebuild/supplied_character_art.gd")
+const TutorialCard = preload("res://scripts/rebuild/tutorial_card.gd")
 const FieldCamera = preload("res://scripts/ui/field_camera.gd")
 const CoverPaperButton = preload("res://scripts/ui/cover_paper_button.gd")
 const LOCATIONS = ["post_office","community_center","bus_stop","lookout","residential","chess_stall","tarot_shop"]
@@ -49,6 +50,7 @@ var _tray_opened := false
 var _briefing_pending := false
 var _footer_shade: ColorRect
 var _footer_timer: Timer
+var tutorial_card: Control
 var _resolution_drafts: Dictionary = {}
 var _desk_surface: Control
 var post_office_room_index := 0
@@ -330,6 +332,34 @@ func _say(message:String) -> void:
 	if is_instance_valid(status):status.text="";status.hide()
 	if is_instance_valid(_footer_shade):_footer_shade.hide()
 	if is_instance_valid(_footer_timer):_footer_timer.stop()
+	_refresh_tutorial_card()
+
+func _tutorial_step()->Dictionary:
+	var first:Dictionary=core.state.cases.case01
+	if not first.physical.inspected_front:
+		return {"step":"邮差手册 · 1 / 4","title":"先取出第一封信","body":"打开邮袋，拿出旧地址来信，再点信封查看正面。","hint":"点目标走近；阅读和查看不会消耗时间。"}
+	if str(first.disposition).is_empty():
+		if view=="post_office_room":
+			return {"step":"邮差手册 · 2 / 4","title":"带着问题去查地址","body":"打开地图，前往社区中心或棋摊，核对旧街名的现址。","hint":"地图可预览路程；走近纸签标记后点击调查。"}
+		return {"step":"邮差手册 · 2 / 4","title":"带着问题去查地址","body":_objective(),"hint":"走近目标后点击；不要凭名字直接猜收件人。"}
+	if core.resolution_view("case01").is_empty():
+		return {"step":"邮差手册 · 3 / 4","title":"回邮局完成处理单","body":"回到邮局，把这封信放上工作桌，写下去向，再盖章登记。","hint":"处理单记录你的判断；实物去向和纸面记录要分开完成。"}
+	return {"step":"邮差手册 · 4 / 4","title":"继续下一封待办来信","body":"打开邮袋，选择下一封信；本子会保留已经核对过的记录。","hint":"按 B 打开邮袋，M 查看地图，J 查看本子。"}
+
+func _tutorial_card()->void:
+	if view not in ["world","post_office_room","counter"]:return
+	var old:=stage.get_node_or_null("TutorialCard")
+	if is_instance_valid(old):old.queue_free()
+	tutorial_card=TutorialCard.new();tutorial_card.name="TutorialCard"
+	var step:=_tutorial_step()
+	UI.place(tutorial_card,stage,Rect2(42,118,560,166))
+	tutorial_card.configure(str(step.step),str(step.title),str(step.body),str(step.hint))
+	tutorial_card.z_index=2
+
+func _refresh_tutorial_card()->void:
+	if not is_instance_valid(tutorial_card):return
+	var step:=_tutorial_step()
+	tutorial_card.configure(str(step.step),str(step.title),str(step.body),str(step.hint))
 
 func _save() -> void:
 	if (campaign.persist() if campaign.active() else core.save_game()):
@@ -493,7 +523,7 @@ func _begin_briefing() -> void:
 	briefing.advance_name="FinishBriefing"
 	modal=briefing
 	UI.place(briefing,self,Rect2(0,0,1600,900))
-	briefing.configure("主管 · 柜台另一端","早。右边工作桌上的手提箱里，有封一直没送到的信。先取出来看看。信上是旧街名——社区中心窗边有改名公告。地址对得上，也得问清是谁家的信。")
+	briefing.configure("主管 · 柜台另一端","早。柜台右边那只手提箱，昨晚有人把它留在这里。先看看封面，别急着替它找答案。等你看见它和哪一处相像，再回来告诉我你看见了什么。")
 	briefing.cue.connect(sound.play)
 	briefing.set_text_rate(preferences.text_rate())
 	briefing.advanced.connect(_finish_briefing)
@@ -543,7 +573,7 @@ func _world(arrival:String="") -> void:
 	road.courier.z_index=2
 	# Supplied street figures retain their original transparent pixels. They are
 	# ambient neighbours; no invented dialogue or false interaction affordance.
-	for figure:Array in [["postal","Naonao","naonao.png",Vector2(1060,850),300.0,Rect2i(112,91,306,799)],["community","FoodTruckGuest","hoodie_guest.png",Vector2(11730,850),305.0,Rect2i(1514,155,380,771)],["coastal","TarotGuest","tarot_guest.png",Vector2(1220,850),305.0,Rect2i(2151,165,309,750)],["community","Siri","siri.png",Vector2(11920,850),250.0,Rect2i(308,367,1386,2033)]]:
+	for figure:Array in [["postal","Naonao","naonao.png",Vector2(1060,850),300.0,Rect2i(112,91,306,799)],["community","FoodTruckGuest","hoodie_guest.png",Vector2(11730,850),305.0,Rect2i(1514,155,380,771)],["coastal","TarotGuest","tarot_guest.png",Vector2(1220,850),305.0,Rect2i(2151,165,309,750)],["community","Siri","siri.png",Vector2(11920,850),210.0,Rect2i(308,367,1386,2033)]]:
 		if road.family!=figure[0]:continue
 		var pixels:=Image.load_from_file("res://assets/authoring/neighbours_20261109/"+figure[2])
 		pixels.generate_mipmaps()
@@ -568,7 +598,7 @@ func _world(arrival:String="") -> void:
 	if str(core.state.location)=="food_truck":
 		_add_supplied_world_actor(road,"beetman_portrait","BEETMAN",Vector2(12580,850),350.0)
 	if str(core.state.location)=="community_center":
-		_add_supplied_world_actor(road,"nanxing_smile","NanxingWorld",Vector2(2360,850),255.0)
+		_add_supplied_world_actor(road,"nanxing_world","NanxingWorld",Vector2(2360,850),255.0)
 	var cast:Dictionary=preload("res://scripts/rebuild/authored_cast.gd").RESIDENTS
 	for character_id:String in cast:
 		var resident:Dictionary=cast[character_id]
@@ -595,7 +625,13 @@ func _world(arrival:String="") -> void:
 func _add_supplied_world_actor(road:Control,key:String,actor_name:String,foot:Vector2,height:float)->TextureRect:
 	var actor:=TextureRect.new()
 	actor.name=actor_name
-	actor.texture=SuppliedCast.texture(key)
+	if key=="nanxing_world":
+		# Keep this non-dialogue world cutout independent from dialogue atlas bounds.
+		var pixels:=Image.load_from_file("res://assets/authoring/cast_20261119/nanxing_world.png")
+		pixels.generate_mipmaps()
+		actor.texture=ImageTexture.create_from_image(pixels)
+	else:
+		actor.texture=SuppliedCast.texture(key)
 	actor.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
 	actor.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	actor.mouse_filter=Control.MOUSE_FILTER_IGNORE
@@ -661,6 +697,7 @@ func _hud(_id:String, show_carried:bool=true) -> void:
 	bar.buttons.recorder.tooltip_text=_tr("录音机 · R","Recorder · R")
 	bar.action_requested.connect(_quickbar_action)
 	if show_carried:_refresh_selected_letter()
+	_tutorial_card()
 
 func _quickbar_action(action:String) -> void:
 	if busy or is_instance_valid(modal):return
@@ -887,18 +924,6 @@ func _post_office_room(index:int=0) -> void:
 		exit.visible=next_index==0
 		reference.visible=campaign.active() and next_index==0
 		desk.visible=campaign.active() and next_index==1)
-	var mossner:=TextureRect.new()
-	mossner.name="MossnerPostalActor"
-	mossner.texture=SuppliedCast.texture("mossner_portrait")
-	mossner.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
-	mossner.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	mossner.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	mossner.texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	var mossner_height:=470.0
-	var mossner_dims:=mossner.texture.get_size()*mossner_height/mossner.texture.get_height()
-	UI.place(mossner,room.canvas,Rect2(Vector2(1450,1080-mossner_height-90)-Vector2(mossner_dims.x*0.5,0),mossner_dims))
-	mossner.z_index=2
-	mossner.modulate=Color.WHITE
 	_hud("post_office",false)
 	_footer()
 	campaign.mount()

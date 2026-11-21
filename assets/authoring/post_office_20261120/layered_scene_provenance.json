@@ -1,0 +1,39 @@
+{
+  "source_kind": "user_supplied_exact_png_bytes",
+  "source_filename": "未命名作品 17.png",
+  "source_path": "D:\\电脑管家迁移文件\\xwechat_files\\wxid_iltlqlf3igrv22_6ce4\\msg\\file\\2026-11\\未命名作品 17.png",
+  "scene_base": "post_office_base_no_clock.png",
+  "derived_assets": {
+    "post_office_base_no_clock": {
+      "path": "res://assets/authoring/post_office_20261120/post_office_base_no_clock.png",
+      "crop": [
+        0,
+        0,
+        5120,
+        1440
+      ],
+      "sha256": "f29de1bb26749abd12cf37e06f7c4c26dcc24688466ab305b5d5ee65092af69e"
+    },
+    "post_office_counter_foreground": {
+      "path": "res://assets/authoring/post_office_20261120/post_office_counter_foreground.png",
+      "opaque_source_rect": [
+        0,
+        1000,
+        5120,
+        1440
+      ],
+      "sha256": "eef4d4bdd1a5a9d76ec7d065ba0137a44c68a24debcb0e285be4369f759225c0"
+    },
+    "mossner_postal_world": {
+      "path": "res://assets/authoring/cast_20261119/mossner_postal_world.png",
+      "source_bbox": [
+        1181,
+        1524,
+        1564,
+        2343
+      ],
+      "removed_components_below_pixels": 12,
+      "sha256": "ae122494cf133fd3b73c55f55811a94f10b4de7e181fdd3f20042666666ed440"
+    }
+  }
+}

@@ -5,8 +5,11 @@ signal close_requested
 signal postcard_requested(card:Dictionary, origin:Rect2)
 
 const DESIGN := Vector2(1920, 1080)
-const SOURCE := preload("res://assets/authoring/post_office_20261116/room_pair.png")
-# The new supplied composite has two full 16:9 rooms and no guide seam.
+const SOURCE := preload("res://assets/authoring/post_office_20261120/post_office_base_no_clock.png")
+const MOSSNER_SOURCE := preload("res://assets/authoring/cast_20261119/mossner_postal_world.png")
+const COUNTER_SOURCE := preload("res://assets/authoring/post_office_20261120/post_office_counter_foreground.png")
+# The supplied replacement is layered so the clean Mossner cutout sits behind
+# the authored counter. The foreground counter is a separate occlusion layer.
 const REGIONS := [Rect2(0, 0, 2560, 1440), Rect2(2560, 0, 2560, 1440)]
 const DOOR_RECT := Rect2(78, 195, 444, 516)
 var room_index := 0
@@ -20,6 +23,9 @@ var previous_arrow: Button
 var close_button: Button
 var _transition: Tween
 var _textures: Array[Texture2D] = []
+var _counter_textures: Array[Texture2D] = []
+var mossner_image: TextureRect
+var counter_foreground: TextureRect
 var postcard_rack:Control
 
 class SceneArrow extends Button:
@@ -99,6 +105,11 @@ func _ready() -> void:
 		texture.region = region
 		texture.filter_clip = true
 		_textures.append(texture)
+		var counter_texture := AtlasTexture.new()
+		counter_texture.atlas = COUNTER_SOURCE
+		counter_texture.region = region
+		counter_texture.filter_clip = true
+		_counter_textures.append(counter_texture)
 	canvas = Control.new()
 	canvas.name = "RoomCanvas"
 	canvas.size = DESIGN
@@ -108,6 +119,21 @@ func _ready() -> void:
 	image = _image_node("AuthoredRoom")
 	room_index = clampi(room_index, 0, 1)
 	image.texture = _textures[room_index]
+	mossner_image = TextureRect.new()
+	mossner_image.name = "MossnerPostalSprite"
+	mossner_image.texture = MOSSNER_SOURCE
+	# Lower the character so the top of the head sits below the door lintel.
+	mossner_image.position = Vector2(761, 210)
+	mossner_image.size = Vector2(398, 850)
+	mossner_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	mossner_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	mossner_image.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	mossner_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mossner_image.visible = room_index == 0
+	canvas.add_child(mossner_image)
+	counter_foreground = _image_node("CounterForeground")
+	counter_foreground.texture = _counter_textures[room_index]
+	counter_foreground.visible = room_index == 0
 	postcard_rack=preload("res://scripts/rebuild/postal_postcard_rack.gd").new()
 	postcard_rack.allowed=func():return room_index==0 and not transitioning and (not navigation_allowed.is_valid() or navigation_allowed.call())
 	canvas.add_child(postcard_rack)
@@ -167,6 +193,10 @@ func show_room(index: int) -> void:
 	previous_arrow.disabled = true
 	previous_image.texture = image.texture
 	image.texture = _textures[index]
+	if is_instance_valid(mossner_image): mossner_image.visible = index == 0
+	if is_instance_valid(counter_foreground):
+		counter_foreground.texture = _counter_textures[index]
+		counter_foreground.visible = index == 0
 	image.modulate.a = 0.0
 	room_index = index
 	_transition = create_tween()

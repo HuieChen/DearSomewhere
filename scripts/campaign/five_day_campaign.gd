@@ -9,6 +9,53 @@ const NAMES={"post_office":"邮局工作桌","community_center":"社区中心","
 const FAMILIES={"community_center":"community","food_truck":"community","market":"community","residential":"residential","lookout":"residential","chess_stall":"postal","bookstore":"postal","tarot_shop":"coastal","record_store":"coastal"}
 const ACTORS={"community":"cici","chef":"咸鱼","record_clerk":"Xanni","bookseller":"Maya","lookout":"Rae","FoodTruckGuest":"尘缘","TarotGuest":"夏透明","Siri":"Siri","Naonao":"闹闹"}
 const EN_SPEAKERS={"周晓六":"Xiaoliu","咸鱼":"Xianyu","尘缘":"Chenyuan","夏透明":"Xia Touming","宇星晴":"Yu Xingqing","冥冥":"Mingming","闹闹":"Naonao","巫巫":"cici","邻居":"Neighbor","小孩":"Child","Arthur":"Arthur","Mossner":"Mossner","Maya":"Maya","Rae":"Rae","Xanni":"Xanni","Theo":"Theo","BEETMAN":"BEETMAN","Anne":"Anne","cici":"cici"}
+const EVENT_LEADS={
+    "grandmother":{"zh":"一封写着你名字的信，被压在桌面更深处。","en":"A letter with your name rests deeper in the tray."},
+    "mayor":{"zh":"回执上的印记，比寄件人的称呼更像一个答案。","en":"The mark on the receipt says more than the sender's title."},
+    "offer":{"zh":"有人把“祝贺”写得很大，真正想说的话却留在页边。","en":"Someone wrote congratulations in large letters and left the real question in the margin."},
+    "portfolio":{"zh":"一份材料在等待被看见，也在等待有人先删掉一句话。","en":"A portfolio is waiting to be seen, and for one sentence to disappear first."},
+    "xanni":{"zh":"照片里的空位没有说明是谁离开，只留下了一个熟悉的方向。","en":"The empty place in the photograph names no one, but it faces somewhere familiar."},
+    "music_found":{"zh":"回家的路上有一段声音没有找到主人。","en":"A sound on the way home has lost its owner."},
+    "returned_mayor":{"zh":"被退回的纸上，盖章的位置比退回的理由更沉。","en":"On the returned page, the stamp weighs more than the reason."},
+    "cat_letter":{"zh":"封口留下了爪印，写信的人没有留下名字。","en":"The seal carries a paw print, while the writer kept their name away."},
+    "food_application":{"zh":"申请里有一群收件人，它们不会自己来取信。","en":"The application has a group of recipients who will not come for their mail."},
+    "theo":{"zh":"生日卡写得很轻，日期却被人反复确认。","en":"The birthday card is light in tone, but its date has been checked twice."},
+    "recipe":{"zh":"这份配方缺的不是一种食材，而是一个共同记得的味道。","en":"The recipe is missing more than an ingredient. It is missing a shared taste."},
+    "tarot_damage":{"zh":"包裹的裂口朝外，里面的东西却像在躲着谁。","en":"The parcel split outward, while its contents seem to be hiding from someone."},
+    "war_letter":{"zh":"旧地址还在，写信的人已经换了称呼。","en":"The old address remains, but the writer has changed what they are called."},
+    "cici_forward":{"zh":"同一封信回来的次数，足够让一张公开登记变得可疑。","en":"The number of returns makes even a public register feel uncertain."},
+    "future_self":{"zh":"外婆把话寄给未来，却没有规定未来是哪一天。","en":"Your grandmother sent words to the future without naming the day."},
+    "blank":{"zh":"空白也占着一个信封的位置。","en":"Blankness still takes up the space of an envelope."},
+    "maya_fracture":{"zh":"一份记录被分成两种说法，缺口藏在相同的日期里。","en":"One record has split into two accounts, with the gap hidden in the same date."},
+    "anonymous":{"zh":"三封没有署名的信，都把问题留给读到的人。","en":"Three unsigned letters leave their questions with whoever reads them."},
+    "maya_truth":{"zh":"没有刊出的部分，比刊出的标题更像一封信。","en":"The part that was not printed reads more like a letter than the headline."},
+    "old_quarrel":{"zh":"迟到的争吵还在找一个愿意听完的人。","en":"A late argument is still looking for someone willing to hear it through."},
+    "maya_private":{"zh":"这封信没有寄往公共地址，纸边也不欢迎旁观者。","en":"This letter was not sent to a public address, and its edges do not invite spectators."},
+    "visible":{"zh":"申请表上的空格，比填写好的经历更有分量。","en":"The blank spaces on the application weigh more than the finished history."},
+    "solmere":{"zh":"一封写给小镇的信，没有写清小镇要回什么。","en":"A letter addressed to the town does not say what the town should return."},
+    "rae":{"zh":"旧信把一段旋律留在了别人听得见的地方。","en":"An old letter left a melody somewhere another person could hear it."},
+    "radio":{"zh":"收音机需要的不只是零件，还有一个愿意等它响起来的人。","en":"The radio needs more than a part. It needs someone willing to wait for it to speak."},
+    "dog_gift":{"zh":"礼盒里要放的东西已经齐了，最重要的那件还没有选。","en":"The gift box has its objects, but the important one has not been chosen."},
+    "music_home":{"zh":"一张会响的卡片终于遇到了可能听懂它的人。","en":"A card that can sing may have found someone who understands it."},
+    "cover_letter":{"zh":"求职信里有几句话太像别人，剩下的才像她自己。","en":"Some lines in the cover letter sound like someone else. The rest sound like her."},
+    "last_letter":{"zh":"最后一封信没有催你回答，只把时间交回手里。","en":"The last letter does not ask for an answer. It returns time to your hands."},
+    "performance":{"zh":"有人把一晚上的声音留了下来，安静得像一张照片。","en":"Someone kept the sound of one night, quiet as a photograph."},
+    "somewhere":{"zh":"写给某处的信，先要找到你愿意留下的那句话。","en":"A letter to somewhere begins with the sentence you are willing to leave behind."}
+}
+const KIND_LEADS={
+    "talk":{"zh":"有人在等一句不会写在信封正面的问候。","en":"Someone is waiting for a greeting that will not fit on the envelope."},
+    "inspect":{"zh":"纸面留下了可核对的痕迹，先看它没有说完的部分。","en":"The page leaves something to verify. Start with what it does not finish saying."},
+    "read":{"zh":"字已经在这里，读完以后再决定哪些话值得带走。","en":"The words are here. Read them through before deciding what to carry away."},
+    "choice":{"zh":"没有一个选项替你判断，手里的物件会记住你的偏向。","en":"No option can judge for you. The objects will remember which way you lean."},
+    "sort":{"zh":"几份记录正在互相靠近，先让它们自己排出关系。","en":"Several records are drawing close. Let them show their relationship first."},
+    "pack":{"zh":"箱子的空隙有自己的顺序，先听物件落下的声音。","en":"The empty spaces have their own order. Listen to the objects as they settle."},
+    "sequence":{"zh":"下一步就在手边，但顺序会留下比结果更久的痕迹。","en":"The next action is close at hand, but the order will outlast the result."},
+    "order":{"zh":"四个动作还没有成为一封完整的信。","en":"Four actions have not yet become one complete letter."},
+    "cook":{"zh":"熟悉的味道不只来自配方，也来自谁记得它。","en":"A familiar taste comes from more than a recipe. It comes from who remembers it."},
+    "listen":{"zh":"不要急着把声音变成答案，让它完整经过。","en":"Do not turn the sound into an answer too soon. Let it pass through."},
+    "strike":{"zh":"有些句子要留下，有些句子只是占了位置。","en":"Some sentences should stay. Others are only taking up room."},
+    "write":{"zh":"留下什么，是写下去之前的一次停顿。","en":"What to leave behind begins with a pause before writing."}
+}
 var host:Control
 var journey:RefCounted=State.new()
 var target:Button
@@ -234,9 +281,25 @@ func complete(expected:String,answer:Dictionary,place:String)->String:
         open_current.call_deferred()
     elif journey.state.finished:
         host._sheet("Dear Somewhere","自己的信已经寄出。可以继续在小镇散步、拍照，或回看本子里的记录。",[])
-    elif journey.day_complete():host._say("今天的信都收好了。回邮局右侧，上二楼休息。")
-    else:host._say(str(NAMES.get(next.get("place",""),"")))
+    elif journey.day_complete():host._say("桌面已经空出一块。楼上还留着一盏灯，去看看吧。")
+    else:host._say(_ambient_arrival(next))
     return ""
+
+func _ambient_arrival(next:Dictionary)->String:
+    if next.is_empty():return "邮袋里还压着一页没有折好的纸。"
+    var item:Dictionary=journey.event(journey.current_id())
+    var lead:String=_lead_for(item,next)
+    return lead+"\n\n如果想确认，再把地图摊开。"
+
+func _lead_for(item:Dictionary,step:Dictionary)->String:
+    var language:String="en" if is_instance_valid(host) and is_instance_valid(host.preferences) and host.preferences.values.language=="en" else "zh"
+    var id:String=str(item.get("id",journey.current_id()))
+    var event_lead:Dictionary=EVENT_LEADS.get(id,{})
+    if event_lead.has(language):return str(event_lead[language])
+    var kind:String=str(step.get("kind","inspect"))
+    var kind_lead:Dictionary=KIND_LEADS.get(kind,{})
+    if kind_lead.has(language):return str(kind_lead[language])
+    return "有一处细节还没有和手里的纸对上。" if language=="zh" else "One detail still does not match the paper in your hand."
 
 func satchel()->void:
     if not active():return
@@ -246,11 +309,13 @@ func satchel()->void:
     paper.add_theme_stylebox_override("panel",preload("res://scripts/ui/paper_presentation.gd").backing(Color("faf3e5")))
     UI.label(paper,"第 %d 日 · 邮袋"%int(journey.state.day),Rect2(45,30,700,54),30)
     UI.button(paper,"×",Rect2(800,20,60,58),host._dismiss_modal.bind(true))
-    var copy:="今天的信都已收好。可以自由走走，或从邮局右侧上二楼休息。" if not journey.state.finished else "这段旅程已经写进本子。小镇仍然可以探索。"
-    if not current.is_empty():copy=str(journey.event(journey.current_id()).title)+"\n\n"+str(current.title)+"\n"+str(NAMES.get(current.place,current.place))
-    UI.body(paper,copy,Rect2(45,115,800,240),28)
+    var copy:="桌面已经空出一块。楼上那扇门还没有关上。" if not journey.state.finished else "这段旅程已经写进本子。小镇仍然可以探索。"
     if not current.is_empty():
-        var action:=UI.button(paper,"拿出来" if at(current.place) else "展开地图",Rect2(45,389,350,62),open_current if at(current.place) else host._map)
+        var item:Dictionary=journey.event(journey.current_id())
+        copy="留在纸角上的一句话\n\n"+_lead_for(item,current)+"\n\n这不是答案。把它带在身上，遇见合适的人或物件时再回来看。"
+    UI.body(paper,copy,Rect2(45,115,800,240),27)
+    if not current.is_empty():
+        var action:=UI.button(paper,"展开这页" if at(current.place) else "摊开地图",Rect2(45,389,350,62),open_current if at(current.place) else host._map)
         action.name="CampaignNext"
     elif not journey.state.finished and host.view=="post_office_room":UI.button(paper,"上二楼",Rect2(45,389,350,62),open_attic).name="CampaignNext"
     UI.button(paper,"照片",Rect2(455,389,170,62),func():host._bag_photos_visible=true;host._bag())
@@ -262,16 +327,30 @@ func journal()->void:
     UI.label(paper,"小镇手记",Rect2(45,25,850,60),31)
     UI.button(paper,"×",Rect2(905,20,60,58),host._dismiss_modal.bind(true))
     var text:=""
-    for entry:Dictionary in journey.state.journal:text+="第 %d 日 · %s\n%s\n\n"%[int(entry.day),entry.title,entry.text]
-    for key:String in journey.state.evidence:text+=str(journey.state.evidence[key])+"\n\n"
+    for entry:Dictionary in journey.state.journal:
+        text+="第 %d 日 · %s\n%s\n\n"%[int(entry.day),entry.title,entry.text]
+    var full_records:=""
+    for key:String in journey.state.evidence:
+        var record:String=str(journey.state.evidence[key])
+        full_records+=key+"\n"+record+"\n\n"
+        text+="· "+_journal_excerpt(record)+"\n"
     if text.is_empty():text="还没有记下新的事情。"
     UI.body(paper,text,Rect2(45,105,905,450),25)
+    if not full_records.is_empty():
+        UI.button(paper,"摊开原始记录",Rect2(730,594,220,60),func():host._sheet("原始记录",full_records,[]))
     if int(journey.state.day)>=3 and journey.available("anonymous") and not journey.state.events.anonymous.done:
         UI.button(paper,"匿名信 · 支线",Rect2(45,594,280,60),func():
             if journey.select("anonymous"):mount();satchel())
     if journey.state.evidence.has("performance"):
         UI.button(paper,"演出录音",Rect2(340,594,230,60),replay_recording)
-    UI.button(paper,"回到今日的信",Rect2(620,594,330,60),func():journey.state.selected="";journey.save();mount();satchel())
+    UI.button(paper,"回到今日的信",Rect2(45,650,905,48),func():journey.state.selected="";journey.save();mount();satchel())
+
+func _journal_excerpt(value:String)->String:
+    var one_line:String=value.replace("\n"," ").strip_edges()
+    var stop:int=one_line.find("。")
+    if stop>=0:one_line=one_line.left(stop+1)
+    if one_line.length()>54:one_line=one_line.left(53)+"…"
+    return one_line
 
 func open_attic()->void:
     if host.busy:return
