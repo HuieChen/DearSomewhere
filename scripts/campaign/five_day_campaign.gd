@@ -240,10 +240,19 @@ func _talk(current:Dictionary)->void:
             turns.append({"speaker":str(current.speaker),"speaker_en":str(EN_SPEAKERS.get(str(current.speaker),current.speaker)),"zh":"","en":"This part of the conversation is still being translated."})
         else:
             for text:String in lines:turns.append({"speaker":str(current.speaker),"zh":text})
+    var grouped:Array=[]
     for turn:Dictionary in turns:
+        var language_is_english:bool=host.preferences.values.language=="en"
+        var speaker_key:=str(turn.get("speaker_en",EN_SPEAKERS.get(str(turn.speaker),turn.speaker))) if language_is_english else str(turn.speaker)
+        var source_text:=str(turn.get("en","")) if language_is_english else str(turn.get("zh",turn.get("text","")))
+        if not grouped.is_empty() and str(grouped.back().speaker)==speaker_key:
+            grouped.back().text+="\n"+source_text
+        else:
+            grouped.append({"speaker":speaker_key,"text":source_text})
+    for turn:Dictionary in grouped:
         var english:bool=host.preferences.values.language=="en"
-        var text:String=str(turn.get("en","")) if english else str(turn.get("zh",turn.get("text","")))
-        var person:String=str(turn.get("speaker_en",EN_SPEAKERS.get(str(turn.speaker),turn.speaker))) if english else str(turn.speaker)
+        var text:String=str(turn.text)
+        var person:String=str(turn.speaker)
         if english and (_contains_cjk(text) or text.strip_edges().is_empty()):
             text="This part of the conversation is still being translated."
         if english and _contains_cjk(person):person="Narrator"
