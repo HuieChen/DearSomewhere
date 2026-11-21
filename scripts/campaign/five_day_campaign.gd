@@ -234,7 +234,7 @@ func _talk(current:Dictionary)->void:
         else:
             for text:String in lines:turns.append({"speaker":str(current.speaker),"zh":text})
     for turn:Dictionary in turns:
-        var english:=host.preferences.values.language=="en"
+        var english:bool=host.preferences.values.language=="en"
         var text:String=str(turn.get("en","")) if english else str(turn.get("zh",turn.get("text","")))
         var person:String=str(turn.get("speaker_en",EN_SPEAKERS.get(str(turn.speaker),turn.speaker))) if english else str(turn.speaker)
         if english and (_contains_cjk(text) or text.strip_edges().is_empty()):
