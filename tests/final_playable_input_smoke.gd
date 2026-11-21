@@ -27,15 +27,17 @@ func _run() -> void:
 	host=Host.new();root.add_child(host);host.size=Vector2(1600,900)
 	# The script's unique path wins even if no command-line save override was supplied.
 	host.core.save_path="user://qa/final-host/"+run_id+"/state.json"
+	host.campaign.journey.path="user://qa/final-host/"+run_id+"/campaign.json"
 	await process_frame
 	_check(host.view=="title", "real playable title is mounted")
 	await _shot("01_title")
 	await _named("NewShift")
+	await _wait(func(): return not host.busy and host.view == "post_office_room","loading finishes at the postal interior")
 	_check(host.view=="post_office_room" and host.post_office_room_index==0 and host.core.state.location=="post_office","new day starts in supplied left postal interior")
-	await _wait(func():return _node("FinishBriefing")!=null,"brief supervisor scene appears before work")
-	await _shot("01b_counter_supervisor")
-	await _named("FinishBriefing")
-	_check(not host.busy and not is_instance_valid(host.modal),"player finishes short briefing and receives control")
+	await _wait(func(): return _node("CloseDialogue") != null,"Mossner conversation opens after loading")
+	await _named("CloseDialogue")
+	await _wait(func(): return not is_instance_valid(host.modal),"Mossner conversation finishes closing")
+	_check(not host.busy and not is_instance_valid(host.modal),"closing the authored conversation returns control")
 	await _enter_counter_from_room()
 	_check(_desk_snapshot().get("waiting",[])==["case01"] and float(_desk_snapshot().get("lid_open",1))==0.0,"physical closed box contains only first teaching mail")
 	await _named("CounterRegister")

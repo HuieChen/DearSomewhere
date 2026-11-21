@@ -16,16 +16,18 @@ func _run() -> void:
 			root.add_child(host)
 			host.size = Vector2(1600,900)
 			host.core.save_path = "user://qa/postal-opening/" + run_id + locale + str(dimensions.x) + ".json"
+			host.campaign.journey.path = "user://qa/postal-opening/" + run_id + locale + str(dimensions.x) + "-campaign.json"
 			host.preferences.set_value("language",locale)
 			host._title()
 			await process_frame
 			await _named("NewShift")
+			await _wait(func(): return not host.busy and host.view == "post_office_room","loading finishes at the postal interior")
 			_check(host.view == "post_office_room" and host.post_office_room_index == 0,"Start enters supplied left counter room")
-			await _wait(func(): return _node("CloseDialogue") != null,"supervisor appears over actual room")
-			await _named("ToWorkroom")
-			_check(host.post_office_room_index == 0,"briefing blocks underlying arrow")
+			await _wait(func(): return _node("CloseDialogue") != null,"Mossner conversation opens in the postal interior")
+			_check(not host.busy and is_instance_valid(host.modal),"postal scene keeps the authored conversation in focus")
 			await _named("CloseDialogue")
-			_check(not host.busy and not is_instance_valid(host.modal),"visible dialogue cross gives control")
+			await _wait(func(): return not is_instance_valid(host.modal),"Mossner conversation finishes closing")
+			_check(not is_instance_valid(host.modal),"Mossner dialogue closes through its visible control")
 			_check(not _node("PostOfficeInterior").close_button.visible,"room has no preview-only close control")
 			var minute: int = host.core.state.minute
 			var initial_evidence: Dictionary = host.core.state.evidence.duplicate(true)

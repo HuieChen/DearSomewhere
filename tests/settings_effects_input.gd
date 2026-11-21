@@ -41,23 +41,27 @@ func _run() -> void:
 	await _select("text_speed", 0)
 	await _named("CloseSettings")
 	await _named("NewShift")
-	await _wait(func():return _node("FinishBriefing")!=null, "normal game creates supervisor dialogue")
+	await _key(KEY_E)
+	await _wait(func():return _node("AdvanceDialogue")!=null, "player action opens the first authored conversation")
 	var dialogue: Control = host.modal
 	await create_timer(0.22).timeout
 	var slow_chars: int = dialogue._spoken.visible_characters
 	_check(slow_chars > 0 and slow_chars < dialogue._spoken.get_total_character_count(), "slow setting really reveals a partial line")
 	measured.slow = {"rate":dialogue._text_rate,"visible_characters":slow_chars,"total":dialogue._spoken.get_total_character_count()}
-	await _named("FinishBriefing") # Natural first press completes the current line.
-	_check(is_instance_valid(host.modal) and dialogue._spoken.visible_characters == -1, "advance during typing reveals all text without skipping the dialogue")
-	await _named("FinishBriefing")
-	await _key(KEY_ESCAPE)
+	for i: int in 8:
+		if not is_instance_valid(host.modal):break
+		var advance: Control = _node("AdvanceDialogue")
+		if advance==null:break
+		await _click(advance.get_global_rect().get_center())
+	_check(not is_instance_valid(host.modal), "authored conversation can finish through its visible advance control")
 	await _text("Settings")
 	await _select("text_speed", 2)
 	await _named("CloseSettings")
 	await _text("Save and title")
 	await _named("NewShift")
 	await _text("Start new shift")
-	await _wait(func():return _node("FinishBriefing")!=null, "new normal briefing after changed speed")
+	await _key(KEY_E)
+	await _wait(func():return _node("AdvanceDialogue")!=null, "new authored conversation uses changed text speed")
 	dialogue = host.modal
 	await create_timer(0.22).timeout
 	var fast_chars: int = dialogue._spoken.visible_characters

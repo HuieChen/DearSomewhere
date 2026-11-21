@@ -73,13 +73,20 @@ func sync_time()->void:
     host.core.state.minute=int(journey.state.minute)
 
 func begin_arrival()->void:
-    if journey.state.get("intro_seen",false):open_current();return
-    host.core.state.location="post_office";host._world("post_office")
-    var intro:=preload("res://scripts/campaign/arrival_prologue.gd").new()
-    host.modal=intro;UI.place(intro,host,Rect2(0,0,1600,900));intro.configure(host)
-    intro.finished.connect(func():
-        await host._change_scene(func():host._post_office_room())
-        open_current())
+    if journey.state.get("intro_seen",false):
+        host._post_office_room(int(journey.state.get("room",0)))
+        return
+    # The first playable moment is the supplied post-office interior. Keep the
+    # checkpoint fields for older saves, but do not route a new player through
+    # a staged envelope animation before the authored first conversation.
+    journey.state["intro_seen"]=true
+    journey.state["intro_turn"]=2
+    host.core.state.location="post_office"
+    host._post_office_room()
+    if not persist():
+        journey.state["intro_seen"]=false
+        host._show_save_problem(journey.last_error)
+        return
 
 func setup(value:Control)->void:
     host=value
@@ -102,7 +109,7 @@ func resume()->bool:
     if journey.state.get("exploration") is Dictionary:host.core.state=journey.state.exploration.duplicate(true)
     sync_time()
     if not journey.state.get("intro_seen",false):
-        begin_arrival();return true
+        begin_arrival();open_current.call_deferred();return true
     if journey.state.get("view")=="postal_loft":_build_loft()
     elif journey.state.get("view","post_office_room")=="world":
         var destination:String=journey.state.location

@@ -15,6 +15,7 @@ func _run() -> void:
 		root.size=dimensions
 		host=Host.new();root.add_child(host);host.size=Vector2(1600,900)
 		host.core.save_path="user://qa/core-review/"+run_id+"-"+str(dimensions.x)+".json"
+		host.campaign.journey.path="user://qa/core-review/"+run_id+"-"+str(dimensions.x)+"-campaign.json"
 		host._title() # Render the fixture's isolated slot, not the default slot.
 		await process_frame
 		_check(_node("TitleArtwork")==null and _node("TitleGround")!=null,"plain title has no illustration")
@@ -22,9 +23,11 @@ func _run() -> void:
 		_check(_node("ContinueShift").disabled,"empty save cannot pretend to continue")
 		await _shot("title_"+str(dimensions.x))
 		await _named("NewShift")
-		await _wait(func():return _node("FinishBriefing")!=null,"supervisor starts after title")
-		await _named("FinishBriefing")
-		_check(host.view=="post_office_room" and not host.busy,"visible dialogue advance starts authored postal interior")
+		await _wait(func(): return not host.busy and host.view == "post_office_room","loading finishes at the postal interior")
+		await _wait(func(): return _node("CloseDialogue") != null,"Mossner conversation opens after loading")
+		await _named("CloseDialogue")
+		await _wait(func(): return not is_instance_valid(host.modal),"Mossner conversation finishes closing")
+		_check(host.view=="post_office_room" and not host.busy and not is_instance_valid(host.modal),"closing Mossner conversation returns control")
 		if phase!="title":
 			await _enter_counter_from_room()
 			await _remaining_checks()

@@ -75,7 +75,10 @@ func run()->void:
     await settle(.3)
     await click("NewShift");await wait_ready()
     await shot("arrival")
-    await click("PrologueSkip");await wait_ready()
+    # New journeys open directly in the supplied postal interior. Keep the
+    # legacy branch so archived fixtures with the old prologue remain readable.
+    if node("PrologueSkip")!=null:
+        await click("PrologueSkip");await wait_ready()
     var rounds:=0
     while not host.campaign.journey.state.finished and rounds<155 and errors.is_empty():
         rounds+=1
