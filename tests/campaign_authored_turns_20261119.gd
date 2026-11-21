@@ -23,8 +23,12 @@ func run():
         host.preferences.values.language=lang;host.campaign._talk(step);await create_timer(.5).timeout
         var dialogue=host.modal;dialogue.set_text_rate(0)
         var pages:Array=[]
+        var grouped:Array=[]
         for turn:Dictionary in step.turns:
-            pages.append_array(preload("res://scripts/rebuild/supplied_dialogue.gd").paginate([{"speaker":turn.speaker,"text":turn[lang]}]))
+            var speaker:=str(turn.get("speaker_en",turn.speaker)) if lang=="en" else str(turn.speaker)
+            if not grouped.is_empty() and grouped.back().speaker==speaker:grouped.back().text+="\n"+str(turn[lang])
+            else:grouped.append({"speaker":speaker,"text":str(turn[lang])})
+        for turn:Dictionary in grouped:pages.append_array(preload("res://scripts/rebuild/supplied_dialogue.gd").paginate([turn]))
         for i:int in pages.size():
             check(dialogue.get_node("Speaker").text==pages[i].speaker,"speaker "+lang+str(i))
             check(dialogue.get_node("SpokenLine").get_parsed_text()==pages[i].text,"line "+lang+str(i))
@@ -40,8 +44,12 @@ func run():
         host.preferences.values.language=lang;host.campaign._talk(offer);await create_timer(.5).timeout
         var dialogue=host.modal;dialogue.set_text_rate(0)
         var pages:Array=[]
+        var grouped:Array=[]
         for turn:Dictionary in offer.turns:
-            pages.append_array(preload("res://scripts/rebuild/supplied_dialogue.gd").paginate([{"speaker":turn.get("speaker_en",turn.speaker) if lang=="en" else turn.speaker,"text":turn[lang]}]))
+            var speaker:=str(turn.get("speaker_en",turn.speaker)) if lang=="en" else str(turn.speaker)
+            if not grouped.is_empty() and grouped.back().speaker==speaker:grouped.back().text+="\n"+str(turn[lang])
+            else:grouped.append({"speaker":speaker,"text":str(turn[lang])})
+        for turn:Dictionary in grouped:pages.append_array(preload("res://scripts/rebuild/supplied_dialogue.gd").paginate([turn]))
         for i:int in pages.size():
             check(dialogue.get_node("Speaker").text==pages[i].speaker,"offer speaker "+lang+str(i))
             check(dialogue.get_node("SpokenLine").get_parsed_text()==pages[i].text,"offer line "+lang+str(i))

@@ -6,8 +6,8 @@ signal postcard_requested(card:Dictionary, origin:Rect2)
 
 const DESIGN := Vector2(1920, 1080)
 const SOURCE := preload("res://assets/authoring/post_office_20261120/post_office_base_no_clock.png")
-const MOSSNER_SOURCE := preload("res://assets/authoring/cast_20261119/mossner_postal_world.png")
-const COUNTER_SOURCE := preload("res://assets/authoring/post_office_20261120/post_office_counter_foreground.png")
+const MOSSNER_SOURCE:Texture2D = preload("res://assets/authoring/cast_20261119/mossner_postal_world.png")
+const COUNTER_SOURCE:Texture2D = preload("res://assets/authoring/post_office_20261120/post_office_counter_foreground.png")
 # The supplied replacement is layered so the clean Mossner cutout sits behind
 # the authored counter. The foreground counter is a separate occlusion layer.
 const REGIONS := [Rect2(0, 0, 2560, 1440), Rect2(2560, 0, 2560, 1440)]
