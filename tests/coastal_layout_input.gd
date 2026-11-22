@@ -34,6 +34,7 @@ func _run()->void:
 				# The overlay must not intercept the reserved return target. One
 				# ordinary click closes the current mode, with no preliminary click.
 				await _click_named("CloseSettings")
+				await create_timer(0.18).timeout
 				_check(not is_instance_valid(game.modal),"one return click works over "+key+" dropdown "+language+" "+str(dimensions.x))
 				_check(game.find_child("OpenSettings",true,false)!=null,"dropdown return reaches the actual title")
 				await _open()
@@ -41,6 +42,7 @@ func _run()->void:
 			await _key(KEY_ESCAPE)
 			_check(is_instance_valid(game.modal) and game.modal.find_child("SettingsDropdown",true,false)==null,"first Esc dismisses only nested selector "+language+" "+str(dimensions.x))
 			await _key(KEY_ESCAPE)
+			await create_timer(0.18).timeout
 			_check(not is_instance_valid(game.modal),"second Esc safely returns from Settings "+language+" "+str(dimensions.x))
 		game.queue_free();await process_frame;await process_frame
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -54,13 +56,14 @@ func _check_page(language:String,dimensions:Vector2i)->void:
 	var scene:=page.get_global_rect()
 	var back:Button=page.get_node("CloseSettings")
 	var back_rect:=back.get_global_rect()
-	_check(back.text=="←","return uses the matching arrow instead of a square cross")
+	_check(back.text=="×","return uses the authored corner close glyph")
 	_check(back.flat and back.get_theme_stylebox("focus") is StyleBoxEmpty,"return has no boxed system focus decoration")
 	_check(_contains(scene,back_rect),"return stays within the scene")
-	_check(back_rect.position.y>=112.0 and back_rect.end.y<=165.0,"actual return hit target stays inside reserved header strip")
+	_check(back_rect.position.y>=20.0 and back_rect.end.y<=110.0,"actual return hit target stays inside reserved header strip")
 	for key:String in page.controls:
 		var control:Control=page.controls[key]
 		var caption:Label=page.find_child("SettingLabel_"+key,true,false)
+		if key in ["SettingsReturnTitle","SettingsQuitGame"]:continue
 		_check(caption!=null,"real caption exists "+key)
 		if caption==null:continue
 		var caption_rect:=caption.get_global_rect();var control_rect:=control.get_global_rect()
@@ -72,9 +75,11 @@ func _check_page(language:String,dimensions:Vector2i)->void:
 		_check(not back_rect.intersects(control_rect),"return hit target cannot overlap "+key)
 		_check(_contains(scene,control_rect),"actual control stays in the scene "+key)
 		if language=="zh":
-			_check(absf(caption_rect.position.x-580.0)<0.1 and absf(caption_rect.end.x-801.0)<0.1,"Chinese caption shares the common physical column "+key)
+			var expected_x:=610.0 if key=="language" else 526.0
+			var expected_w:=244.0 if key=="language" else 274.0
+			_check(absf(caption_rect.position.x-expected_x)<0.1 and absf(caption_rect.size.x-expected_w)<0.1,"Chinese caption shares the common physical column "+key)
 			_check(caption.horizontal_alignment==HORIZONTAL_ALIGNMENT_CENTER,"Chinese caption centers in its adapted column "+key)
-			_check(caption.get_theme_font_size("font_size")>=30,"Chinese caption remains legible without tiny translated copy "+key)
+			_check(caption.get_theme_font_size("font_size")>=38,"Chinese caption remains legible without tiny translated copy "+key)
 		if control is Button:_check_button_text(control,"selector "+key)
 	for label:Label in _labels(page):
 		if label.text.is_empty():continue
@@ -96,9 +101,9 @@ func _check_page(language:String,dimensions:Vector2i)->void:
 		measurements.append({"language":language,"width":dimensions.x,"item":str(label.name),"text":label.text,"font_size":size,
 			"control":_rect_record(rectangle),"glyph":_rect_record(painted)})
 	if language=="zh":
-		_check(page.get_node("SettingsHeading").get_theme_font_size("font_size")==72,"Chinese headline has its own adapted size")
+		_check(page.get_node("SettingsHeading").get_theme_font_size("font_size")==96,"Chinese headline has its own adapted size")
 		for key:String in ["language","display_mode","resolution","text_speed"]:
-			_check(page.controls[key].get_theme_font_size("font_size")==21,"Chinese selector has its own readable size "+key)
+			_check(page.controls[key].get_theme_font_size("font_size")==25,"Chinese selector has its own readable size "+key)
 func _check_dropdown(key:String,language:String,dimensions:Vector2i)->void:
 	var box:Panel=game.modal.find_child("SettingsOptionsPanel",true,false)
 	_check(box!=null,"actual "+key+" dropdown opens")
@@ -170,7 +175,12 @@ func _contains(outer:Rect2,inner:Rect2)->bool:
 	return inner.position.x>=outer.position.x-0.1 and inner.position.y>=outer.position.y-0.1 and inner.end.x<=outer.end.x+0.1 and inner.end.y<=outer.end.y+0.1
 func _rect_record(rectangle:Rect2)->Array:return [rectangle.position.x,rectangle.position.y,rectangle.size.x,rectangle.size.y]
 func _open()->void:
-	await _click_named("OpenSettings");await process_frame;await process_frame
+	await _click_named("OpenSettings")
+	# The authored cover buttons keep a short 100 ms release spring before
+	# opening the next paper. Let that deliberate feedback finish before
+	# asserting the destination modal.
+	await create_timer(0.14).timeout
+	await process_frame;await process_frame
 	_check(is_instance_valid(game.modal) and game.modal.has_node("SettingsWater"),"actual title opens Settings")
 func _choose_language(index:int)->void:
 	await _click_named("Setting_language");await _click_named("Option_language_"+str(index));await process_frame;await process_frame

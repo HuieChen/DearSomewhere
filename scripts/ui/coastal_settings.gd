@@ -6,7 +6,7 @@ signal cue(kind:String)
 signal water_audio(point:Vector2,strength:float,body_contact:bool)
 const UI=preload("res://scripts/ui/paper_ui.gd")
 const Art=preload("res://scripts/rebuild/physical_art.gd")
-const WaterShader=preload("res://scripts/ui/settings_surface_refraction.gdshader")
+const WaterShader=preload("res://scripts/ui/settings_water.gdshader")
 const MatteShader=preload("res://scripts/ui/pdf_white_matte.gdshader")
 const TapeMatteShader=preload("res://scripts/ui/pdf_tape_matte.gdshader")
 const ColorMatteShader=preload("res://scripts/ui/pdf_color_matte.gdshader")
@@ -104,6 +104,9 @@ func _build() -> void:
 		_water_canvas.add_child(image)
 	_water=TextureRect.new();_water.texture=_water_canvas.get_texture();_water.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;_water.mouse_filter=Control.MOUSE_FILTER_IGNORE;UI.place(_water,self,Rect2(0,0,1600,900));_water.name="SettingsWater"
 	_material=ShaderMaterial.new();_material.shader=WaterShader;_water.material=_material
+	# Keep the live field across a language rebuild so a settings change does not
+	# erase an in-progress ripple; a new settings page still starts calm because
+	# it owns a new field instance.
 	if field==null:field=WaterState.new()
 	_material.set_shader_parameter("height_field",field.texture)
 	_last_body_poses.clear()
@@ -112,6 +115,11 @@ func _build() -> void:
 	physics_view.canvas_transform=Transform2D(Vector2(1.2,0),Vector2(0,1.2),Vector2.ZERO)
 	surface=PhysicsSurface.new();physics_view.add_child(surface)
 	if not previous.is_empty():surface.restore_state(previous)
+	# Seed the displacement sample at the restored native poses. This prevents
+	# the first solver settle from being mistaken for a player-made ripple.
+	_last_body_poses.clear()
+	for body:RigidBody2D in surface.bodies:
+		_last_body_poses.append(Vector3(body.position.x,body.position.y,float(body.get("press_depth"))))
 	_refresh_companion_pose(true)
 	surface.contact_audio.connect(func(point:Vector2,strength:float):water_audio.emit(point,strength,true))
 	surface.lemon_press_changed.connect(_lemon_press_water)
@@ -139,7 +147,10 @@ func _build() -> void:
 	heading.add_theme_color_override("font_outline_color",Color.WHITE);heading.add_theme_constant_override("outline_size",7)
 	var cross:=Button.new();cross.name="CloseSettings";cross.text="×";cross.flat=true
 	cross.tooltip_text=_t("关闭设置","Close settings")
-	cross.add_theme_font_size_override("font_size",48);cross.add_theme_color_override("font_color",Color("0059ae"))
+	# Keep the close affordance compact and easy to hit without turning the
+	# whole header strip into a second control.
+	cross.add_theme_font_size_override("font_size",40);cross.custom_minimum_size=Vector2(64,64)
+	cross.add_theme_color_override("font_color",Color("0059ae"))
 	cross.add_theme_color_override("font_outline_color",Color("fff9ee"));cross.add_theme_constant_override("outline_size",2)
 	cross.set_meta("light_surface",true)
 	for state:String in ["normal","hover","pressed","focus"]:cross.add_theme_stylebox_override(state,StyleBoxEmpty.new())
@@ -249,7 +260,9 @@ func _open_options(key:String,choice:Button,values:Array,texts:Array) -> void:
 	var blocker:=ColorRect.new();blocker.color=Color.TRANSPARENT;UI.place(blocker,_dropdown,Rect2(0,0,1600,900))
 	blocker.gui_input.connect(func(event:InputEvent):
 		if event is InputEventMouseButton and event.pressed:_close_options();get_viewport().set_input_as_handled())
-	var height:=values.size()*46.0+12.0
+	# Native Button metrics settle at 47 px on the shipped font; leave a real
+	# one-pixel gap between rows at every tested scale.
+	var height:=values.size()*48.0+12.0
 	var top:=choice.position.y+choice.size.y+4.0
 	if top+height>785.0:top=choice.position.y-height-4.0
 	var box:=UI.panel(_dropdown,Rect2(choice.position.x,top,maxf(choice.size.x,196.0),height),Color("0059ae"))
@@ -269,7 +282,7 @@ func _open_options(key:String,choice:Button,values:Array,texts:Array) -> void:
 			if state=="focus":fill=Color.TRANSPARENT
 			var style:=UI.style(fill,border,MENU_RADIUS);style.content_margin_left=5;style.content_margin_right=5;style.content_margin_top=5;style.content_margin_bottom=5
 			row.add_theme_stylebox_override(state,style)
-		UI.place(row,box,Rect2(6,6+index*46,box.size.x-12,44))
+		UI.place(row,box,Rect2(6,6+index*48,box.size.x-12,44))
 		_feedback.bind_button(row)
 		rows.append(row)
 		row.pressed.connect(func():
@@ -420,9 +433,14 @@ func _release_held_lemon()->void:
 	_held_lemon=-1
 	if is_instance_valid(surface):surface.release_all_presses()
 func _lemon_press_water(_index:int,_held:bool,_point:Vector2,_depth:float)->void:
-	# The actual depth change displaces water on the next physical step.
-	# A held slice does not inject a fresh pulse on every frame.
-	pass
+	# A press is a real water contact: add one restrained impulse on touch and
+	# one softer rebound on release.  The rigid-body solver still owns the slice
+	# pose, so this never turns into a second positional shortcut.
+	if _closing:return
+	var strength:=0.34 if _held else 0.22
+	_add_touch(_point,strength)
+	if is_instance_valid(surface):surface.water_touch(_point,strength)
+	_last_drop=_time
 func _notification(what:int)->void:
 	if what==NOTIFICATION_WM_WINDOW_FOCUS_OUT or what==NOTIFICATION_WM_MOUSE_EXIT:_release_held_lemon()
 func _exit_tree()->void:_release_held_lemon()
@@ -479,7 +497,12 @@ func _physics_process(delta:float)->void:
 		currents.append(field.current_at(body.position))
 		if _last_body_poses.size()==2:
 			var before:Vector3=_last_body_poses[i]
-			field.disturb_body(body.position,body.radius,body.position-Vector2(before.x,before.y),depth-before.z)
+			var body_delta:=body.position-Vector2(before.x,before.y)
+			var depth_delta:=depth-before.z
+			# Native solver settling noise must not create a phantom ripple on a
+			# fresh page. Only a real visible slice displacement reaches the field.
+			if body_delta.length_squared()>0.0025 or absf(depth_delta)>0.05:
+				field.disturb_body(body.position,body.radius,body_delta,depth_delta)
 		next_poses.append(Vector3(body.position.x,body.position.y,depth))
 	_last_body_poses=next_poses
 	surface.set_water_forces(forces);surface.set_water_currents(currents)

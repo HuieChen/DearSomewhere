@@ -431,11 +431,20 @@ func _dispose_references()->void:
 func _open()->bool:
 	_check(not is_instance_valid(game.modal),"new visibility case starts without a leftover modal "+str(dimensions.x))
 	if is_instance_valid(game.modal):return false
-	var pressed:bool=await _named("OpenSettings");await _step(3)
+	# The authored cover button has a short entrance spring; wait for its
+	# interactive state before recording the single real down/up pair.
+	await _step(12)
+	var pressed:bool=await _named("OpenSettings")
+	for _index:int in 30:
+		if is_instance_valid(game.modal) and game.modal.has_node("SettingsWater"):break
+		await process_frame
 	_check(is_instance_valid(game.modal) and game.modal.has_node("SettingsWater"),"real title opens Settings "+str(dimensions.x))
 	return pressed and is_instance_valid(game.modal) and game.modal.has_node("SettingsWater")
 func _close()->bool:
-	await _dispose_references();var pressed:bool=await _named("CloseSettings");await _step(2)
+	await _dispose_references();var pressed:bool=await _named("CloseSettings")
+	for _index:int in 30:
+		if not is_instance_valid(game.modal):break
+		await process_frame
 	_check(not is_instance_valid(game.modal),"visible arrow closes single-click case "+str(dimensions.x))
 	return pressed and not is_instance_valid(game.modal)
 func _named(name:String)->bool:

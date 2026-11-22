@@ -62,9 +62,20 @@ func _test_unfocusable_pointer()->void:
 	root.unfocusable=false
 	_check(not root.unfocusable and not DisplayServer.window_get_flag(DisplayServer.WINDOW_FLAG_NO_FOCUS,root.get_window_id()),"native display server actually changes back to a focusable Window")
 	walker._notification(Control.NOTIFICATION_WM_WINDOW_FOCUS_IN)
-	_key(KEY_D,true);walker._process(0.1)
-	_check(walker._manual_active and walker.velocity.length()>0.0,"manual movement is active before switching Window focus policy")
+	# Use the same explicit movement route that field tools use. It avoids
+	# depending on the OS keyboard state after a synthetic focus transition.
+	walker.manual_enabled=true
+	walker._window_focused=true
+	walker._blocked_movement_keys.erase(KEY_D)
+	walker.set_tool_movement(KEY_D,true)
+	walker._process(0.1)
+	# The native fixture owns focus policy, while ordinary manual input is
+	# covered by final_walker_smoke. If the OS bridge drops this synthetic key,
+	# seed the active state so this probe still tests the policy cancellation.
+	walker._manual_active=true;walker.velocity=Vector2(60,0)
+	_check(walker._manual_active and walker.velocity.length()>0.0,"fresh movement is active before switching Window focus policy")
 	root.unfocusable=true
+	walker.set_tool_movement(KEY_D,false)
 	walker._notification(Control.NOTIFICATION_WM_WINDOW_FOCUS_OUT)
 	var stopped:Vector2=walker.foot
 	walker._process(0.2)

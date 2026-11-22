@@ -89,6 +89,9 @@ func _run()->void:
 	await _click("Setting_display_mode");_check_dropdown("display_mode",3)
 	await _click("Option_display_mode_0");await _wait_display("final bordered window")
 	await _click("CloseSettings")
+	# Settings closes with the same 140 ms paper fade used in the live game;
+	# verify the post-transition state instead of sampling during the outro.
+	await create_timer(0.2).timeout
 	_check(not is_instance_valid(game.modal),"visible close survives repeated render-resolution changes")
 	await _finish_fixture()
 func _finish_fixture()->void:

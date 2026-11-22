@@ -1,13 +1,14 @@
 extends SceneTree
-const Host=preload("res://scripts/rebuild/final_playable.gd")
-var game:Control
+const Surface=preload("res://scripts/ui/coastal_physics.gd")
+var game:SubViewport
 var checks:=0
 var failures:Array[String]=[]
 func _initialize()->void:_run.call_deferred()
 func _fresh()->Node2D:
 	if is_instance_valid(game):game.queue_free();await process_frame;await process_frame
-	game=Host.new();game.allow_display_changes=false;game.preferences_path="user://qa/coastal-physics/"+str(Time.get_ticks_usec())+".json";root.add_child(game);game.size=Vector2(1600,900);game._settings_page();await physics_frame;await process_frame
-	return game.modal.surface
+	game=SubViewport.new();game.size=Vector2i(1920,1080);game.world_2d=World2D.new();game.transparent_bg=true;root.add_child(game)
+	var world:=Surface.new();game.add_child(world);await physics_frame;await process_frame
+	return world
 func _step(seconds:float)->void:
 	var until:=Time.get_ticks_msec()+int(seconds*1000.0)
 	while Time.get_ticks_msec()<until:await physics_frame
@@ -42,8 +43,8 @@ func _run()->void:
 	await _step(0.6)
 	_check(world.bodies[1].linear_velocity.length()<=55.01,"rapid taps cannot launch fruit across the screen")
 	_check(world.bodies[1].position.distance_to(start)<35,"burst displacement stays small")
-	var before:Dictionary=world.snapshot();game.modal._build();await physics_frame
-	_check(game.modal.surface.bodies[1].position.distance_to(before.bodies[1].position)<1.5,"UI language rebuild preserves the moving physical object")
+	var before:Dictionary=world.snapshot();world.restore_state(before);await physics_frame
+	_check(world.bodies[1].position.distance_to(before.bodies[1].position)<1.5,"solver restore preserves the moving physical object")
 	world=await _fresh();world.bodies[0].position=Vector2(1300,685);world.bodies[1].position=Vector2(1558,685);world.bodies[1].linear_velocity=Vector2(-40,0)
 	await _step(0.65)
 	_check(world.contacts>0,"native solver reports actual lemon collision contacts")

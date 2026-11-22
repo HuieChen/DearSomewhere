@@ -28,6 +28,10 @@ func _run()->void:
 	game.preferences_path=sentinel_path+"/preferences.json"
 	root.add_child(game);game.size=Vector2(1600,900);await process_frame;await process_frame
 	var valid_story_path:=directory+"/progress.json";game.core.save_path=valid_story_path
+	# Keep the campaign slot inside this isolated fixture as well. The shared
+	# profile may contain a prior journey, which must never change this test's
+	# clean-title assumption.
+	game.campaign.journey.path=valid_story_path.get_basename()+"_five_days.json"
 	var story_before:Dictionary=game.core.state.duplicate(true)
 	await _open()
 	await _drag_master(0.34)
@@ -64,20 +68,37 @@ func _run()->void:
 	_check(game._prepare_quit(),"title quit remains available after repeated failed saves")
 	_check(game.core.state==story_before,"preference failure and exits preserve existing campaign state")
 	_check_sentinel("reentry and title quit readiness")
-	# Exercise the currently opened demo route, not the hidden old briefing.
-	await _click_named("NewShift")
-	var opening_deadline:=Time.get_ticks_msec()+6000
-	while (game.view!="post_office_room" or game.busy) and Time.get_ticks_msec()<opening_deadline:await process_frame
-	_check(game.view=="post_office_room" and not game.busy,"new journey opens the current post-office demo")
+	# Seed the current campaign directly for this filesystem-guard fixture. The
+	# authored opening is covered by the campaign playthrough suites; here we
+	# want a deterministic world state before exercising quit/save failures.
+	game.core.new_game()
+	_check(game.campaign.journey.new_journey(),"isolated campaign journey starts")
+	game.core.state.location="post_office";game.busy=false;game._close();game._post_office_room()
+	await process_frame;await process_frame
+	if is_instance_valid(game.modal):game._close()
+	_check(game.view=="post_office_room" and not game.busy,"save-guard fixture reaches the postal room")
 	# Seed a retained legacy-save guard while the Core is at the post office.
 	# This does not expose the hidden mail UI in the current demo.
 	_check(game.core.take_case("case01").is_empty(),"prepare owned paper for retained-save guard")
-	await _key(KEY_M);await _click_named("Map_community_center")
+	game.core.state.location="community_center";game._world("community_center")
+	await process_frame;await process_frame
+	if is_instance_valid(game.modal):game._close()
+	game._map();await process_frame;await process_frame;await _click_named("Map_community_center")
 	_check(game.busy,"actual map departure creates the transition busy state")
 	_check(not game._prepare_quit(),"campaign transition guard still rejects unsafe quit")
-	await create_timer(0.72).timeout
-	_check(not game.busy and game.view=="world","map arrival finishes before save-guard fixtures")
-	await _key(KEY_ESCAPE);await _click_text("Settings")
+	var travel_deadline:=Time.get_ticks_msec()+3000
+	while game.busy and Time.get_ticks_msec()<travel_deadline:await process_frame
+	if is_instance_valid(game.modal):
+		await _key(KEY_ESCAPE)
+		while is_instance_valid(game.modal):await process_frame
+	_check(not game.busy,"map arrival finishes before save-guard fixtures")
+	# Once the authored conversation has retired, Escape opens the pause sheet.
+	# Keep the two transitions distinct so a close release cannot land on the
+	# next sheet in the same input frame.
+	if is_instance_valid(game.modal):
+		await _key(KEY_ESCAPE)
+		while is_instance_valid(game.modal):await process_frame
+	await _key(KEY_ESCAPE);await create_timer(0.12).timeout;await _click_text("Settings")
 	_check(is_instance_valid(game.modal) and game.modal.has_node("SettingsWater"),"actual pause control opens campaign Settings")
 	_check_status("Not saved")
 	_check(game._prepare_quit(),"valid campaign checkpoint can prepare quit despite failed preferences")
@@ -86,6 +107,10 @@ func _run()->void:
 	_check(game.core.begin_operation("case01","open").is_empty(),"real Core operation begins without fabricating a completion")
 	_check(not game._prepare_quit() and not game.core.state.active_operation.is_empty(),"uncheckpointed physical-paper guard remains intact")
 	_check(game.core.cancel_operation(physical).is_empty(),"safe operation cancellation retains unmodified physical mail")
+	# Pause the campaign wrapper while exercising the legacy Core save guards;
+	# _prepare_quit intentionally delegates to the active campaign slot first.
+	var journey_before_guards:Dictionary=game.campaign.journey.state.duplicate(true)
+	game.campaign.journey.state={}
 	var future_path:=directory+"/future-progress.json"
 	var future_bytes:=JSON.stringify({"format":Core.FORMAT,"version":999,"payload_json":"future data must remain intact"}).to_utf8_buffer()
 	var future:=FileAccess.open(future_path,FileAccess.WRITE);future.store_buffer(future_bytes);future.close()
@@ -111,6 +136,7 @@ func _run()->void:
 	game.core.save_path=valid_story_path
 	_check(game._prepare_quit(),"valid notes sidecar recovers normal quit readiness")
 	_check_sentinel("campaign and physical guard checks")
+	game.campaign.journey.state=journey_before_guards
 	# Recover the fixture path, then save using a real slider drag. No model
 	# save helper is called to manufacture the successful UI state.
 	var valid_preferences:=directory+"/recovered-preferences.json"

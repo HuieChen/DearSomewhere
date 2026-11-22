@@ -6,10 +6,10 @@ signal postcard_requested(card:Dictionary, origin:Rect2)
 
 const DESIGN := Vector2(1920, 1080)
 const SOURCE := preload("res://assets/authoring/post_office_20261120/post_office_base_no_clock.png")
-const MOSSNER_SOURCE := preload("res://assets/authoring/cast_20261119/mossner_postal_world.png")
 const COUNTER_SOURCE := preload("res://assets/authoring/post_office_20261120/post_office_counter_foreground.png")
-# The supplied replacement is layered so the clean Mossner cutout sits behind
-# the authored counter. The foreground counter is a separate occlusion layer.
+# The supplied replacement is layered so the authored counter foreground is a
+# separate occlusion layer. Ambient characters stay in their authored story
+# locations; this room remains a clean postal workspace.
 const REGIONS := [Rect2(0, 0, 2560, 1440), Rect2(2560, 0, 2560, 1440)]
 const DOOR_RECT := Rect2(78, 195, 444, 516)
 var room_index := 0
@@ -24,7 +24,6 @@ var close_button: Button
 var _transition: Tween
 var _textures: Array[Texture2D] = []
 var _counter_textures: Array[Texture2D] = []
-var mossner_image: TextureRect
 var counter_foreground: TextureRect
 var postcard_rack:Control
 
@@ -119,18 +118,6 @@ func _ready() -> void:
 	image = _image_node("AuthoredRoom")
 	room_index = clampi(room_index, 0, 1)
 	image.texture = _textures[room_index]
-	mossner_image = TextureRect.new()
-	mossner_image.name = "MossnerPostalSprite"
-	mossner_image.texture = MOSSNER_SOURCE
-	# Lower the character so the top of the head sits below the door lintel.
-	mossner_image.position = Vector2(761, 210)
-	mossner_image.size = Vector2(398, 850)
-	mossner_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	mossner_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	mossner_image.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	mossner_image.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	mossner_image.visible = room_index == 0
-	canvas.add_child(mossner_image)
 	counter_foreground = _image_node("CounterForeground")
 	counter_foreground.texture = _counter_textures[room_index]
 	counter_foreground.visible = room_index == 0
@@ -193,7 +180,6 @@ func show_room(index: int) -> void:
 	previous_arrow.disabled = true
 	previous_image.texture = image.texture
 	image.texture = _textures[index]
-	if is_instance_valid(mossner_image): mossner_image.visible = index == 0
 	if is_instance_valid(counter_foreground):
 		counter_foreground.texture = _counter_textures[index]
 		counter_foreground.visible = index == 0

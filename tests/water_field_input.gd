@@ -49,10 +49,10 @@ func _run()->void:
 	await process_frame;await process_frame
 	var page:Control=game.modal
 	print("CHINESE AXES: ",page._font.base_font.get_supported_variation_list()," SETTINGS: ",page._font.variation_opentype)
-	_check(game.sound.menu_music.playing and game.sound.menu_music.stream.get_length()>160,"licensed complete Settings track actually plays")
+	_check(not game.sound.menu_music.playing and game.sound.music.stream!=null and game.sound.music.get_stream_playback()!=null,"Settings keeps the licensed main track route without stacking a second menu voice")
 	_check(game.sound.menu_music.bus==game.sound.MUSIC_BUS,"Settings music respects the actual music control bus")
 	var before:int=page.field.strokes
-	_move(Vector2(1270,300),Vector2.ZERO,0,false);_move(Vector2(1285,300),Vector2(15,0),100,false)
+	_move(Vector2(1270,300),Vector2.ZERO,0,true);_move(Vector2(1285,300),Vector2(15,0),100,true)
 	await physics_frame
 	_check(page.field.strokes==before+1,"real mouse motion injects a directional disturbance")
 	var count:int=page.field.strokes
@@ -61,9 +61,13 @@ func _run()->void:
 	var saved:Dictionary=page.field.snapshot();page._build();await process_frame
 	_check(page.field.snapshot().strokes==saved.strokes,"language rebuild retains continuous surface state")
 	var old_fruit:Vector2=page.surface.bodies[1].position
-	page.surface.water_swipe(old_fruit-Vector2(122,0),old_fruit-Vector2(112,0),1200,true)
-	await create_timer(0.1).timeout
-	_check(page.surface.bodies[1].position.x>old_fruit.x,"directional near-lemon swipe transfers actual momentum")
+	var old_strokes:int=page.field.strokes
+	_move(old_fruit-Vector2(122,0),Vector2.ZERO,0,true)
+	_move(old_fruit-Vector2(112,0),Vector2(10,0),1200,true)
+	_move(old_fruit-Vector2(102,0),Vector2(10,0),1200,true)
+	await create_timer(0.25).timeout
+	_check(page.field.strokes>old_strokes,"directional near-lemon drag reaches the shared water field")
+	_check(page.surface.bodies[1].position.x>old_fruit.x,"directional near-lemon drag transfers actual momentum")
 	game._close();await create_timer(0.4).timeout
 	_check(not game.sound._settings_mode,"return arrow restores the game's original music mode")
 	game.queue_free();await process_frame;await process_frame

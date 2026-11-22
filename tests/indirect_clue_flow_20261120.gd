@@ -16,6 +16,9 @@ func check(value:bool,label:String)->void:
 func run()->void:
     root.unfocusable=true;root.size=Vector2i(1600,900)
     var host=load("res://scripts/rebuild/final_playable.gd").new();host.allow_display_changes=false;root.add_child(host);host.size=Vector2(1600,900)
+    # Keep this acceptance probe locale deterministic even when a prior playtest
+    # left an English preference in the shared user profile.
+    host.preferences.values.language="zh"
     host.preferences.values.text_speed="instant"
     host.campaign.journey.path="user://qa/indirect-clue-flow/five-days.json"
     check(host.campaign.journey.new_journey(),"journey created")

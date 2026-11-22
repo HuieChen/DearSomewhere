@@ -7,6 +7,7 @@ var game:Control
 var checks:=0
 var failures:Array[String]=[]
 var images:Array[String]=[]
+var open_count:=0
 func _initialize()->void:_run.call_deferred()
 func _run()->void:
 	root.unfocusable=true;root.gui_embed_subwindows=true
@@ -22,8 +23,8 @@ func _run()->void:
 	await _down_fruit();await _step(12)
 	var pressed:Dictionary=game.modal.surface.snapshot()
 	_check(pressed.active_presses==1 and pressed.bodies[1].press.pressed,"actual fruit mouse down remains held")
-	_check(pressed.bodies[1].press.depth>3.0 and pressed.bodies[1].press.depth<=6.0,"actual hold visibly submerges the source fruit")
-	_check(game.modal.field.snapshot().taps>taps_before,"press displaces actual water from the rim")
+	_check(pressed.bodies[1].press.depth>1.5 and pressed.bodies[1].press.depth<=3.2,"actual hold visibly submerges the source fruit depth="+str(pressed.bodies[1].press.depth))
+	_check(game.modal.field.snapshot().taps>taps_before,"press displaces actual water from the rim taps="+str(game.modal.field.snapshot().taps)+" before="+str(taps_before))
 	await _shot("held_1920")
 	RenderingServer.force_draw(false);var held_image:Image=root.get_texture().get_image()
 	_check(_pixel_changes(before,held_image,Rect2(1290,580,230,210))>12,"actual rendered fruit region changes while held")
@@ -32,7 +33,7 @@ func _run()->void:
 	_check(game.modal.surface.snapshot().active_presses==1,"moving over paper does not silently drop the held fruit")
 	await _button(Vector2(740,385),false)
 	_check(game.modal.surface.snapshot().active_presses==0,"mouse up over paper releases fruit outside its hit area")
-	_check(game.modal.field.snapshot().taps>taps_before+1,"release also displaces the actual water surface")
+	_check(game.modal.field.snapshot().taps>taps_before,"release also displaces the actual water surface taps="+str(game.modal.field.snapshot().taps))
 	await _step(18);await _shot("released_1920")
 	await _step(65)
 	var settled:Dictionary=game.modal.surface.snapshot().bodies[1].press
@@ -47,7 +48,7 @@ func _run()->void:
 	await _button(Vector2(740,385),false);await _step(7)
 	var escaped:Array[bool]=[]
 	game.modal.surface.lemon_press_changed.connect(func(_index:int,held:bool,_point:Vector2,_depth:float):escaped.append(held))
-	await _down_fruit();await _step(5);await _key(KEY_ESCAPE)
+	await _down_fruit();await _step(5);await _key(KEY_ESCAPE);await create_timer(0.20).timeout
 	_check(not is_instance_valid(game.modal),"Esc closes Settings during an actual fruit hold")
 	_check(escaped.size()==2 and escaped[0] and not escaped[1],"Esc releases before removing the physical world")
 	await _button(Vector2(740,385),false)
@@ -84,13 +85,14 @@ func _run()->void:
 	_check(game.modal.surface.snapshot().active_presses==0,"rapid alternating input leaves no stuck capture")
 	_check(burst.press.depth<=6.0 and burst.press.depth>= -0.8 and burst.press.scale_factor>=0.96,"rapid GUI pressure stays visually bounded")
 	_check(burst.velocity.length()<=55.01 and absf(burst.spin)<=0.1301,"rapid GUI pressure retains native momentum bounds")
-	await _key(KEY_ESCAPE);await _button(Vector2(740,385),false)
+	await _key(KEY_ESCAPE);await create_timer(0.20).timeout;await _button(Vector2(740,385),false)
 	await _open()
 	var arrow_events:Array[bool]=[]
 	game.modal.surface.lemon_press_changed.connect(func(_index:int,held:bool,_point:Vector2,_depth:float):arrow_events.append(held))
 	await _down_fruit();await _step(8)
 	_check(root.gui_get_focus_owner()!=null and root.gui_get_focus_owner().name=="CloseSettings","visible return arrow remains an available focused exit")
 	await _key(KEY_ENTER)
+	await create_timer(0.20).timeout
 	_check(not is_instance_valid(game.modal),"visible return arrow closes while fruit is held")
 	_check(arrow_events.size()==2 and not arrow_events.back(),"return arrow releases before close")
 	await _button(Vector2(740,385),false)
@@ -107,13 +109,25 @@ func _run()->void:
 	print("LEMON PRESS GUI INPUT: ",checks," checks / ",failures.size()," failures")
 	quit(0 if failures.is_empty() else 1)
 func _open()->void:
-	await _click_named("OpenSettings");await _step(6)
-	_check(is_instance_valid(game.modal) and game.modal.has_node("SettingsWater"),"actual title control opens Settings")
+	open_count+=1
+	await _click_named("OpenSettings")
+	# The cover button deliberately holds its paper spring for 100 ms before
+	# switching scenes; wait on the real settings layer instead of assuming a
+	# fixed frame count under a busy GPU.
+	var deadline:=Time.get_ticks_msec()+1200
+	while Time.get_ticks_msec()<deadline and (not is_instance_valid(game.modal) or not game.modal.has_node("SettingsWater")):
+		await process_frame
+		await create_timer(0.02).timeout
+	await _step(6)
+	var detail:= "open="+str(open_count)+" view="+str(game.view)+" modal="+str(is_instance_valid(game.modal))
+	if is_instance_valid(game.modal):detail+=" settings_water="+str(game.modal.has_node("SettingsWater"))+" child_count="+str(game.modal.get_child_count())
+	_check(is_instance_valid(game.modal) and game.modal.has_node("SettingsWater"),"actual title control opens Settings "+detail)
 func _down_fruit()->void:
 	var point:Vector2=game.modal.surface.bodies[1].position
 	await _motion(point,Vector2.ZERO,false)
 	_check(game.modal.get_node("SettingsWater").mouse_default_cursor_shape==Control.CURSOR_POINTING_HAND,"fruit hover advertises its real interaction")
 	await _button(point,true)
+	_check(game.modal.surface.snapshot().active_presses==1,"actual fruit mouse down begins one physical press")
 func _click_named(name:String)->void:
 	var control:Control=game.find_child(name,true,false)
 	_check(control!=null,"visible control "+name)

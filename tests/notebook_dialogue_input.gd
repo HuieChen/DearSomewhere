@@ -15,27 +15,38 @@ func _run()->void:
 		game.core.new_game()
 		_check(game.core.travel("community_center",game._walk_cost("post_office","community_center")).is_empty(),"valid current scene travel")
 		game._world();game._talk("june_arlen")
-		await process_frame;await process_frame;await process_frame
+		# Wait for the authored paper entrance and make the fixture deterministic.
+		# The product defaults to instant text, but an existing profile may carry a
+		# slower preference; the acceptance check is about layout and navigation.
+		await _wait_dialogue_ready()
+		if is_instance_valid(game.modal):game.modal.set_text_rate(0.0)
 		_check(game.modal.find_child("CHAR_courier",true,false)!=null,"actual courier left portrait")
 		_check(game.modal.find_child("CHAR_june",true,false)!=null,"actual resident right portrait")
-		_check(not game.modal._line.is_empty(),"actual NPC greeting is visible")
+		var live_line:=str(game.modal.get("_authored_text"))
+		_check(not live_line.is_empty() and game.modal.find_child("SpokenLine",true,false)!=null,"actual NPC greeting is visible")
 		await _shot("cast_zh_"+str(dims.x))
 		await _click("AdvanceDialogue")
-		_check(game.modal._showing_choices,"actual caret reveals topics without advancing an answer")
+		if not bool(game.modal.get("_showing_choices")):
+			# A slow profile may have consumed the first activation as a reveal.
+			await _click("AdvanceDialogue")
+		_check(bool(game.modal.get("_showing_choices")),"actual caret reveals topics without advancing an answer")
 		await _shot("topics_zh_"+str(dims.x))
 		await _click("CloseDialogue")
+		await create_timer(0.24).timeout
 		_check(not is_instance_valid(game.modal),"visible cross returns scene without Esc")
 		for language:String in ["zh","en"]:
 			game._dialogue("june_arlen","placeholder")
 			var line:String="小镇窗边的旧地址并没有消失。你看见的每一条记录，都来自确实发生过的交谈；我们还需要核实门牌和收到信的人。".repeat(5) if language=="zh" else "The old address by the town window has not disappeared. Each record is something somebody actually witnessed; we must still ask who lived behind that door, and who can receive this letter. ".repeat(4)
 			game.modal.configure("邮局 · 很长的姓名" if language=="zh" else "A resident with a long name",line,[],"CHAR_courier","CHAR_june")
-			await process_frame;await process_frame;await process_frame
+			await _wait_dialogue_ready()
+			game.modal.set_text_rate(0.0)
 			var spoken:RichTextLabel=game.modal.find_child("SpokenLine",true,false)
 			var leaf:Control=game.modal.find_child("DialogueLeaf",true,false)
 			_check(leaf.get_rect().encloses(spoken.get_rect()),"wrapped text stays inside physical paper "+language)
 			_check(spoken.scroll_active or spoken.get_content_height()<=spoken.size.y,"long text is fully reachable "+language)
 			await _shot("long_"+language+"_"+str(dims.x))
 			await _key(KEY_ESCAPE)
+			await create_timer(0.24).timeout
 			_check(not is_instance_valid(game.modal),"Esc returns from long paper "+language)
 		game.queue_free();await process_frame;await process_frame
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -53,6 +64,11 @@ func _click(name:String)->void:
 func _key(code:Key)->void:
 	for down:bool in [true,false]:
 		var e:=InputEventKey.new();e.keycode=code;e.pressed=down;root.push_input(e,true);await process_frame
+func _wait_dialogue_ready()->void:
+	var deadline:=Time.get_ticks_msec()+1800
+	while is_instance_valid(game.modal) and bool(game.modal.get("_entering")) and Time.get_ticks_msec()<deadline:
+		await process_frame
+		await create_timer(0.02).timeout
 func _shot(name:String)->void:
 	await process_frame;RenderingServer.force_draw(false)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
