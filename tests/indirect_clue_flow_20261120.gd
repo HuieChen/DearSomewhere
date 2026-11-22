@@ -25,8 +25,9 @@ func run()->void:
     var item:Dictionary=host.campaign.journey.event("grandmother")
     var step:Dictionary=host.campaign.journey.current_step("grandmother")
     var lead:String=host.campaign._lead_for(item,step)
-    check(lead=="一封写着你名字的信，被压在桌面更深处。","event lead is indirect")
+    check(lead=="信封底下还压着一张旧便签。上面只写着：先看信，再问人。","event lead is concrete")
     check(not lead.contains("邮局"),"event lead avoids location answer")
+    check(not lead.contains("答案"),"event lead avoids generated meta language")
     host.campaign.journey.state.intro_seen=true
     host._post_office_room()
     await create_timer(.1).timeout
@@ -38,7 +39,8 @@ func run()->void:
     if satchel!=null:
         for label:Label in satchel.find_children("*","Label",true,false):joined+=label.text+"\n"
         for body:RichTextLabel in satchel.find_children("*","RichTextLabel",true,false):joined+=body.text+"\n"
-    check(joined.contains("留在纸角上的一句话"),"satchel uses physical lead heading")
+    check(joined.contains("信封底下还压着一张旧便签"),"satchel shows a physical lead")
+    check(not joined.contains("这不是答案"),"satchel avoids meta instruction")
     check(not joined.contains("外婆留给 Anne 的信"),"satchel hides event title")
     check(not joined.contains("信封正反面"),"satchel hides step title")
     check(not joined.contains("邮局工作桌"),"satchel hides target location")
