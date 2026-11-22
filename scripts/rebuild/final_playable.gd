@@ -490,10 +490,8 @@ func _fresh() -> void:
 		_briefing_pending=false
 		_show_save_problem(_tr("暂时无法准备新旅程，请稍后重试。","The new journey could not be prepared. Please try again."),draft_error)
 		return
-	sound.play("paper")
-	# Starting a new journey is the one deliberate loading moment. The supplied
-	# centered figure and progress caption stay visible before the counter is
-	# revealed; short in-game swaps retain the scene crossfade.
+	# Keep a short authored loading passage, then land directly in the supplied
+	# postal interior, where the authored Mossner conversation opens next.
 	busy=true
 	var fade:=preload("res://scripts/ui/scene_passage.gd").new()
 	fade.sound=sound
@@ -502,11 +500,14 @@ func _fresh() -> void:
 	await fade.cover(true)
 	if not is_inside_tree():return
 	campaign.begin_arrival()
-	fade.set_progress(0.82)
-	await fade.uncover(true)
+	# The supplied loading card only covers the scene change. Reveal the room
+	# as soon as it is ready instead of holding the player on a progress meter.
+	fade.set_progress(1.0)
+	await fade.uncover(false)
 	if is_instance_valid(fade):remove_child(fade);fade.queue_free()
 	busy=false
 	_briefing_pending=false
+	campaign.open_current.call_deferred()
 	if _window_close_deferred:_close_window_after_save.call_deferred()
 
 func _begin_briefing() -> void:

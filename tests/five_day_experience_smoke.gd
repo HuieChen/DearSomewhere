@@ -25,12 +25,7 @@ func run()->void:
     host.preferences.path="user://qa/five-day-experience/"+stamp+"/preferences.json"
     await settle()
     await click("NewShift");await wait_ready()
-    await click("PrologueNext");await settle(1)
-    verify(is_instance_valid(host.modal.letter.texture),"supplied envelope is visible in prologue")
-    await shot("arrival_envelope")
-    await click("PrologueNext");await settle(1)
-    await click("PrologueNext");await wait_ready()
-    verify(host.view=="post_office_room","arrival ends inside postal office")
+    verify(host.view=="post_office_room" and host.modal!=null and host.modal.name=="CampaignConversation","loading ends inside postal office with Mossner conversation")
     var token:String=host.campaign.journey.token()
     await key(KEY_ESCAPE)
     verify(host.campaign.journey.token()==token,"closing conversation does not deliver mail")

@@ -73,13 +73,20 @@ func sync_time()->void:
     host.core.state.minute=int(journey.state.minute)
 
 func begin_arrival()->void:
-    if journey.state.get("intro_seen",false):open_current();return
-    host.core.state.location="post_office";host._world("post_office")
-    var intro:=preload("res://scripts/campaign/arrival_prologue.gd").new()
-    host.modal=intro;UI.place(intro,host,Rect2(0,0,1600,900));intro.configure(host)
-    intro.finished.connect(func():
-        await host._change_scene(func():host._post_office_room())
-        open_current())
+    if journey.state.get("intro_seen",false):
+        host._post_office_room(int(journey.state.get("room",0)))
+        return
+    # The first playable moment is the supplied post-office interior. Keep the
+    # checkpoint fields for older saves, but do not route a new player through
+    # a staged envelope animation before the authored first conversation.
+    journey.state["intro_seen"]=true
+    journey.state["intro_turn"]=2
+    host.core.state.location="post_office"
+    host._post_office_room()
+    if not persist():
+        journey.state["intro_seen"]=false
+        host._show_save_problem(journey.last_error)
+        return
 
 func setup(value:Control)->void:
     host=value
@@ -102,7 +109,7 @@ func resume()->bool:
     if journey.state.get("exploration") is Dictionary:host.core.state=journey.state.exploration.duplicate(true)
     sync_time()
     if not journey.state.get("intro_seen",false):
-        begin_arrival();return true
+        begin_arrival();open_current.call_deferred();return true
     if journey.state.get("view")=="postal_loft":_build_loft()
     elif journey.state.get("view","post_office_room")=="world":
         var destination:String=journey.state.location
@@ -233,10 +240,19 @@ func _talk(current:Dictionary)->void:
             turns.append({"speaker":str(current.speaker),"speaker_en":str(EN_SPEAKERS.get(str(current.speaker),current.speaker)),"zh":"","en":"This part of the conversation is still being translated."})
         else:
             for text:String in lines:turns.append({"speaker":str(current.speaker),"zh":text})
+    var grouped:Array=[]
     for turn:Dictionary in turns:
+        var language_is_english:bool=host.preferences.values.language=="en"
+        var speaker_key:=str(turn.get("speaker_en",EN_SPEAKERS.get(str(turn.speaker),turn.speaker))) if language_is_english else str(turn.speaker)
+        var source_text:=str(turn.get("en","")) if language_is_english else str(turn.get("zh",turn.get("text","")))
+        if not grouped.is_empty() and str(grouped.back().speaker)==speaker_key:
+            grouped.back().text+="\n"+source_text
+        else:
+            grouped.append({"speaker":speaker_key,"text":source_text})
+    for turn:Dictionary in grouped:
         var english:bool=host.preferences.values.language=="en"
-        var text:String=str(turn.get("en","")) if english else str(turn.get("zh",turn.get("text","")))
-        var person:String=str(turn.get("speaker_en",EN_SPEAKERS.get(str(turn.speaker),turn.speaker))) if english else str(turn.speaker)
+        var text:String=str(turn.text)
+        var person:String=str(turn.speaker)
         if english and (_contains_cjk(text) or text.strip_edges().is_empty()):
             text="This part of the conversation is still being translated."
         if english and _contains_cjk(person):person="Narrator"

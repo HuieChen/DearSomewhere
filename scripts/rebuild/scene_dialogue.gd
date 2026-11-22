@@ -258,11 +258,13 @@ func _fit_spoken_line(spoken) -> void:
 	await get_tree().process_frame
 	if not is_instance_valid(spoken) or _showing_choices:return
 	# Actual wrapped glyph bounds drive the paper height, not character-count guesses.
-	var height:=maxf(PAPER_HEIGHT,clampf(float(spoken.get_content_height())+124.0,230.0,330.0))
+	# The text rectangle is a fraction of the paper image. Size the paper from
+	# the measured glyph height so the full paragraph remains visible.
+	var height:=maxf(PAPER_HEIGHT,clampf(float(spoken.get_content_height())/0.48+120.0,230.0,700.0))
 	_leaf.position.y=900-height;_leaf.size.y=height
 	_align_paper_controls()
 	spoken.position=_paper_point(Vector2(250,210))
-	spoken.size=Vector2(2100,280)/PAPER_SOURCE_SIZE*_leaf.size
+	spoken.size=Vector2(2100,360)/PAPER_SOURCE_SIZE*_leaf.size
 	spoken.scroll_active=float(spoken.get_content_height())>spoken.size.y
 func _text_button(text:String,rect:Rect2) -> Button:
 	var button:=Button.new();button.text=text;button.flat=true

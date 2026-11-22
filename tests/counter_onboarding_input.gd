@@ -7,17 +7,15 @@ func _run() -> void:
 		root.content_scale_mode=Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 		host=Host.new();root.add_child(host);host.size=Vector2(1600,900)
 		host.core.save_path="user://qa/onboarding/"+str(Time.get_ticks_usec())+".json"
+		host.campaign.journey.path="user://qa/onboarding/"+str(Time.get_ticks_usec())+"-campaign.json"
 		host._title()
 		await process_frame
 		await _named("NewShift")
-		await _wait(func():return _node("FinishBriefing")!=null,"supervisor appears")
-		await process_frame;await process_frame
-		var spoken: RichTextLabel=_node("SpokenLine")
-		_check(spoken.text.length()<120,"first conversation gives one concise investigation purpose")
-		_check(spoken.get_content_height()<=spoken.size.y,"opening NPC line fits without hidden scrolling")
-		if dimensions.x==1920:await _shot("onboarding_supervisor_1920")
+		await _wait(func(): return not host.busy and host.view == "post_office_room","loading finishes at the postal interior")
+		await _wait(func(): return _node("CloseDialogue") != null,"Mossner conversation opens after loading")
 		await _named("CloseDialogue")
-		_check(not host.busy and not is_instance_valid(host.modal),"visible cross ends briefing without shortcuts")
+		await _wait(func(): return not is_instance_valid(host.modal),"Mossner conversation finishes closing")
+		_check(not host.busy and not is_instance_valid(host.modal),"closing Mossner conversation leaves the room ready")
 		await _enter_counter_from_room()
 		var lid_point:=_desk_point((_desk_snapshot().rects.lid as Rect2).get_center())
 		await _click(lid_point)

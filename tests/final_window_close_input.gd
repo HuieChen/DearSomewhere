@@ -36,12 +36,12 @@ func _prepare_real_close() -> void:
 		# native X-click fixture hidden from the supported desktop controller.
 		root.hide();root.position=Vector2i(120,80);root.show()
 	host=Host.new();root.add_child(host);host.size=Vector2(1600,900)
+	if not close_save.is_empty():host.campaign.journey.path=close_save.get_basename()+"-campaign.json"
 	_check(not close_save.is_empty() and not close_ready.is_empty(),"isolated save and report destinations supplied")
 	if not failures.is_empty():_write_ready({});quit(1);return
 	await process_frame
 	await _named("NewShift")
-	await _wait(func():return _node("FinishBriefing")!=null,"short supervisor briefing appears")
-	await _named("FinishBriefing")
+	await _wait(func(): return not host.busy and host.view == "post_office_room","loading finishes at the postal interior")
 	await _enter_counter_from_room()
 	await _named("Mail_case01")
 	if not is_instance_valid(host.modal):_check(false,"actual box take opens workbench");_write_ready({});quit(1);return

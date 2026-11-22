@@ -1,7 +1,7 @@
 extends RefCounted
 ## Source-authored text only. No postal actions, evidence or campaign writes.
 const PATH := "res://data/dialogue/supplied_20261116.json"
-const MAX_PAGE_CHARACTERS := 52
+const MAX_PAGE_CHARACTERS := 90
 static var _data: Dictionary = {}
 
 static func catalog() -> Dictionary:
@@ -38,11 +38,10 @@ static func paginate(lines: Array) -> Array:
 	var result: Array = []
 	for line: Dictionary in lines:
 		var remaining := str(line.text)
-		# Two handwritten lines fit the authored notebook at every supported
-		# window scale; long source passages continue on the next paper page.
+		# Keep a complete thought on the page whenever punctuation allows it.
 		while remaining.length() > MAX_PAGE_CHARACTERS:
 			var cut := MAX_PAGE_CHARACTERS
-			for i in range(MAX_PAGE_CHARACTERS-1, 23, -1):
+			for i in range(MAX_PAGE_CHARACTERS-1, 34, -1):
 				if remaining[i] in ["。", "！", "？", "，", "；", "\n", ".", "!", "?", ",", ";", " "]:
 					cut = i + 1
 					break
