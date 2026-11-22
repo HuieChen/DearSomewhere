@@ -162,17 +162,17 @@ try {
     Get-ChildItem (Join-Path $taskRepo "assets/fonts/handwriting") -File | Where-Object { $_.Extension -in @(".txt", ".json") } | Copy-Item -Destination (Join-Path $taskLicenses "Handwriting") -Force
     $taskPlayerReadme = @(
         'Dear Somewhere',
-        '双击 DearSomewhere.exe。当前为五日流程可玩版，使用现有与占位美术。',
-        'WASD / 方向键 / 点地面行走；可使用地图、相机、照片包和已开放的居民互动。',
-        'Esc 返回或暂停，F11 切换全屏；设置页可调整音量与显示。',
-        '新旅程从第一封信开始；B 查看当前信件，J 查看已获得的记录，M 展开地图。',
-        '每天的工作完成后，从邮局右侧上二楼，整理遗物并点击床休息。天色按剧情推进，无倒计时。',
-        'R 打开录音机；录下场景声音，停止后保存，可从背包回听。',
-        '五日主线包含送信、核对、封装、装箱、做饭、写信；棋摊有可随时离开的五子棋。',
-        '过渡台词、物件插图、二楼插图与演出录音仍可替换，不代表最终叙事与美术验收。',
-        '沿用 Godot 用户目录下 一百信 · Solmere Post 的存档位置。',
-        '字体、声音、引擎与新生成美术的许可及来源说明见 Licenses。',
-        '本地构建不等于参考验收、真人试玩或商业发行审核已经完成。'
+        'Launch DearSomewhere.exe for the five-day playable flow.',
+        'Use WASD, arrow keys, or click-to-walk. Map, camera, photo pack and opened resident interactions are available.',
+        'Esc returns or pauses. F11 toggles fullscreen. Settings controls audio and display.',
+        'Start a new journey from the first letter. B opens the current letter, J opens records, and M opens the map.',
+        'After the daily work, go upstairs from the right side of the post office, arrange the keepsakes and rest at the bed.',
+        'R opens the recorder. Stop to save a recording; saved recordings can be replayed from the bag.',
+        'The five-day route includes delivery, checking, sealing, packing, cooking and letter writing.',
+        'Placeholder art and transitional dialogue remain replaceable; this package is not final narrative or art approval.',
+        'Save data uses the existing Godot user directory for Dear Somewhere.',
+        'License and provenance notes are in Licenses.',
+        'A local build is not a substitute for native playtest, reference review or release approval.'
     )
     $taskPlayerReadme | Set-Content -LiteralPath (Join-Path $taskDestination '开始游玩.txt') -Encoding utf8
     Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $taskDestination 'DearSomewhere.exe'),(Join-Path $taskDestination 'DearSomewhere.pck') | Format-Table
