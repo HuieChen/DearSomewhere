@@ -34,9 +34,8 @@ func install_pet_regions()->void:
 		add_child(button)
 		var landmark:String={"FountainDog":"statue","BookCat":"bookstore"}.get(entry[0],"")
 		if not landmark.is_empty():
-			button.mouse_entered.connect(func():_hovered_destination=get_node_or_null("Map_"+landmark);queue_redraw())
-			button.mouse_exited.connect(func():
-				if is_instance_valid(_hovered_destination) and str(_hovered_destination.name)=="Map_"+landmark:_hovered_destination=null;queue_redraw())
+			button.mouse_entered.connect(func():_sync_pointer_hover(get_viewport().get_mouse_position()))
+			button.mouse_exited.connect(func():_sync_pointer_hover(get_viewport().get_mouse_position()))
 		button.pressed.connect(func():
 			var host:=_host()
 			if host!=null and not host.busy:host.sound.play(str(entry[1])))
@@ -75,6 +74,19 @@ var target_index:=0
 var _hub_phase:=0.0
 var route_progress:=0.0:
 	set(value):route_progress=value;queue_redraw()
+
+func _sync_pointer_hover(viewport_point:Vector2)->void:
+	# Button enter/exit signals can arrive after the pointer has already crossed
+	# into another building. Resolve against the current screen position so a
+	# stale signal cannot restore the previous destination caption.
+	var resolved:=_hotspot_at(viewport_point)
+	if resolved==_hovered_destination:return
+	_hovered_destination=resolved
+	_last_pointer_position=viewport_point
+	_pointer_still=0.0
+	_keyboard_navigation=false
+	queue_redraw()
+
 func _ready()->void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
 	_caption=Label.new();_caption.name="MapDestinationCaption"
@@ -106,9 +118,8 @@ func _focus_destination()->void:
 	for child in get_children():
 		if child is Button and str(child.name).begins_with("Map_"):
 			child.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
-			child.mouse_entered.connect(func():_hovered_destination=child;queue_redraw())
-			child.mouse_exited.connect(func():
-				if _hovered_destination==child:_hovered_destination=null;queue_redraw())
+			child.mouse_entered.connect(func():_sync_pointer_hover(get_viewport().get_mouse_position()))
+			child.mouse_exited.connect(func():_sync_pointer_hover(get_viewport().get_mouse_position()))
 			child.button_down.connect(func():_pressed_destination=child;queue_redraw())
 			child.button_up.connect(func():_pressed_destination=null;queue_redraw())
 			if first==null:first=child
@@ -156,8 +167,7 @@ func _input(event:InputEvent)->void:
 		if event.position!=_last_pointer_position:
 			if _last_pointer_position.distance_to(event.position)>4.0:_pointer_still=0.0
 			_last_pointer_position=event.position
-			var resolved:=_hotspot_at(event.position)
-			if resolved!=_hovered_destination:_hovered_destination=resolved
+			_sync_pointer_hover(event.position)
 			_keyboard_navigation=false
 			queue_redraw()
 	elif event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
